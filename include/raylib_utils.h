@@ -67,7 +67,7 @@ class SpriteGroup
 public:
 
     virtual ~SpriteGroup();
-    virtual void Draw() const;
+    virtual void Draw(RenderTexture2D surface) const;
     void Update(double deltaTime);
     std::vector<SimpleSprite *> sprites;
     std::vector<SimpleSprite *> to_delete;

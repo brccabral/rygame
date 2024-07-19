@@ -54,12 +54,16 @@ void TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-void SpriteGroup::Draw() const
+SpriteGroup::~SpriteGroup() = default;
+
+void SpriteGroup::Draw(const RenderTexture2D surface) const
 {
+    BeginTextureModeSafe(surface);
     for (const auto *sprite: sprites)
     {
         sprite->Draw({0, 0});
     }
+    EndTextureModeSafe();
 }
 
 void SpriteGroup::Update(const double deltaTime)
