@@ -10,6 +10,15 @@ extern "C"
 {
 #endif
 
+    /*
+      display_surface
+      In your game, init with
+          `display_surface = LoadRenderTexture(width, height);
+          while (!IsRenderTextureReady(display_surface))
+          {}`
+     */
+    inline RenderTexture2D display_surface;
+
     // Warns if there is a render already active
     void BeginTextureModeSafe(const RenderTexture2D &render); // Resets active render
     void EndTextureModeSafe();
