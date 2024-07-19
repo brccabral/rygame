@@ -1,7 +1,8 @@
+#include "raylib_utils.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include "raylib_utils.h"
-
+#include <raymath.h>
 
 int current_render = 0;
 
@@ -51,4 +52,91 @@ void TextFormatSafe(char *buffer, const char *format, ...)
         char *truncBuffer = buffer + MAX_TEXT_BUFFER_LENGTH - 4; // Adding 4 bytes = "...\0"
         sprintf(truncBuffer, "...");
     }
+}
+
+void SpriteGroup::Draw() const
+{
+    for (const auto *sprite: sprites)
+    {
+        sprite->Draw({0, 0});
+    }
+}
+
+void SpriteGroup::Update(const double deltaTime)
+{
+    for (auto *sprite: sprites)
+    {
+        sprite->Update(deltaTime);
+    }
+    if (!to_delete.empty())
+    {
+        for (const auto *sprite: to_delete)
+        {
+            delete sprite;
+        }
+        to_delete.clear();
+    }
+}
+
+SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
+{
+    for (auto *sprite_group: sprite_groups)
+    {
+        groups.push_back(sprite_group);
+        sprite_group->sprites.push_back(this);
+    }
+}
+
+// the TMX images are unloaded in ~Game()::UnloadTMX
+// if the sub class has its own render/texture, override
+// the sub class destructor and unload it there
+SimpleSprite::~SimpleSprite() = default;
+
+void SimpleSprite::Draw(const Vector2 offset) const
+{
+    const Vector2 pos = Vector2Add(rect.pos, offset);
+
+    if (image.texture)
+    {
+        DrawTextureRec(*image.texture, image.rect.rectangle, pos, WHITE);
+    }
+    else
+    {
+        DrawRectangle(pos.x, pos.y, rect.width, rect.height, BLACK);
+    }
+}
+
+void SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
+{
+    if (groups.empty())
+    {
+        return;
+    }
+    for (const auto group: groups)
+    {
+        if (group != sprite_group)
+        {
+            group->sprites.erase(std::remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+        }
+    }
+}
+
+void SimpleSprite::Kill()
+{
+    // we add to another vector `to_delete` to delay the deletition to after
+    // all group sprites Update(dt)
+    if (!groups.empty())
+    {
+        groups[0]->to_delete.push_back(this);
+    }
+    for (const auto group: groups)
+    {
+        group->sprites.erase(std::remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+    }
+    groups.clear();
+}
+
+void SimpleSprite::FlipH()
+{
+    image.rect.width = -image.rect.width;
 }

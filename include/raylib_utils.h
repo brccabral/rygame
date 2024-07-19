@@ -1,5 +1,6 @@
 #pragma once
 #include <raylib.h>
+#include <vector>
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024
@@ -36,3 +37,57 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+typedef union RectangleU
+{
+    struct
+    {
+        Vector2 pos, size;
+    };
+    struct
+    {
+        Rectangle rectangle;
+    };
+    struct
+    {
+        float x, y, width, height;
+    };
+} RectangleU;
+
+typedef struct TiledTexture
+{
+    Texture2D *texture; // the atlas image
+    RectangleU rect; // this rect is the rect inside the atlas, not the position of an obj on the map
+} TiledTexture;
+
+class SimpleSprite;
+
+class SpriteGroup
+{
+public:
+
+    virtual ~SpriteGroup();
+    virtual void Draw() const;
+    void Update(double deltaTime);
+    std::vector<SimpleSprite *> sprites;
+    std::vector<SimpleSprite *> to_delete;
+};
+
+class SimpleSprite
+{
+public:
+
+    explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
+    virtual ~SimpleSprite();
+
+    virtual void Draw(Vector2 offset) const;
+    virtual void Update(double deltaTime){};
+    void LeaveOtherGroups(const SpriteGroup *sprite_group);
+    virtual void Kill();
+    virtual void FlipH();
+
+    RectangleU rect{}; // world position
+    TiledTexture image{}; // contains texture atlas, and atlas position
+    std::vector<SpriteGroup *> groups;
+    bool killed{};
+};
