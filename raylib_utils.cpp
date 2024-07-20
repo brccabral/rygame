@@ -165,6 +165,9 @@ Surface::Surface(const int width, const int height)
     }
     // RenderTexture draws textures upside-down
     rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
+
+    // make sure surface is blank before drawing anything
+    Fill(BLANK);
 }
 
 Surface::~Surface()
