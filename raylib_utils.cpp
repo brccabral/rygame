@@ -106,9 +106,9 @@ void SimpleSprite::Draw(const Vector2 offset) const
 {
     const Vector2 pos = Vector2Add(rect.pos, offset);
 
-    if (image.texture)
+    if (image && image->Texture())
     {
-        DrawTextureRec(*image.texture, image.rect.rectangle, pos, WHITE);
+        DrawTextureRec(*image->Texture(), image->rect.rectangle, pos, WHITE);
     }
     else
     {
@@ -148,12 +148,15 @@ void SimpleSprite::Kill()
 
 void SimpleSprite::FlipH()
 {
-    image.rect.width = -image.rect.width;
+    image->rect.width = -image->rect.width;
 }
 
 Surface::Surface(const int width, const int height)
 {
     render_texture = LoadRenderTexture(width, height);
+    while (!IsRenderTextureReady(render_texture))
+    {}
+    rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
 }
 
 Surface::~Surface()
@@ -169,7 +172,12 @@ void Surface::Fill(const Color color) const
 
 RectangleU Surface::GetRect() const
 {
-    return {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
+    return rect;
+}
+
+Texture2D *Surface::Texture()
+{
+    return &render_texture.texture;
 }
 
 Vector2 GetRectCenter(const RectangleU rect)

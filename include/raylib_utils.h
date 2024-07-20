@@ -84,27 +84,21 @@ extern "C"
 }
 #endif
 
-typedef union RectangleU
+class Surface
 {
-    struct
-    {
-        Vector2 pos, size;
-    };
-    struct
-    {
-        Rectangle rectangle;
-    };
-    struct
-    {
-        float x, y, width, height;
-    };
-} RectangleU;
+public:
 
-typedef struct TiledTexture
-{
-    Texture2D *texture; // the atlas image
-    RectangleU rect; // this rect is the rect inside the atlas, not the position of an obj on the map
-} TiledTexture;
+    Surface(int width, int height);
+    ~Surface();
+    void Fill(Color color) const;
+    RectangleU GetRect() const;
+    Texture2D *Texture();
+    RectangleU rect; // atlas position
+
+private:
+
+    RenderTexture2D render_texture; // atlas texture
+};
 
 class SimpleSprite;
 
@@ -115,8 +109,8 @@ public:
     virtual ~SpriteGroup();
     virtual void Draw(RenderTexture2D surface) const;
     void Update(double deltaTime);
-    std::vector<SimpleSprite *> sprites;
-    std::vector<SimpleSprite *> to_delete;
+    std::vector<SimpleSprite *> sprites{};
+    std::vector<SimpleSprite *> to_delete{};
 };
 
 class SimpleSprite
@@ -134,21 +128,6 @@ public:
     virtual void FlipH();
 
     RectangleU rect{}; // world position
-    TiledTexture image{}; // contains texture atlas, and atlas position
+    Surface *image = nullptr;
     std::vector<SpriteGroup *> groups;
-    bool killed{};
-};
-
-class Surface
-{
-public:
-
-    Surface(int width, int height);
-    ~Surface();
-    void Fill(Color color) const;
-    RectangleU GetRect() const;
-
-private:
-
-    RenderTexture2D render_texture{};
 };
