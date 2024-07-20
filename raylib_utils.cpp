@@ -163,7 +163,8 @@ Surface::Surface(const int width, const int height)
     {
         TraceLog(LOG_ERROR, "Could not load render_texture");
     }
-    rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
+    // RenderTexture draws textures upside-down
+    rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
 }
 
 Surface::~Surface()
@@ -186,7 +187,8 @@ void Surface::Blit(const Texture2D &texture, const Vector2 pos) const
 
 RectangleU Surface::GetRect() const
 {
-    return rect;
+    // RenderTexture draws textures upside-down
+    return {0, 0, rect.width, -rect.height};
 }
 
 Texture2D *Surface::Texture()
