@@ -22,6 +22,23 @@ typedef union RectangleU
     };
 } RectangleU;
 
+class Surface
+{
+public:
+
+    Surface(int width, int height);
+    ~Surface();
+    void Fill(Color color) const;
+    void Blit(const Texture2D &texture, Vector2 pos = {0, 0}) const;
+    RectangleU GetRect() const;
+    Texture2D *Texture();
+    RectangleU rect; // atlas position
+
+private:
+
+    RenderTexture2D render_texture; // atlas texture
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -83,25 +100,12 @@ extern "C"
     Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs);
     Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs);
     Vector2 operator*(const Vector2 &lhs, float scale);
+
+    std::vector<Surface *> ImportFolder(const char *path);
+
 #ifdef __cplusplus
 }
 #endif
-
-class Surface
-{
-public:
-
-    Surface(int width, int height);
-    ~Surface();
-    void Fill(Color color) const;
-    RectangleU GetRect() const;
-    Texture2D *Texture();
-    RectangleU rect; // atlas position
-
-private:
-
-    RenderTexture2D render_texture; // atlas texture
-};
 
 class SimpleSprite;
 

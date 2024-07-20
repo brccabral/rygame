@@ -2,7 +2,10 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <raymath.h>
+
+using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
 int current_render = 0;
 
@@ -170,6 +173,13 @@ void Surface::Fill(const Color color) const
     EndTextureModeSafe();
 }
 
+void Surface::Blit(const Texture2D &texture, const Vector2 pos) const
+{
+    BeginTextureModeSafe(render_texture);
+    DrawTextureV(texture, pos, WHITE);
+    EndTextureModeSafe();
+}
+
 RectangleU Surface::GetRect() const
 {
     return rect;
@@ -278,4 +288,21 @@ Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs)
     lhs.x += rhs.x;
     lhs.y += rhs.y;
     return lhs;
+}
+
+std::vector<Surface *> ImportFolder(const char *path)
+{
+    std::vector<Surface *> surfaces;
+    for (const auto &dirEntry: recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        Texture2D texture = LoadTexture(entryPath.c_str());
+
+        auto *surface = new Surface(texture.width, texture.height);
+        surface->Blit(texture);
+        surfaces.push_back(surface);
+
+        UnloadTexture(texture);
+    }
+    return surfaces;
 }
