@@ -80,6 +80,9 @@ extern "C"
     // move rectangle's top-right to position
     void RectToTopRight(RectangleU &rect, Vector2 pos);
 
+    Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs);
+    Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs);
+    Vector2 operator*(const Vector2 &lhs, float scale);
 #ifdef __cplusplus
 }
 #endif
@@ -108,7 +111,7 @@ public:
 
     virtual ~SpriteGroup();
     virtual void Draw(RenderTexture2D surface) const;
-    void Update(double deltaTime);
+    void Update(const float deltaTime);
     std::vector<SimpleSprite *> sprites{};
     std::vector<SimpleSprite *> to_delete{};
 };
@@ -122,7 +125,7 @@ public:
     virtual ~SimpleSprite();
 
     virtual void Draw(Vector2 offset) const;
-    virtual void Update(double deltaTime){};
+    virtual void Update(float deltaTime){};
     void LeaveOtherGroups(const SpriteGroup *sprite_group);
     virtual void Kill();
     virtual void FlipH();

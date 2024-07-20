@@ -66,7 +66,7 @@ void SpriteGroup::Draw(const RenderTexture2D surface) const
     EndTextureModeSafe();
 }
 
-void SpriteGroup::Update(const double deltaTime)
+void SpriteGroup::Update(const float deltaTime)
 {
     for (auto *sprite: sprites)
     {
@@ -261,4 +261,21 @@ void RectToTopRight(RectangleU &rect, const Vector2 pos)
 {
     rect.x = pos.x - rect.width;
     rect.y = pos.y;
+}
+
+Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs)
+{
+    return Vector2Add(lhs, rhs);
+}
+
+Vector2 operator*(const Vector2 &lhs, const float scale)
+{
+    return Vector2Scale(lhs, scale);
+}
+
+Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs)
+{
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
 }
