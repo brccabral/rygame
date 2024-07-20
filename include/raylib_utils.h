@@ -77,7 +77,8 @@ class SimpleSprite
 {
 public:
 
-    explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
+    explicit SimpleSprite(SpriteGroup *sprite_group);
+    explicit SimpleSprite(const std::vector<SpriteGroup *> *sprite_groups);
     virtual ~SimpleSprite();
 
     virtual void Draw(Vector2 offset) const;
