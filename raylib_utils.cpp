@@ -171,3 +171,86 @@ RectangleU Surface::GetRect() const
 {
     return {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
 }
+
+Vector2 GetRectCenter(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y + rect.height / 2};
+}
+
+Vector2 GetRectMidBottom(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y + rect.height};
+}
+
+Vector2 GetRectMidTop(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y};
+}
+
+Vector2 GetRectMidLeft(const RectangleU rect)
+{
+    return {rect.x, rect.y + rect.height / 2};
+}
+
+Vector2 GetRectMidRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y + rect.height / 2};
+}
+
+Vector2 GetRectTopLeft(const RectangleU rect)
+{
+    // return {rect.x, rect.y};
+    return rect.pos;
+}
+
+Vector2 GetRectTopRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y};
+}
+
+Vector2 GetRectBottomLeft(const RectangleU rect)
+{
+    return {rect.x, rect.y + rect.height};
+}
+
+Vector2 GetRectBottomRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y + rect.height};
+}
+
+void RectToCenter(RectangleU &rect, const Vector2 pos)
+{
+    rect.x = pos.x - rect.width / 2;
+    rect.y = pos.y - rect.height / 2;
+}
+
+void RectToMidBottom(RectangleU &rect, const Vector2 pos)
+{
+    rect.x = pos.x - rect.width / 2;
+    rect.y = pos.y - rect.height;
+}
+
+void RectToMidLeft(RectangleU &rect, const Vector2 pos)
+{
+    rect.x = pos.x;
+    rect.y = pos.y - rect.height / 2;
+}
+
+void RectToBottomLeft(RectangleU &rect, const Vector2 pos)
+{
+    rect.x = pos.x;
+    rect.y = pos.y - rect.height;
+}
+
+void RectToTopLeft(RectangleU &rect, const Vector2 pos)
+{
+    // rect.x = pos.x;
+    // rect.y = pos.y;
+    rect.pos = pos;
+}
+
+void RectToTopRight(RectangleU &rect, const Vector2 pos)
+{
+    rect.x = pos.x - rect.width;
+    rect.y = pos.y;
+}

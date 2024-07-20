@@ -6,6 +6,22 @@
 #define MAX_TEXT_BUFFER_LENGTH 1024
 #endif
 
+typedef union RectangleU
+{
+    struct
+    {
+        Vector2 pos, size;
+    };
+    struct
+    {
+        Rectangle rectangle;
+    };
+    struct
+    {
+        float x, y, width, height;
+    };
+} RectangleU;
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -33,6 +49,36 @@ extern "C"
     // buffer max size is defined by MAX_TEXT_BUFFER_LENGTH
     void TextFormatSafe(char *buffer, const char *format, ...);
 
+    // Returns center of rectangle
+    Vector2 GetRectCenter(RectangleU rect);
+    // Returns mid-bottom of rectangle
+    Vector2 GetRectMidBottom(RectangleU rect);
+    // Returns mid-top of rectangle
+    Vector2 GetRectMidTop(RectangleU rect);
+    // Returns mid-left of rectangle
+    Vector2 GetRectMidLeft(RectangleU rect);
+    // Returns mid-right of rectangle
+    Vector2 GetRectMidRight(RectangleU rect);
+    // Returns top-left of rectangle
+    Vector2 GetRectTopLeft(RectangleU rect);
+    // Returns top-right of rectangle
+    Vector2 GetRectTopRight(RectangleU rect);
+    // Returns bottom-left of rectangle
+    Vector2 GetRectBottomLeft(RectangleU rect);
+    // Returns bottom-right of rectangle
+    Vector2 GetRectBottomRight(RectangleU rect);
+    // move rectangle's center to position
+    void RectToCenter(RectangleU &rect, Vector2 pos);
+    // move rectangle's mid-bottom to position
+    void RectToMidBottom(RectangleU &rect, Vector2 pos);
+    // move rectangle's mid-left to position
+    void RectToMidLeft(RectangleU &rect, Vector2 pos);
+    // move rectangle's bottom-left to position
+    void RectToBottomLeft(RectangleU &rect, Vector2 pos);
+    // move rectangle's top-left to position
+    void RectToTopLeft(RectangleU &rect, Vector2 pos);
+    // move rectangle's top-right to position
+    void RectToTopRight(RectangleU &rect, Vector2 pos);
 
 #ifdef __cplusplus
 }
