@@ -92,3 +92,17 @@ public:
     std::vector<SpriteGroup *> groups;
     bool killed{};
 };
+
+class Surface
+{
+public:
+
+    Surface(int width, int height);
+    ~Surface();
+    void Fill(Color color) const;
+    RectangleU GetRect() const;
+
+private:
+
+    RenderTexture2D render_texture{};
+};

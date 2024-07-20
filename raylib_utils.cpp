@@ -150,3 +150,24 @@ void SimpleSprite::FlipH()
 {
     image.rect.width = -image.rect.width;
 }
+
+Surface::Surface(const int width, const int height)
+{
+    render_texture = LoadRenderTexture(width, height);
+}
+
+Surface::~Surface()
+{
+    UnloadRenderTexture(render_texture);
+}
+
+void Surface::Fill(const Color color) const
+{
+    BeginTextureModeC(render_texture, color);
+    EndTextureModeSafe();
+}
+
+RectangleU Surface::GetRect() const
+{
+    return {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
+}
