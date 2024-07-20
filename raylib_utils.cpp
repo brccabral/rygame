@@ -157,8 +157,12 @@ void SimpleSprite::FlipH()
 Surface::Surface(const int width, const int height)
 {
     render_texture = LoadRenderTexture(width, height);
-    while (!IsRenderTextureReady(render_texture))
-    {}
+    // IsRenderTextureReady does not retry nor waits for RenderTexture to be ready
+    // in fact, it checks if it has an Id, Width and Height
+    if (!IsRenderTextureReady(render_texture))
+    {
+        TraceLog(LOG_ERROR, "Could not load render_texture");
+    }
     rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
 }
 
