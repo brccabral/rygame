@@ -296,6 +296,13 @@ Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs)
     return lhs;
 }
 
+Vector2 &operator-=(Vector2 &lhs, const Vector2 &rhs)
+{
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
+}
+
 std::vector<Surface *> ImportFolder(const char *path)
 {
     std::vector<Surface *> surfaces;

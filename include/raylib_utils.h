@@ -104,6 +104,7 @@ extern "C"
 
     Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs);
     Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs);
+    Vector2 &operator-=(Vector2 &lhs, const Vector2 &rhs);
     Vector2 operator*(const Vector2 &lhs, float scale);
 
     std::vector<Surface *> ImportFolder(const char *path);
@@ -140,11 +141,11 @@ public:
     virtual void Kill();
     virtual void FlipH();
 
+    unsigned int z = 0; // in 2D games, used to sort the drawing order
+
     RectangleU rect{}; // world position
     Surface *image = nullptr;
-    std::vector<SpriteGroup *> groups;
-
-    unsigned int z; // in 2D games, used to sort the drawing order
+    std::vector<SpriteGroup *> groups{};
 };
 
 class Timer
