@@ -104,13 +104,7 @@ SimpleSprite::~SimpleSprite()
     {
         delete image;
     }
-    else
-    {
-        DrawRectangle(pos.x, pos.y, rect.width, rect.height, BLACK);
-    }
 }
-}
-
 
 void SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
 {

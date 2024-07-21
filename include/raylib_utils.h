@@ -135,7 +135,6 @@ public:
     explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
     virtual ~SimpleSprite();
 
-    virtual void Draw(Vector2 offset) const;
     virtual void Update(float deltaTime){};
     void LeaveOtherGroups(const SpriteGroup *sprite_group);
     virtual void Kill();
