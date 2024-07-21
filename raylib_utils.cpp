@@ -59,14 +59,12 @@ void TextFormatSafe(char *buffer, const char *format, ...)
 
 SpriteGroup::~SpriteGroup() = default;
 
-void SpriteGroup::Draw(const RenderTexture2D surface) const
+void SpriteGroup::Draw(Surface *surface)
 {
-    BeginTextureModeSafe(surface);
     for (const auto *sprite: sprites)
     {
-        sprite->Draw({0, 0});
+        surface->Blit(sprite->image, sprite->rect.pos);
     }
-    EndTextureModeSafe();
 }
 
 void SpriteGroup::Update(const float deltaTime)
@@ -164,7 +162,7 @@ Surface::Surface(const int width, const int height)
         TraceLog(LOG_ERROR, "Could not load render_texture");
     }
     // RenderTexture draws textures upside-down
-    rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
+    rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
 
     // make sure surface is blank before drawing anything
     Fill(BLANK);
@@ -181,22 +179,33 @@ void Surface::Fill(const Color color) const
     EndTextureModeSafe();
 }
 
-void Surface::Blit(const Texture2D &texture, const Vector2 pos) const
+void Surface::Blit(Surface *surface, const Vector2 offset) const
 {
     BeginTextureModeSafe(render_texture);
-    DrawTextureV(texture, pos, WHITE);
+    DrawTextureRec(*surface->Texture(), {0, 0, surface->rect.width, -surface->rect.height}, offset, WHITE);
     EndTextureModeSafe();
 }
 
 RectangleU Surface::GetRect() const
 {
     // RenderTexture draws textures upside-down
-    return {0, 0, rect.width, -rect.height};
+    return {0, 0, rect.width, rect.height};
 }
 
 Texture2D *Surface::Texture()
 {
     return &render_texture.texture;
+}
+
+Surface *Surface::Load(const char *path)
+{
+    const Texture2D texture = LoadTexture(path);
+    auto *surface = new Surface(texture.width, texture.height);
+    BeginTextureModeSafe(surface->render_texture);
+    DrawTextureV(texture, {0, 0}, WHITE);
+    EndTextureModeSafe();
+    UnloadTexture(texture);
+    return surface;
 }
 
 Vector2 GetRectCenter(const RectangleU rect)
@@ -305,13 +314,8 @@ std::vector<Surface *> ImportFolder(const char *path)
     for (const auto &dirEntry: recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
-        Texture2D texture = LoadTexture(entryPath.c_str());
-
-        auto *surface = new Surface(texture.width, texture.height);
-        surface->Blit(texture);
+        auto *surface = Surface::Load(entryPath.c_str());
         surfaces.push_back(surface);
-
-        UnloadTexture(texture);
     }
     return surfaces;
 }

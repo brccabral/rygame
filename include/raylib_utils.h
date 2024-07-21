@@ -30,9 +30,12 @@ public:
     Surface(int width, int height);
     ~Surface();
     void Fill(Color color) const;
-    void Blit(const Texture2D &texture, Vector2 pos = {0, 0}) const;
-    RectangleU GetRect() const;
+    void Blit(Surface *surface, Vector2 offset = {0, 0}) const;
+    [[nodiscard]] RectangleU GetRect() const;
     Texture2D *Texture();
+
+    static Surface *Load(const char *path);
+
     RectangleU rect; // atlas position
 
 private:
@@ -52,7 +55,7 @@ extern "C"
           while (!IsRenderTextureReady(display_surface))
           {}`
      */
-    inline RenderTexture2D display_surface;
+    inline Surface *display_surface;
 
     // Warns if there is a render already active
     void BeginTextureModeSafe(const RenderTexture2D &render); // Resets active render
@@ -115,8 +118,8 @@ class SpriteGroup
 public:
 
     virtual ~SpriteGroup();
-    virtual void Draw(RenderTexture2D surface) const;
-    void Update(const float deltaTime);
+    virtual void Draw(Surface *surface);
+    void Update(float deltaTime);
     std::vector<SimpleSprite *> sprites{};
     std::vector<SimpleSprite *> to_delete{};
 };
