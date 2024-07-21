@@ -31,12 +31,13 @@ public:
     ~Surface();
     void Fill(Color color) const;
     void Blit(Surface *surface, Vector2 offset = {0, 0}) const;
+    // Returns the size of the Surface, not the atlas position
     [[nodiscard]] RectangleU GetRect() const;
     Texture2D *Texture();
 
     static Surface *Load(const char *path);
 
-    RectangleU rect; // atlas position
+    RectangleU atlas_rect; // atlas position
 
 private:
 

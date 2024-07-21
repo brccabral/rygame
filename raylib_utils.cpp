@@ -149,7 +149,7 @@ void SimpleSprite::Kill()
 
 void SimpleSprite::FlipH()
 {
-    image->rect.width = -image->rect.width;
+    image->atlas_rect.width = -image->atlas_rect.width;
 }
 
 Surface::Surface(const int width, const int height)
@@ -162,7 +162,7 @@ Surface::Surface(const int width, const int height)
         TraceLog(LOG_ERROR, "Could not load render_texture");
     }
     // RenderTexture draws textures upside-down
-    rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
+    atlas_rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
 
     // make sure surface is blank before drawing anything
     Fill(BLANK);
@@ -182,14 +182,13 @@ void Surface::Fill(const Color color) const
 void Surface::Blit(Surface *surface, const Vector2 offset) const
 {
     BeginTextureModeSafe(render_texture);
-    DrawTextureRec(*surface->Texture(), {0, 0, surface->rect.width, -surface->rect.height}, offset, WHITE);
+    DrawTextureRec(*surface->Texture(), {0, 0, surface->atlas_rect.width, -surface->atlas_rect.height}, offset, WHITE);
     EndTextureModeSafe();
 }
 
 RectangleU Surface::GetRect() const
 {
-    // RenderTexture draws textures upside-down
-    return {0, 0, rect.width, rect.height};
+    return {0, 0, atlas_rect.width, atlas_rect.height};
 }
 
 Texture2D *Surface::Texture()
