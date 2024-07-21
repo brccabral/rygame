@@ -143,6 +143,8 @@ public:
     RectangleU rect{}; // world position
     Surface *image = nullptr;
     std::vector<SpriteGroup *> groups;
+
+    unsigned int z; // in 2D games, used to sort the drawing order
 };
 
 class Timer
