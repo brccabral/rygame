@@ -129,8 +129,10 @@ class SimpleSprite
 {
 public:
 
-    explicit SimpleSprite(SpriteGroup *sprite_group);
-    explicit SimpleSprite(const std::vector<SpriteGroup *> *sprite_groups);
+    // Pass group by reference because the sprite does not own the group
+    explicit SimpleSprite(SpriteGroup &sprite_group);
+    // Pass group by reference because the sprite does not own the group
+    explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
     virtual ~SimpleSprite();
 
     virtual void Draw(Vector2 offset) const;

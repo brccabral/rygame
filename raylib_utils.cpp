@@ -83,15 +83,15 @@ void SpriteGroup::Update(const float deltaTime)
     }
 }
 
-SimpleSprite::SimpleSprite(SpriteGroup *sprite_group)
+SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
 {
-    groups.push_back(sprite_group);
-    sprite_group->sprites.push_back(this);
+    groups.push_back(&sprite_group);
+    sprite_group.sprites.push_back(this);
 }
 
-SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> *sprite_groups)
+SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
 {
-    for (auto *sprite_group: *sprite_groups)
+    for (auto *sprite_group: sprite_groups)
     {
         groups.push_back(sprite_group);
         sprite_group->sprites.push_back(this);
