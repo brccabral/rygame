@@ -98,24 +98,19 @@ SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
     }
 }
 
-// the TMX images are unloaded in ~Game()::UnloadTMX
-// if the sub class has its own render/texture, override
-// the sub class destructor and unload it there
-SimpleSprite::~SimpleSprite() = default;
-
-void SimpleSprite::Draw(const Vector2 offset) const
+SimpleSprite::~SimpleSprite()
 {
-    const Vector2 pos = Vector2Add(rect.pos, offset);
-
-    if (image && image->Texture())
+    if (image)
     {
-        DrawTextureRec(*image->Texture(), image->rect.rectangle, pos, WHITE);
+        delete image;
     }
     else
     {
         DrawRectangle(pos.x, pos.y, rect.width, rect.height, BLACK);
     }
 }
+}
+
 
 void SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
 {
