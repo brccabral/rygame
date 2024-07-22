@@ -293,6 +293,14 @@ void RectToTopRight(RectangleU &rect, const Vector2 pos)
     rect.y = pos.y;
 }
 
+void RectInflate(RectangleU &rect, const float width, const float height)
+{
+    const Vector2 oldCenter = GetRectCenter(rect);
+    rect.width += width;
+    rect.height += height;
+    RectToCenter(rect, oldCenter);
+}
+
 Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs)
 {
     return Vector2Add(lhs, rhs);
