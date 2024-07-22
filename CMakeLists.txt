@@ -6,6 +6,7 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(raylib REQUIRED)
+find_package(raylib-tmx REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 

@@ -175,6 +175,13 @@ void Surface::Blit(Surface *surface, const Vector2 offset) const
     EndTextureModeSafe();
 }
 
+void Surface::Blit(const Texture2D *texture, const Vector2 offset) const
+{
+    BeginTextureModeSafe(render_texture);
+    DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) -texture->height}, offset, WHITE);
+    EndTextureModeSafe();
+}
+
 RectangleU Surface::GetRect() const
 {
     return {0, 0, atlas_rect.width, atlas_rect.height};
@@ -356,4 +363,56 @@ void Timer::Update()
             func();
         }
     }
+}
+
+TileInfo GetTMXTileInfo(const tmx_tile *tile, const int posX, const int posY)
+{
+    TileInfo tile_info{};
+    const tmx_image *im = tile->image;
+    const Texture2D *map_texture = nullptr;
+
+    tile_info.position = {float(posX), float(posY)};
+
+    RectangleU srcRect;
+    srcRect.x = tile->ul_x;
+    srcRect.y = tile->ul_y;
+    srcRect.width = tile->width;
+    srcRect.height = tile->height;
+
+    tile_info.surface = new Surface(srcRect.width, srcRect.height);
+
+    if (im && im->resource_image)
+    {
+        map_texture = (Texture2D *) im->resource_image;
+    }
+    else if (tile->tileset->image->resource_image)
+    {
+        map_texture = (Texture2D *) tile->tileset->image->resource_image;
+    }
+    if (map_texture)
+    {
+        tile_info.surface->Blit(map_texture);
+    }
+    return tile_info;
+}
+
+Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
+{
+    auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
+    for (unsigned int y = 0; y < map->height; y++)
+    {
+        for (unsigned int x = 0; x < map->width; x++)
+        {
+            const unsigned int baseGid = layer->content.gids[(y * map->width) + x];
+            const unsigned int gid = (baseGid) &TMX_FLIP_BITS_REMOVAL;
+            if (map->tiles[gid])
+            {
+                const tmx_tileset *ts = map->tiles[gid]->tileset;
+                auto [position, tileSurface] = GetTMXTileInfo(map->tiles[gid], x * ts->tile_width, y * ts->tile_height);
+                surface->Blit(tileSurface, position);
+                delete tileSurface;
+            }
+        }
+    }
+    return surface;
 }

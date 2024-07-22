@@ -1,7 +1,8 @@
 #pragma once
 #include <functional>
-#include <raylib.h>
 #include <vector>
+#include <raylib.h>
+#include <raylib-tmx.h>
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024
@@ -31,6 +32,7 @@ public:
     ~Surface();
     void Fill(Color color) const;
     void Blit(Surface *surface, Vector2 offset = {0, 0}) const;
+    void Blit(const Texture2D *texture, Vector2 offset = {0, 0}) const;
     // Returns the size of the Surface, not the atlas position
     [[nodiscard]] RectangleU GetRect() const;
     Texture2D *Texture();
@@ -42,6 +44,12 @@ public:
 private:
 
     RenderTexture2D render_texture; // atlas texture
+};
+
+struct TileInfo
+{
+    Vector2 position;
+    Surface *surface;
 };
 
 #ifdef __cplusplus
@@ -108,6 +116,9 @@ extern "C"
     Vector2 operator*(const Vector2 &lhs, float scale);
 
     std::vector<Surface *> ImportFolder(const char *path);
+
+    TileInfo GetTMXTileInfo(const tmx_tile *tile, int posX, int posY);
+    Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer);
 
 #ifdef __cplusplus
 }
