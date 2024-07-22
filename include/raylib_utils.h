@@ -258,3 +258,9 @@ typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
 {
     return order_.end();
 }
+
+enum Axis
+{
+    HORIZONTAL = 0,
+    VERTICAL
+};
