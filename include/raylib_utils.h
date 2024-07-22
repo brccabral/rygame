@@ -191,21 +191,60 @@ private:
     double start_time{};
 };
 
+template<typename K, typename V>
 class InsertOrderMap
 {
 public:
 
     InsertOrderMap() = default;
-    InsertOrderMap(std::initializer_list<std::string> init);
+    InsertOrderMap(std::initializer_list<std::pair<K, V>> init);
 
-    void insert(const std::string &key);
-    unsigned int &operator[](const std::string &key);
-    std::list<std::pair<std::string, unsigned int>>::iterator begin();
-    std::list<std::pair<std::string, unsigned int>>::iterator end();
+    void insert(const K &key, const V &value);
+    V &operator[](const K &key);
+    typename std::list<std::pair<K, V>>::iterator begin();
+    typename std::list<std::pair<K, V>>::iterator end();
 
 private:
 
-    unsigned int current;
-    std::list<std::pair<std::string, unsigned int>> order_;
-    std::unordered_map<std::string, unsigned int> map_;
+    std::list<std::pair<K, V>> order_;
+    std::unordered_map<K, V> map_;
 };
+
+// template<> classes must have definitions in .h files
+// due to specialization during executable compilation->linking
+template<typename K, typename V>
+InsertOrderMap<K, V>::InsertOrderMap(const std::initializer_list<std::pair<K, V>> init)
+{
+    for (auto &[key, value]: init)
+    {
+        insert(key, value);
+    }
+}
+
+template<typename K, typename V>
+void InsertOrderMap<K, V>::insert(const K &key, const V &value)
+{
+    if (map_.find(key) == map_.end())
+    {
+        order_.emplace_back(key, value);
+    }
+    map_[key] = value;
+}
+
+template<typename K, typename V>
+V &InsertOrderMap<K, V>::operator[](const K &key)
+{
+    return map_[key];
+}
+
+template<typename K, typename V>
+typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::begin()
+{
+    return order_.begin();
+}
+
+template<typename K, typename V>
+typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
+{
+    return order_.end();
+}

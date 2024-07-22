@@ -433,35 +433,3 @@ Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
     }
     return surface;
 }
-
-InsertOrderMap::InsertOrderMap(const std::initializer_list<std::string> init)
-{
-    for (auto &key: init)
-    {
-        insert(key);
-    }
-}
-
-void InsertOrderMap::insert(const std::string &key)
-{
-    if (map_.find(key) == map_.end())
-    {
-        order_.emplace_back(key, current);
-    }
-    map_[key] = current++;
-}
-
-unsigned int &InsertOrderMap::operator[](const std::string &key)
-{
-    return map_[key];
-}
-
-std::list<std::pair<std::string, unsigned int>>::iterator InsertOrderMap::begin()
-{
-    return order_.begin();
-}
-
-std::list<std::pair<std::string, unsigned int>>::iterator InsertOrderMap::end()
-{
-    return order_.end();
-}
