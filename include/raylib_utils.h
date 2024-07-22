@@ -134,12 +134,15 @@ extern "C"
 
 class SimpleSprite;
 
+// Manages multiple sprites at once
 class SpriteGroup
 {
 public:
 
     virtual ~SpriteGroup();
+    // Draw all sprites into surface
     virtual void Draw(Surface *surface);
+    // Updates all sprites
     void Update(float deltaTime);
     std::vector<SimpleSprite *> sprites{};
     std::vector<SimpleSprite *> to_delete{};
@@ -157,16 +160,20 @@ public:
 
     virtual void Update(float deltaTime){};
     void LeaveOtherGroups(const SpriteGroup *sprite_group);
+    // removes sprite from group and mark for deletion
     virtual void Kill();
+    // Flip Horizontally (-width)
     virtual void FlipH();
 
     unsigned int z = 0; // in 2D games, used to sort the drawing order
 
     RectangleU rect{}; // world position
     Surface *image = nullptr;
-    std::vector<SpriteGroup *> groups{};
+    std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
 };
 
+// Remains active for certain duration, can repeat once it is done, can autostart
+// and calls a func at the end. Remember to call Update() on every frame
 class Timer
 {
 public:
@@ -193,6 +200,7 @@ private:
     double start_time{};
 };
 
+// Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
 template<typename K, typename V>
 class InsertOrderMap
 {
