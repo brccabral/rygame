@@ -117,7 +117,11 @@ extern "C"
 
     std::vector<Surface *> ImportFolder(const char *path);
 
+    // get the tile image from the tileset
     Surface *GetTMXTileSurface(const tmx_tile *tile);
+    // get a vector with tile info (position on the layer and surface image)
+    std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer);
+    // merges all tiles into one single surface image
     Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer);
 
 #ifdef __cplusplus

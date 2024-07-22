@@ -400,9 +400,9 @@ Surface *GetTMXTileSurface(const tmx_tile *tile)
     return surface;
 }
 
-Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
+std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer)
 {
-    auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
+    std::vector<TileInfo> tiles{};
     for (unsigned int y = 0; y < map->height; y++)
     {
         for (unsigned int x = 0; x < map->width; x++)
@@ -413,10 +413,23 @@ Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
             {
                 const tmx_tileset *ts = map->tiles[gid]->tileset;
                 auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
-                surface->Blit(tileSurface, {(float) x * ts->tile_width, (float) y * ts->tile_height});
-                delete tileSurface;
+                Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
+                TileInfo tile_info = {pos, tileSurface};
+                tiles.push_back(tile_info);
             }
         }
+    }
+    return tiles;
+}
+
+Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
+{
+    auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
+    std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
+    for (auto &[position, surface]: tiles)
+    {
+        surface->Blit(surface, position);
+        delete surface;
     }
     return surface;
 }
