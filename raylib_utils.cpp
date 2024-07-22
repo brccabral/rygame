@@ -426,10 +426,10 @@ Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
 {
     auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
     std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
-    for (auto &[position, surface]: tiles)
+    for (auto &[position, tileSurface]: tiles)
     {
-        surface->Blit(surface, position);
-        delete surface;
+        surface->Blit(tileSurface, position);
+        delete tileSurface;
     }
     return surface;
 }
