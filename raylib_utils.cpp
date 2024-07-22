@@ -151,7 +151,7 @@ Surface::Surface(const int width, const int height)
         TraceLog(LOG_ERROR, "Could not load render_texture");
     }
     // RenderTexture draws textures upside-down
-    atlas_rect = {0, 0, (float) render_texture.texture.width, (float) render_texture.texture.height};
+    atlas_rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
 
     // make sure surface is blank before drawing anything
     Fill(BLANK);
@@ -171,20 +171,27 @@ void Surface::Fill(const Color color) const
 void Surface::Blit(Surface *surface, const Vector2 offset) const
 {
     BeginTextureModeSafe(render_texture);
-    DrawTextureRec(*surface->Texture(), {0, 0, surface->atlas_rect.width, -surface->atlas_rect.height}, offset, WHITE);
+    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, WHITE);
     EndTextureModeSafe();
 }
 
-void Surface::Blit(const Texture2D *texture, const Vector2 offset) const
+void Surface::Blit(const Texture2D *texture, const Vector2 offset, const RectangleU area) const
 {
     BeginTextureModeSafe(render_texture);
-    DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) -texture->height}, offset, WHITE);
+    if (area.height)
+    {
+        DrawTextureRec(*texture, area.rectangle, offset, WHITE);
+    }
+    else
+    {
+        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) texture->height}, offset, WHITE);
+    }
     EndTextureModeSafe();
 }
 
 RectangleU Surface::GetRect() const
 {
-    return {0, 0, atlas_rect.width, atlas_rect.height};
+    return {0, 0, abs(atlas_rect.width), abs(atlas_rect.height)};
 }
 
 Texture2D *Surface::Texture()
@@ -365,21 +372,18 @@ void Timer::Update()
     }
 }
 
-TileInfo GetTMXTileInfo(const tmx_tile *tile, const int posX, const int posY)
+Surface *GetTMXTileSurface(const tmx_tile *tile)
 {
-    TileInfo tile_info{};
+    auto *surface = new Surface(tile->width, tile->height);
+
     const tmx_image *im = tile->image;
     const Texture2D *map_texture = nullptr;
-
-    tile_info.position = {float(posX), float(posY)};
 
     RectangleU srcRect;
     srcRect.x = tile->ul_x;
     srcRect.y = tile->ul_y;
     srcRect.width = tile->width;
     srcRect.height = tile->height;
-
-    tile_info.surface = new Surface(srcRect.width, srcRect.height);
 
     if (im && im->resource_image)
     {
@@ -391,9 +395,9 @@ TileInfo GetTMXTileInfo(const tmx_tile *tile, const int posX, const int posY)
     }
     if (map_texture)
     {
-        tile_info.surface->Blit(map_texture);
+        surface->Blit(map_texture, {}, srcRect);
     }
-    return tile_info;
+    return surface;
 }
 
 Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
@@ -408,8 +412,8 @@ Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
             if (map->tiles[gid])
             {
                 const tmx_tileset *ts = map->tiles[gid]->tileset;
-                auto [position, tileSurface] = GetTMXTileInfo(map->tiles[gid], x * ts->tile_width, y * ts->tile_height);
-                surface->Blit(tileSurface, position);
+                auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
+                surface->Blit(tileSurface, {(float) x * ts->tile_width, (float) y * ts->tile_height});
                 delete tileSurface;
             }
         }

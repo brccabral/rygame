@@ -32,7 +32,7 @@ public:
     ~Surface();
     void Fill(Color color) const;
     void Blit(Surface *surface, Vector2 offset = {0, 0}) const;
-    void Blit(const Texture2D *texture, Vector2 offset = {0, 0}) const;
+    void Blit(const Texture2D *texture, Vector2 offset = {0, 0}, RectangleU area = {}) const;
     // Returns the size of the Surface, not the atlas position
     [[nodiscard]] RectangleU GetRect() const;
     Texture2D *Texture();
@@ -117,7 +117,7 @@ extern "C"
 
     std::vector<Surface *> ImportFolder(const char *path);
 
-    TileInfo GetTMXTileInfo(const tmx_tile *tile, int posX, int posY);
+    Surface *GetTMXTileSurface(const tmx_tile *tile);
     Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer);
 
 #ifdef __cplusplus
