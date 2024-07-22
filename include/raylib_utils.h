@@ -1,8 +1,10 @@
 #pragma once
 #include <functional>
+#include <list>
 #include <vector>
 #include <raylib.h>
 #include <raylib-tmx.h>
+#include <string>
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024
@@ -187,4 +189,23 @@ private:
     bool autostart;
     std::function<void()> func;
     double start_time{};
+};
+
+class InsertOrderMap
+{
+public:
+
+    InsertOrderMap() = default;
+    InsertOrderMap(std::initializer_list<std::string> init);
+
+    void insert(const std::string &key);
+    unsigned int &operator[](const std::string &key);
+    std::list<std::pair<std::string, unsigned int>>::iterator begin();
+    std::list<std::pair<std::string, unsigned int>>::iterator end();
+
+private:
+
+    unsigned int current;
+    std::list<std::pair<std::string, unsigned int>> order_;
+    std::unordered_map<std::string, unsigned int> map_;
 };
