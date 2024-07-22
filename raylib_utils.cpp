@@ -83,6 +83,15 @@ void SpriteGroup::Update(const float deltaTime)
     }
 }
 
+void SpriteGroup::DeleteAll()
+{
+    for (auto *sprite: sprites)
+    {
+        sprite->LeaveOtherGroups(this);
+        delete sprite;
+    }
+}
+
 SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
 {
     groups.push_back(&sprite_group);

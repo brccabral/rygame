@@ -144,6 +144,9 @@ public:
     virtual void Draw(Surface *surface);
     // Updates all sprites
     void Update(float deltaTime);
+    // Deletes all sprites, removing them from other groups
+    void DeleteAll();
+
     std::vector<SimpleSprite *> sprites{};
     std::vector<SimpleSprite *> to_delete{};
 };
