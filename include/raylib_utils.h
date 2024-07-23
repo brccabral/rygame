@@ -162,7 +162,7 @@ public:
     virtual ~SimpleSprite();
 
     virtual void Update(float deltaTime){};
-    void LeaveOtherGroups(const SpriteGroup *sprite_group);
+    virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
     // removes sprite from group and mark for deletion
     virtual void Kill();
     // Flip Horizontally (-width)
