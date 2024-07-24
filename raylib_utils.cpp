@@ -426,6 +426,11 @@ rg::Surface *rg::display::SetMode(const int width, const int height)
     return display_surface;
 }
 
+void rg::display::SetCaption(const char *title)
+{
+    rl::SetWindowTitle(title);
+}
+
 rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);

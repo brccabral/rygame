@@ -217,7 +217,8 @@ namespace rg
     namespace display
     {
         Surface *SetMode(int width, int height);
-    }
+        void SetCaption(const char *title);
+    } // namespace display
 
 } // namespace rg
 
