@@ -42,9 +42,6 @@ public:
     static Surface *Load(const char *path);
 
     RectangleU atlas_rect; // atlas position
-
-private:
-
     RenderTexture2D render_texture; // atlas texture
 };
 
@@ -267,3 +264,10 @@ enum Axis
     HORIZONTAL = 0,
     VERTICAL
 };
+
+// Raygame Namespace
+namespace rg
+{
+    void DrawRect(const Surface *surface, Color color, RectangleU rect, float lineThick = 0.0f);
+    void DrawCirc(const Surface *surface, Color color, Vector2 center, float radius, float lineThick = 0.0f);
+} // namespace rg

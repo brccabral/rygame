@@ -389,6 +389,34 @@ void Timer::Update()
     }
 }
 
+void rg::DrawRect(const Surface *surface, const Color color, const RectangleU rect, const float lineThick)
+{
+    BeginTextureModeSafe(surface->render_texture);
+    if (lineThick > 0)
+    {
+        DrawRectangleLinesEx(rect.rectangle, lineThick, color);
+    }
+    else if (lineThick == 0)
+    {
+        DrawRectangleV(rect.pos, rect.size, color);
+    }
+    EndTextureModeSafe();
+}
+
+void rg::DrawCirc(const Surface *surface, Color color, Vector2 center, float radius, float lineThick)
+{
+    BeginTextureModeSafe(surface->render_texture);
+    if (lineThick > 0)
+    {
+        DrawCircleLinesV(center, radius, color);
+    }
+    else if (lineThick == 0)
+    {
+        DrawCircleV(center, radius, color);
+    }
+    EndTextureModeSafe();
+}
+
 Surface *GetTMXTileSurface(const tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);
