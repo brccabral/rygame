@@ -1,47 +1,40 @@
 #include "raylib_utils.h"
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-#include <filesystem>
-#include <raymath.h>
-
-using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
 int current_render = 0;
 
-void BeginTextureModeSafe(const RenderTexture2D &render)
+void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
     if (current_render > 0)
     {
         char text[MAX_TEXT_BUFFER_LENGTH];
         TextFormatSafe(text, "Double call to BeginTextureMode(), previous id %i new id %i", current_render, render.id);
-        TraceLog(LOG_WARNING, text);
+        TraceLog(rl::LOG_WARNING, text);
     }
     current_render = render.id;
     BeginTextureMode(render);
 }
 
-void EndTextureModeSafe()
+void rg::EndTextureModeSafe()
 {
     current_render = 0;
-    EndTextureMode();
+    rl::EndTextureMode();
 }
 
-void BeginTextureModeC(const RenderTexture2D &render, const Color color)
+void rg::BeginTextureModeC(const rl::RenderTexture2D &render, const rl::Color color)
 {
     BeginTextureModeSafe(render);
     ClearBackground(color); // remove old memory
 }
 
-void BeginDrawingC(const Color color)
+void rg::BeginDrawingC(const rl::Color color)
 {
-    BeginDrawing();
+    rl::BeginDrawing();
     ClearBackground(color);
 }
 
-void TextFormatSafe(char *buffer, const char *format, ...)
+void rg::TextFormatSafe(char *buffer, const char *format, ...)
 {
-    std::memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH); // Clear buffer before using
+    memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH); // Clear buffer before using
 
     va_list args;
     va_start(args, format);
@@ -57,9 +50,9 @@ void TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-SpriteGroup::~SpriteGroup() = default;
+rg::SpriteGroup::~SpriteGroup() = default;
 
-void SpriteGroup::Draw(Surface *surface)
+void rg::SpriteGroup::Draw(Surface *surface)
 {
     for (const auto *sprite: sprites)
     {
@@ -67,7 +60,7 @@ void SpriteGroup::Draw(Surface *surface)
     }
 }
 
-void SpriteGroup::Update(const float deltaTime)
+void rg::SpriteGroup::Update(const float deltaTime)
 {
     for (auto *sprite: sprites)
     {
@@ -83,7 +76,7 @@ void SpriteGroup::Update(const float deltaTime)
     }
 }
 
-void SpriteGroup::DeleteAll()
+void rg::SpriteGroup::DeleteAll()
 {
     for (auto *sprite: sprites)
     {
@@ -92,13 +85,13 @@ void SpriteGroup::DeleteAll()
     }
 }
 
-SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
+rg::SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
 {
     groups.push_back(&sprite_group);
     sprite_group.sprites.push_back(this);
 }
 
-SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
+rg::SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
 {
     for (auto *sprite_group: sprite_groups)
     {
@@ -107,7 +100,7 @@ SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
     }
 }
 
-SimpleSprite::~SimpleSprite()
+rg::SimpleSprite::~SimpleSprite()
 {
     if (image)
     {
@@ -115,7 +108,7 @@ SimpleSprite::~SimpleSprite()
     }
 }
 
-void SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
+void rg::SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
 {
     if (groups.empty())
     {
@@ -125,12 +118,12 @@ void SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
     {
         if (group != sprite_group)
         {
-            group->sprites.erase(std::remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+            group->sprites.erase(remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
         }
     }
 }
 
-void SimpleSprite::Kill()
+void rg::SimpleSprite::Kill()
 {
     // we add to another vector `to_delete` to delay the deletition to after
     // all group sprites Update(dt)
@@ -140,214 +133,216 @@ void SimpleSprite::Kill()
     }
     for (const auto group: groups)
     {
-        group->sprites.erase(std::remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+        group->sprites.erase(remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
     }
     groups.clear();
 }
 
-void SimpleSprite::FlipH()
+void rg::SimpleSprite::FlipH()
 {
     image->atlas_rect.width = -image->atlas_rect.width;
 }
 
-Surface::Surface(const int width, const int height)
+rg::Surface::Surface(const int width, const int height)
 {
-    render_texture = LoadRenderTexture(width, height);
+    render_texture = rl::LoadRenderTexture(width, height);
     // IsRenderTextureReady does not retry nor waits for RenderTexture to be ready
     // in fact, it checks if it has an Id, Width and Height
     if (!IsRenderTextureReady(render_texture))
     {
-        TraceLog(LOG_ERROR, "Could not load render_texture");
+        TraceLog(rl::LOG_ERROR, "Could not load render_texture");
     }
     // RenderTexture draws textures upside-down
     atlas_rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
 
     // make sure surface is blank before drawing anything
-    Fill(BLANK);
+    Fill(rl::BLANK);
 }
 
-Surface::~Surface()
+rg::Surface::~Surface()
 {
     UnloadRenderTexture(render_texture);
 }
 
-void Surface::Fill(const Color color) const
+void rg::Surface::Fill(const rl::Color color) const
 {
     BeginTextureModeC(render_texture, color);
     EndTextureModeSafe();
 }
 
-void Surface::Blit(Surface *surface, const Vector2 offset) const
+void rg::Surface::Blit(Surface *surface, const rl::Vector2 offset) const
 {
     BeginTextureModeSafe(render_texture);
-    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, WHITE);
+    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, rl::WHITE);
     EndTextureModeSafe();
 }
 
-void Surface::Blit(const Texture2D *texture, const Vector2 offset, const RectangleU area) const
+void rg::Surface::Blit(const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area) const
 {
     BeginTextureModeSafe(render_texture);
     if (area.height)
     {
-        DrawTextureRec(*texture, area.rectangle, offset, WHITE);
+        DrawTextureRec(*texture, area.rectangle, offset, rl::WHITE);
     }
     else
     {
-        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) texture->height}, offset, WHITE);
+        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) texture->height}, offset, rl::WHITE);
     }
     EndTextureModeSafe();
 }
 
-RectangleU Surface::GetRect() const
+rg::RectangleU rg::Surface::GetRect() const
 {
-    return {0, 0, abs(atlas_rect.width), abs(atlas_rect.height)};
+    const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
+    const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
+    return {0, 0, absWidth, absHeight};
 }
 
-Texture2D *Surface::Texture()
+rl::Texture2D *rg::Surface::Texture()
 {
     return &render_texture.texture;
 }
 
-Surface *Surface::Load(const char *path)
+rg::Surface *rg::Surface::Load(const char *path)
 {
-    const Texture2D texture = LoadTexture(path);
+    const rl::Texture2D texture = rl::LoadTexture(path);
     auto *surface = new Surface(texture.width, texture.height);
     BeginTextureModeSafe(surface->render_texture);
-    DrawTextureV(texture, {0, 0}, WHITE);
+    DrawTextureV(texture, {0, 0}, rl::WHITE);
     EndTextureModeSafe();
     UnloadTexture(texture);
     return surface;
 }
 
-Vector2 GetRectCenter(const RectangleU rect)
+rl::Vector2 rg::GetRectCenter(const RectangleU rect)
 {
     return {rect.x + rect.width / 2, rect.y + rect.height / 2};
 }
 
-Vector2 GetRectMidBottom(const RectangleU rect)
+rl::Vector2 rg::GetRectMidBottom(const RectangleU rect)
 {
     return {rect.x + rect.width / 2, rect.y + rect.height};
 }
 
-Vector2 GetRectMidTop(const RectangleU rect)
+rl::Vector2 rg::GetRectMidTop(const RectangleU rect)
 {
     return {rect.x + rect.width / 2, rect.y};
 }
 
-Vector2 GetRectMidLeft(const RectangleU rect)
+rl::Vector2 rg::GetRectMidLeft(const RectangleU rect)
 {
     return {rect.x, rect.y + rect.height / 2};
 }
 
-Vector2 GetRectMidRight(const RectangleU rect)
+rl::Vector2 rg::GetRectMidRight(const RectangleU rect)
 {
     return {rect.x + rect.width, rect.y + rect.height / 2};
 }
 
-Vector2 GetRectTopLeft(const RectangleU rect)
+rl::Vector2 rg::GetRectTopLeft(const RectangleU rect)
 {
     // return {rect.x, rect.y};
     return rect.pos;
 }
 
-Vector2 GetRectTopRight(const RectangleU rect)
+rl::Vector2 rg::GetRectTopRight(const RectangleU rect)
 {
     return {rect.x + rect.width, rect.y};
 }
 
-Vector2 GetRectBottomLeft(const RectangleU rect)
+rl::Vector2 rg::GetRectBottomLeft(const RectangleU rect)
 {
     return {rect.x, rect.y + rect.height};
 }
 
-Vector2 GetRectBottomRight(const RectangleU rect)
+rl::Vector2 rg::GetRectBottomRight(const RectangleU rect)
 {
     return {rect.x + rect.width, rect.y + rect.height};
 }
 
-void RectToCenter(RectangleU &rect, const Vector2 pos)
+void rg::RectToCenter(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x - rect.width / 2;
     rect.y = pos.y - rect.height / 2;
 }
 
-void RectToMidBottom(RectangleU &rect, const Vector2 pos)
+void rg::RectToMidBottom(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x - rect.width / 2;
     rect.y = pos.y - rect.height;
 }
 
-void RectToMidLeft(RectangleU &rect, const Vector2 pos)
+void rg::RectToMidLeft(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x;
     rect.y = pos.y - rect.height / 2;
 }
 
-void RectToBottomLeft(RectangleU &rect, const Vector2 pos)
+void rg::RectToBottomLeft(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x;
     rect.y = pos.y - rect.height;
 }
 
-void RectToTopLeft(RectangleU &rect, const Vector2 pos)
+void rg::RectToTopLeft(RectangleU &rect, const rl::Vector2 pos)
 {
     // rect.x = pos.x;
     // rect.y = pos.y;
     rect.pos = pos;
 }
 
-void RectToTopRight(RectangleU &rect, const Vector2 pos)
+void rg::RectToTopRight(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x - rect.width;
     rect.y = pos.y;
 }
 
-void RectInflate(RectangleU &rect, const float width, const float height)
+void rg::RectInflate(RectangleU &rect, const float width, const float height)
 {
-    const Vector2 oldCenter = GetRectCenter(rect);
+    const rl::Vector2 oldCenter = GetRectCenter(rect);
     rect.width += width;
     rect.height += height;
     RectToCenter(rect, oldCenter);
 }
 
-Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs)
+rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs)
 {
-    return Vector2Add(lhs, rhs);
+    return rl::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
 }
 
-Vector2 operator*(const Vector2 &lhs, const float scale)
+rl::Vector2 operator*(const rl::Vector2 &lhs, const float scale)
 {
-    return Vector2Scale(lhs, scale);
+    return rl::Vector2{lhs.x * scale, lhs.y * scale};
 }
 
-Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs)
+rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
 {
     lhs.x += rhs.x;
     lhs.y += rhs.y;
     return lhs;
 }
 
-Vector2 &operator-=(Vector2 &lhs, const Vector2 &rhs)
+rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
 {
     lhs.x -= rhs.x;
     lhs.y -= rhs.y;
     return lhs;
 }
 
-std::vector<Surface *> ImportFolder(const char *path)
+std::vector<rg::Surface *> rg::ImportFolder(const char *path)
 {
-    std::vector<Surface *> surfaces;
-    for (const auto &dirEntry: recursive_directory_iterator(path))
+    std::vector<rg::Surface *> surfaces;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
-        auto *surface = Surface::Load(entryPath.c_str());
+        auto *surface = rg::Surface::Load(entryPath.c_str());
         surfaces.push_back(surface);
     }
     return surfaces;
 }
 
 // duration is in seconds
-Timer::Timer(const float duration, const bool repeat, const bool autostart, const std::function<void()> &func)
+rg::Timer::Timer(const float duration, const bool repeat, const bool autostart, const std::function<void()> &func)
     : duration(duration), repeat(repeat), autostart(autostart), func(func)
 {
     if (autostart)
@@ -356,29 +351,29 @@ Timer::Timer(const float duration, const bool repeat, const bool autostart, cons
     }
 }
 
-void Timer::Activate()
+void rg::Timer::Activate()
 {
     active = true;
-    start_time = GetTime();
+    start_time = rl::GetTime();
 }
 
-void Timer::Deactivate()
+void rg::Timer::Deactivate()
 {
     active = false;
-    start_time = GetTime();
+    start_time = rl::GetTime();
     if (repeat)
     {
         Activate();
     }
 }
 
-void Timer::Update()
+void rg::Timer::Update()
 {
     if (!active)
     {
         return;
     }
-    const double currentTime = GetTime();
+    const double currentTime = rl::GetTime();
     if (currentTime - start_time >= duration)
     {
         Deactivate();
@@ -389,7 +384,7 @@ void Timer::Update()
     }
 }
 
-void rg::DrawRect(const Surface *surface, const Color color, const RectangleU rect, const float lineThick)
+void rg::DrawRect(const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
@@ -403,7 +398,7 @@ void rg::DrawRect(const Surface *surface, const Color color, const RectangleU re
     EndTextureModeSafe();
 }
 
-void rg::DrawCirc(const Surface *surface, Color color, Vector2 center, float radius, float lineThick)
+void rg::DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, float radius, float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
@@ -417,12 +412,12 @@ void rg::DrawCirc(const Surface *surface, Color color, Vector2 center, float rad
     EndTextureModeSafe();
 }
 
-Surface *GetTMXTileSurface(const tmx_tile *tile)
+rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);
 
-    const tmx_image *im = tile->image;
-    const Texture2D *map_texture = nullptr;
+    const rl::tmx_image *im = tile->image;
+    const rl::Texture2D *map_texture = nullptr;
 
     RectangleU srcRect;
     srcRect.x = tile->ul_x;
@@ -432,11 +427,11 @@ Surface *GetTMXTileSurface(const tmx_tile *tile)
 
     if (im && im->resource_image)
     {
-        map_texture = (Texture2D *) im->resource_image;
+        map_texture = (rl::Texture2D *) im->resource_image;
     }
     else if (tile->tileset->image->resource_image)
     {
-        map_texture = (Texture2D *) tile->tileset->image->resource_image;
+        map_texture = (rl::Texture2D *) tile->tileset->image->resource_image;
     }
     if (map_texture)
     {
@@ -445,7 +440,7 @@ Surface *GetTMXTileSurface(const tmx_tile *tile)
     return surface;
 }
 
-std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer)
+std::vector<rg::TileInfo> rg::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     std::vector<TileInfo> tiles{};
     for (unsigned int y = 0; y < map->height; y++)
@@ -456,9 +451,9 @@ std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer)
             const unsigned int gid = (baseGid) &TMX_FLIP_BITS_REMOVAL;
             if (map->tiles[gid])
             {
-                const tmx_tileset *ts = map->tiles[gid]->tileset;
+                const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
                 auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
-                Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
+                rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
                 TileInfo tile_info = {pos, tileSurface};
                 tiles.push_back(tile_info);
             }
@@ -467,7 +462,7 @@ std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer)
     return tiles;
 }
 
-Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer)
+rg::Surface *rg::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
     std::vector<TileInfo> tiles = GetTMXTiles(map, layer);

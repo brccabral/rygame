@@ -2,59 +2,72 @@
 #include <functional>
 #include <list>
 #include <vector>
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <cstdarg>
+#include <filesystem>
+
+namespace rl
+{
 #include <raylib.h>
 #include <raylib-tmx.h>
-#include <string>
+#include <raymath.h>
+} // namespace rl
+
+rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs);
+rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs);
+rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs);
+rl::Vector2 operator*(const rl::Vector2 &lhs, float scale);
+
+namespace rg
+{
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024
 #endif
 
-typedef union RectangleU
-{
-    struct
+    typedef union RectangleU
     {
-        Vector2 pos, size;
-    };
-    struct
+        struct
+        {
+            rl::Vector2 pos, size;
+        };
+        struct
+        {
+            rl::Rectangle rectangle;
+        };
+        struct
+        {
+            float x, y, width, height;
+        };
+    } RectangleU;
+
+    class Surface
     {
-        Rectangle rectangle;
+    public:
+
+        Surface(int width, int height);
+        ~Surface();
+        void Fill(rl::Color color) const;
+        void Blit(Surface *surface, rl::Vector2 offset = {0, 0}) const;
+        void Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {}) const;
+        // Returns the size of the Surface, not the atlas position
+        [[nodiscard]] RectangleU GetRect() const;
+        rl::Texture2D *Texture();
+
+        static Surface *Load(const char *path);
+
+        RectangleU atlas_rect; // atlas position
+        rl::RenderTexture2D render_texture; // atlas texture
     };
-    struct
+
+    struct TileInfo
     {
-        float x, y, width, height;
+        rl::Vector2 position;
+        Surface *surface;
     };
-} RectangleU;
-
-class Surface
-{
-public:
-
-    Surface(int width, int height);
-    ~Surface();
-    void Fill(Color color) const;
-    void Blit(Surface *surface, Vector2 offset = {0, 0}) const;
-    void Blit(const Texture2D *texture, Vector2 offset = {0, 0}, RectangleU area = {}) const;
-    // Returns the size of the Surface, not the atlas position
-    [[nodiscard]] RectangleU GetRect() const;
-    Texture2D *Texture();
-
-    static Surface *Load(const char *path);
-
-    RectangleU atlas_rect; // atlas position
-    RenderTexture2D render_texture; // atlas texture
-};
-
-struct TileInfo
-{
-    Vector2 position;
-    Surface *surface;
-};
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
     /*
       display_surface
@@ -66,12 +79,12 @@ extern "C"
     inline Surface *display_surface;
 
     // Warns if there is a render already active
-    void BeginTextureModeSafe(const RenderTexture2D &render); // Resets active render
+    void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
     void EndTextureModeSafe();
     // Starts a render with a Clear color
-    void BeginTextureModeC(const RenderTexture2D &render, Color color);
+    void BeginTextureModeC(const rl::RenderTexture2D &render, rl::Color color);
     // Starts drawing with a Clear color
-    void BeginDrawingC(Color color);
+    void BeginDrawingC(rl::Color color);
 
     // raylib has 4 buffers by default in TextFormat() - to add more, need to recompile raylib.
     // This function receives a buffer created by the application.
@@ -79,126 +92,126 @@ extern "C"
     void TextFormatSafe(char *buffer, const char *format, ...);
 
     // Returns center of rectangle
-    Vector2 GetRectCenter(RectangleU rect);
+    rl::Vector2 GetRectCenter(RectangleU rect);
     // Returns mid-bottom of rectangle
-    Vector2 GetRectMidBottom(RectangleU rect);
+    rl::Vector2 GetRectMidBottom(RectangleU rect);
     // Returns mid-top of rectangle
-    Vector2 GetRectMidTop(RectangleU rect);
+    rl::Vector2 GetRectMidTop(RectangleU rect);
     // Returns mid-left of rectangle
-    Vector2 GetRectMidLeft(RectangleU rect);
+    rl::Vector2 GetRectMidLeft(RectangleU rect);
     // Returns mid-right of rectangle
-    Vector2 GetRectMidRight(RectangleU rect);
+    rl::Vector2 GetRectMidRight(RectangleU rect);
     // Returns top-left of rectangle
-    Vector2 GetRectTopLeft(RectangleU rect);
+    rl::Vector2 GetRectTopLeft(RectangleU rect);
     // Returns top-right of rectangle
-    Vector2 GetRectTopRight(RectangleU rect);
+    rl::Vector2 GetRectTopRight(RectangleU rect);
     // Returns bottom-left of rectangle
-    Vector2 GetRectBottomLeft(RectangleU rect);
+    rl::Vector2 GetRectBottomLeft(RectangleU rect);
     // Returns bottom-right of rectangle
-    Vector2 GetRectBottomRight(RectangleU rect);
+    rl::Vector2 GetRectBottomRight(RectangleU rect);
     // move rectangle's center to position
-    void RectToCenter(RectangleU &rect, Vector2 pos);
+    void RectToCenter(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's mid-bottom to position
-    void RectToMidBottom(RectangleU &rect, Vector2 pos);
+    void RectToMidBottom(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's mid-left to position
-    void RectToMidLeft(RectangleU &rect, Vector2 pos);
+    void RectToMidLeft(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's bottom-left to position
-    void RectToBottomLeft(RectangleU &rect, Vector2 pos);
+    void RectToBottomLeft(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's top-left to position
-    void RectToTopLeft(RectangleU &rect, Vector2 pos);
+    void RectToTopLeft(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's top-right to position
-    void RectToTopRight(RectangleU &rect, Vector2 pos);
+    void RectToTopRight(RectangleU &rect, rl::Vector2 pos);
     // Increase/Decrease size of rect, keeping center position
     void RectInflate(RectangleU &rect, float width, float height);
-
-    Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs);
-    Vector2 &operator+=(Vector2 &lhs, const Vector2 &rhs);
-    Vector2 &operator-=(Vector2 &lhs, const Vector2 &rhs);
-    Vector2 operator*(const Vector2 &lhs, float scale);
 
     std::vector<Surface *> ImportFolder(const char *path);
 
     // get the tile image from the tileset
-    Surface *GetTMXTileSurface(const tmx_tile *tile);
+    Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
     // get a vector with tile info (position on the layer and surface image)
-    std::vector<TileInfo> GetTMXTiles(const tmx_map *map, const tmx_layer *layer);
+    std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
     // merges all tiles into one single surface image
-    Surface *GetTMXLayerSurface(const tmx_map *map, const tmx_layer *layer);
+    Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
 
-#ifdef __cplusplus
-}
-#endif
+    class SimpleSprite;
 
-class SimpleSprite;
+    // Manages multiple sprites at once
+    class SpriteGroup
+    {
+    public:
 
-// Manages multiple sprites at once
-class SpriteGroup
-{
-public:
+        virtual ~SpriteGroup();
+        // Draw all sprites into surface
+        virtual void Draw(Surface *surface);
+        // Updates all sprites
+        void Update(float deltaTime);
+        // Deletes all sprites, removing them from other groups
+        void DeleteAll();
 
-    virtual ~SpriteGroup();
-    // Draw all sprites into surface
-    virtual void Draw(Surface *surface);
-    // Updates all sprites
-    void Update(float deltaTime);
-    // Deletes all sprites, removing them from other groups
-    void DeleteAll();
+        std::vector<SimpleSprite *> sprites{};
+        std::vector<SimpleSprite *> to_delete{};
+    };
 
-    std::vector<SimpleSprite *> sprites{};
-    std::vector<SimpleSprite *> to_delete{};
-};
+    class SimpleSprite
+    {
+    public:
 
-class SimpleSprite
-{
-public:
+        // Pass group by reference because the sprite does not own the group
+        explicit SimpleSprite(SpriteGroup &sprite_group);
+        // Pass group by reference because the sprite does not own the group
+        explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
+        virtual ~SimpleSprite();
 
-    // Pass group by reference because the sprite does not own the group
-    explicit SimpleSprite(SpriteGroup &sprite_group);
-    // Pass group by reference because the sprite does not own the group
-    explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
-    virtual ~SimpleSprite();
+        virtual void Update(float deltaTime){};
+        virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
+        // removes sprite from group and mark for deletion
+        virtual void Kill();
+        // Flip Horizontally (-width)
+        virtual void FlipH();
 
-    virtual void Update(float deltaTime){};
-    virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
-    // removes sprite from group and mark for deletion
-    virtual void Kill();
-    // Flip Horizontally (-width)
-    virtual void FlipH();
+        unsigned int z = 0; // in 2D games, used to sort the drawing order
 
-    unsigned int z = 0; // in 2D games, used to sort the drawing order
+        RectangleU rect{}; // world position
+        Surface *image = nullptr;
+        std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
+    };
 
-    RectangleU rect{}; // world position
-    Surface *image = nullptr;
-    std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
-};
+    // Remains active for certain duration, can repeat once it is done, can autostart
+    // and calls a func at the end. Remember to call Update() on every frame
+    class Timer
+    {
+    public:
 
-// Remains active for certain duration, can repeat once it is done, can autostart
-// and calls a func at the end. Remember to call Update() on every frame
-class Timer
-{
-public:
+        // Default constructor
+        Timer() : duration(0.0f), repeat(false), autostart(false), func([]() {})
+        {}
 
-    // Default constructor
-    Timer() : duration(0.0f), repeat(false), autostart(false), func([]() {})
-    {}
+        // Parameterized constructor
+        explicit
+        Timer(float duration, bool repeat = false, bool autostart = false, const std::function<void()> &func = [] {});
+        void Activate();
+        void Deactivate();
+        void Update();
+        bool active{};
+        float duration;
 
-    // Parameterized constructor
-    explicit
-    Timer(float duration, bool repeat = false, bool autostart = false,
-          const std::function<void()> &func = std::function<void()>{});
-    void Activate();
-    void Deactivate();
-    void Update();
-    bool active{};
-    float duration;
+    private:
 
-private:
+        bool repeat;
+        bool autostart;
+        std::function<void()> func;
+        double start_time{};
+    };
 
-    bool repeat;
-    bool autostart;
-    std::function<void()> func;
-    double start_time{};
-};
+    enum Axis
+    {
+        HORIZONTAL = 0,
+        VERTICAL
+    };
+
+    void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
+    void DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, float radius, float lineThick = 0.0f);
+} // namespace rg
 
 // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
 template<typename K, typename V>
@@ -258,16 +271,3 @@ typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
 {
     return order_.end();
 }
-
-enum Axis
-{
-    HORIZONTAL = 0,
-    VERTICAL
-};
-
-// Raygame Namespace
-namespace rg
-{
-    void DrawRect(const Surface *surface, Color color, RectangleU rect, float lineThick = 0.0f);
-    void DrawCirc(const Surface *surface, Color color, Vector2 center, float radius, float lineThick = 0.0f);
-} // namespace rg
