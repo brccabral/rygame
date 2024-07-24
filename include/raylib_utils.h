@@ -220,6 +220,19 @@ namespace rg
         void SetCaption(const char *title);
     } // namespace display
 
+    namespace time
+    {
+        class Clock
+        {
+        public:
+
+            Clock();
+
+            // Gets frame time, sets FPS if passed value
+            float tick(int fps);
+        };
+    } // namespace time
+
 } // namespace rg
 
 // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`

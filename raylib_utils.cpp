@@ -431,6 +431,16 @@ void rg::display::SetCaption(const char *title)
     rl::SetWindowTitle(title);
 }
 
+// ReSharper disable once CppMemberFunctionMayBeStatic
+float rg::time::Clock::tick(const int fps)
+{
+    if (fps)
+    {
+        rl::SetTargetFPS(fps);
+    }
+    return rl::GetFrameTime();
+}
+
 rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);
