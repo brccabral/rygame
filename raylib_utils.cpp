@@ -419,6 +419,13 @@ void rg::DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, f
     EndTextureModeSafe();
 }
 
+rg::Surface *rg::display::SetMode(const int width, const int height)
+{
+    rl::InitWindow(width, height, "raygame");
+    display_surface = new Surface(width, height);
+    return display_surface;
+}
+
 rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);

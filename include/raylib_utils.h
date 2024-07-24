@@ -213,6 +213,12 @@ namespace rg
 
     void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
     void DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, float radius, float lineThick = 0.0f);
+
+    namespace display
+    {
+        Surface *SetMode(int width, int height);
+    }
+
 } // namespace rg
 
 // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
