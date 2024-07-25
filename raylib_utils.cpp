@@ -103,10 +103,7 @@ rg::sprite::Sprite::Sprite(const std::vector<Group *> &sprite_groups)
 
 rg::sprite::Sprite::~Sprite()
 {
-    if (image)
-    {
-        delete image;
-    }
+    delete image;
 }
 
 void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)
@@ -413,7 +410,9 @@ void rg::DrawRect(const Surface *surface, const rl::Color color, const Rectangle
     EndTextureModeSafe();
 }
 
-void rg::DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, float radius, float lineThick)
+void rg::DrawCirc(
+        const Surface *surface, const rl::Color color, const rl::Vector2 center, const float radius,
+        const float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
@@ -456,17 +455,17 @@ rg::Surface *rg::mask::Mask::ToSurface() const
 {
     auto *surface = new Surface(image.width, image.height);
     const rl::Texture2D maskTexture = LoadTextureFromImage(image);
-    surface->Blit(&maskTexture, {}, {0, 0, (float)image.width, (float)-image.height});
+    surface->Blit(&maskTexture, {}, {0, 0, (float) image.width, (float) -image.height});
     UnloadTexture(maskTexture);
     return surface;
 }
 
 rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char threshold)
 {
-    Mask mask = Mask(surface->Texture()->width, surface->Texture()->height);
+    auto mask = Mask(surface->Texture()->width, surface->Texture()->height);
     const rl::Image alphaImage = ImageFromChannel(LoadImageFromTexture(*surface->Texture()), 3);
-    auto alphaData = (unsigned char *) alphaImage.data;
-    auto maskData = (unsigned char *) mask.image.data;
+    const auto alphaData = (unsigned char *) alphaImage.data;
+    const auto maskData = (unsigned char *) mask.image.data;
     for (int i = 0; i < mask.image.width * mask.image.height; i++)
     {
         if (alphaData[i] > threshold)
@@ -559,7 +558,7 @@ std::vector<rg::TileInfo> rg::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_
             {
                 const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
                 auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
-                rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
+                const rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
                 TileInfo tile_info = {pos, tileSurface};
                 tiles.push_back(tile_info);
             }
@@ -579,8 +578,6 @@ rg::Surface *rg::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer 
     }
     return surface;
 }
-
-
 
 rl::Image rg::GenImageRandomPixels(const float width, const float height)
 {

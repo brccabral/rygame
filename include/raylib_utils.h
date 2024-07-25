@@ -63,8 +63,8 @@ namespace rg
 
         static Surface *Load(const char *path);
 
-        RectangleU atlas_rect; // atlas position
-        rl::RenderTexture2D render_texture; // atlas texture
+        RectangleU atlas_rect{}; // atlas position
+        rl::RenderTexture2D render_texture{}; // atlas texture
     };
 
     struct TileInfo
@@ -127,7 +127,7 @@ namespace rg
     std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
     // merges all tiles into one single surface image
     Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
-    
+
     // Generate image with random pixel colors
     rl::Image GenImageRandomPixels(float width, float height);
 
@@ -230,7 +230,7 @@ namespace rg
             Clock() = default;
 
             // Gets frame time, sets FPS if passed value
-            float tick(int fps);
+            static float tick(int fps);
         };
     } // namespace time
 
@@ -242,7 +242,7 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            Surface *ToSurface() const;
+            [[nodiscard]] Surface *ToSurface() const;
 
             rl::Image image{};
         };
