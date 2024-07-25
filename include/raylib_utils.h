@@ -127,6 +127,9 @@ namespace rg
     std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
     // merges all tiles into one single surface image
     Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+    
+    // Generate image with random pixel colors
+    rl::Image GenImageRandomPixels(float width, float height);
 
     namespace sprite
     {
@@ -224,12 +227,29 @@ namespace rg
         {
         public:
 
-            Clock();
+            Clock() = default;
 
             // Gets frame time, sets FPS if passed value
             float tick(int fps);
         };
     } // namespace time
+
+    namespace mask
+    {
+        class Mask
+        {
+        public:
+
+            Mask(unsigned int width, unsigned int height, bool fill = false);
+            ~Mask();
+            Surface *ToSurface() const;
+
+            rl::Image image{};
+        };
+
+        Mask FromSurface(Surface *surface, unsigned char threshold = 127);
+
+    } // namespace mask
 
 } // namespace rg
 

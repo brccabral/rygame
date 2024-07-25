@@ -427,6 +427,58 @@ void rg::DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, f
     EndTextureModeSafe();
 }
 
+rg::mask::Mask::Mask(const unsigned int width, const unsigned int height, const bool fill)
+{
+    auto *pixels = (unsigned char *) RL_CALLOC(width * height, sizeof(unsigned char));
+    image.format = rl::PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
+    image.width = width;
+    image.height = height;
+    image.mipmaps = 1;
+
+    unsigned char bit = 0;
+    if (fill)
+    {
+        bit = 255;
+    }
+    for (int i = 0; i < image.width * image.height; ++i)
+    {
+        pixels[i] = bit;
+    }
+    image.data = pixels;
+}
+
+rg::mask::Mask::~Mask()
+{
+    UnloadImage(image);
+}
+
+rg::Surface *rg::mask::Mask::ToSurface() const
+{
+    auto *surface = new Surface(image.width, image.height);
+    const rl::Texture2D maskTexture = LoadTextureFromImage(image);
+    surface->Blit(&maskTexture, {}, {0, 0, (float)image.width, (float)-image.height});
+    UnloadTexture(maskTexture);
+    return surface;
+}
+
+rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char threshold)
+{
+    Mask mask = Mask(surface->Texture()->width, surface->Texture()->height);
+    const rl::Image alphaImage = ImageFromChannel(LoadImageFromTexture(*surface->Texture()), 3);
+    auto alphaData = (unsigned char *) alphaImage.data;
+    auto maskData = (unsigned char *) mask.image.data;
+    for (int i = 0; i < mask.image.width * mask.image.height; i++)
+    {
+        if (alphaData[i] > threshold)
+        {
+            maskData[i] = 255;
+        }
+    }
+
+    UnloadImage(alphaImage);
+    return mask;
+}
+
 rg::Surface *rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "raygame");
@@ -526,4 +578,27 @@ rg::Surface *rg::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer 
         delete tileSurface;
     }
     return surface;
+}
+
+
+
+rl::Image rg::GenImageRandomPixels(const float width, const float height)
+{
+    rl::Image image{};
+    image.format = rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    image.height = height;
+    image.width = width;
+    image.mipmaps = 1;
+
+    auto *pixels = (rl::Color *) RL_CALLOC(width * height, sizeof(rl::Color));
+    for (int i = 0; i < width * height; i++)
+    {
+        pixels[i].r = rl::GetRandomValue(0, 255);
+        pixels[i].g = rl::GetRandomValue(0, 255);
+        pixels[i].b = rl::GetRandomValue(0, 255);
+        pixels[i].a = rl::GetRandomValue(0, 255);
+    }
+    image.data = pixels;
+
+    return image;
 }
