@@ -51,9 +51,9 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-rg::SpriteGroup::~SpriteGroup() = default;
+rg::sprite::SpriteGroup::~SpriteGroup() = default;
 
-void rg::SpriteGroup::Draw(Surface *surface)
+void rg::sprite::SpriteGroup::Draw(Surface *surface)
 {
     for (const auto *sprite: sprites)
     {
@@ -61,7 +61,7 @@ void rg::SpriteGroup::Draw(Surface *surface)
     }
 }
 
-void rg::SpriteGroup::Update(const float deltaTime)
+void rg::sprite::SpriteGroup::Update(const float deltaTime)
 {
     for (auto *sprite: sprites)
     {
@@ -77,7 +77,7 @@ void rg::SpriteGroup::Update(const float deltaTime)
     }
 }
 
-void rg::SpriteGroup::DeleteAll()
+void rg::sprite::SpriteGroup::DeleteAll()
 {
     for (auto *sprite: sprites)
     {
@@ -86,13 +86,13 @@ void rg::SpriteGroup::DeleteAll()
     }
 }
 
-rg::SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
+rg::sprite::SimpleSprite::SimpleSprite(SpriteGroup &sprite_group)
 {
     groups.push_back(&sprite_group);
     sprite_group.sprites.push_back(this);
 }
 
-rg::SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
+rg::sprite::SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
 {
     for (auto *sprite_group: sprite_groups)
     {
@@ -101,7 +101,7 @@ rg::SimpleSprite::SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups)
     }
 }
 
-rg::SimpleSprite::~SimpleSprite()
+rg::sprite::SimpleSprite::~SimpleSprite()
 {
     if (image)
     {
@@ -109,7 +109,7 @@ rg::SimpleSprite::~SimpleSprite()
     }
 }
 
-void rg::SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
+void rg::sprite::SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
 {
     if (groups.empty())
     {
@@ -124,7 +124,7 @@ void rg::SimpleSprite::LeaveOtherGroups(const SpriteGroup *sprite_group)
     }
 }
 
-void rg::SimpleSprite::Kill()
+void rg::sprite::SimpleSprite::Kill()
 {
     // we add to another vector `to_delete` to delay the deletition to after
     // all group sprites Update(dt)
@@ -139,7 +139,7 @@ void rg::SimpleSprite::Kill()
     groups.clear();
 }
 
-void rg::SimpleSprite::FlipH()
+void rg::sprite::SimpleSprite::FlipH()
 {
     image->atlas_rect.width = -image->atlas_rect.width;
 }

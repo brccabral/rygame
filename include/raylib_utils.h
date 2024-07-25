@@ -1,3 +1,4 @@
+// ReSharper disable CppClassCanBeFinal
 #pragma once
 #include <functional>
 #include <list>
@@ -72,15 +73,6 @@ namespace rg
         Surface *surface;
     };
 
-    /*
-      display_surface
-      In your game, init with
-          `display_surface = LoadRenderTexture(width, height);
-          while (!IsRenderTextureReady(display_surface))
-          {}`
-     */
-    // inline Surface *display_surface;
-
     // Warns if there is a render already active
     void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
     void EndTextureModeSafe();
@@ -136,48 +128,51 @@ namespace rg
     // merges all tiles into one single surface image
     Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
 
-    class SimpleSprite;
-
-    // Manages multiple sprites at once
-    class SpriteGroup
+    namespace sprite
     {
-    public:
+        class SimpleSprite;
 
-        virtual ~SpriteGroup();
-        // Draw all sprites into surface
-        virtual void Draw(Surface *surface);
-        // Updates all sprites
-        void Update(float deltaTime);
-        // Deletes all sprites, removing them from other groups
-        void DeleteAll();
+        // Manages multiple sprites at once
+        class SpriteGroup
+        {
+        public:
 
-        std::vector<SimpleSprite *> sprites{};
-        std::vector<SimpleSprite *> to_delete{};
-    };
+            virtual ~SpriteGroup();
+            // Draw all sprites into surface
+            virtual void Draw(Surface *surface);
+            // Updates all sprites
+            void Update(float deltaTime);
+            // Deletes all sprites, removing them from other groups
+            void DeleteAll();
 
-    class SimpleSprite
-    {
-    public:
+            std::vector<SimpleSprite *> sprites{};
+            std::vector<SimpleSprite *> to_delete{};
+        };
 
-        // Pass group by reference because the sprite does not own the group
-        explicit SimpleSprite(SpriteGroup &sprite_group);
-        // Pass group by reference because the sprite does not own the group
-        explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
-        virtual ~SimpleSprite();
+        class SimpleSprite
+        {
+        public:
 
-        virtual void Update(float deltaTime){};
-        virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
-        // removes sprite from group and mark for deletion
-        virtual void Kill();
-        // Flip Horizontally (-width)
-        virtual void FlipH();
+            // Pass group by reference because the sprite does not own the group
+            explicit SimpleSprite(SpriteGroup &sprite_group);
+            // Pass group by reference because the sprite does not own the group
+            explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
+            virtual ~SimpleSprite();
 
-        unsigned int z = 0; // in 2D games, used to sort the drawing order
+            virtual void Update(float deltaTime){};
+            virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
+            // removes sprite from group and mark for deletion
+            virtual void Kill();
+            // Flip Horizontally (-width)
+            virtual void FlipH();
 
-        RectangleU rect{}; // world position
-        Surface *image = nullptr;
-        std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
-    };
+            unsigned int z = 0; // in 2D games, used to sort the drawing order
+
+            RectangleU rect{}; // world position
+            Surface *image = nullptr;
+            std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
+        };
+    } // namespace sprite
 
     // Remains active for certain duration, can repeat once it is done, can autostart
     // and calls a func at the end. Remember to call Update() on every frame
