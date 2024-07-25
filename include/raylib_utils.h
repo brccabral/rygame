@@ -78,7 +78,7 @@ namespace rg
           while (!IsRenderTextureReady(display_surface))
           {}`
      */
-    inline Surface *display_surface;
+    // inline Surface *display_surface;
 
     // Warns if there is a render already active
     void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
@@ -218,6 +218,8 @@ namespace rg
     {
         Surface *SetMode(int width, int height);
         void SetCaption(const char *title);
+        Surface *GetSurface();
+        void Update();
     } // namespace display
 
     namespace time

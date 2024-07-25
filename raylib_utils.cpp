@@ -1,6 +1,7 @@
 #include "raylib_utils.h"
 
 int current_render = 0;
+rg::Surface *display_surface = nullptr;
 
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
@@ -430,6 +431,23 @@ rg::Surface *rg::display::SetMode(const int width, const int height)
 void rg::display::SetCaption(const char *title)
 {
     rl::SetWindowTitle(title);
+}
+
+rg::Surface *rg::display::GetSurface()
+{
+    return display_surface;
+}
+
+void rg::display::Update()
+{
+    // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
+    // https://github.com/raysan5/raylib/issues/3803
+    rl::BeginDrawing();
+    DrawTextureRec(
+            *display_surface->Texture(),
+            {0, 0, (float) display_surface->Texture()->width, (float) -display_surface->Texture()->height}, {0, 0},
+            rl::WHITE);
+    rl::EndDrawing();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
