@@ -25,6 +25,7 @@ namespace rg
 {
 
     void Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0, rl::TraceLogCallback callback = nullptr);
+    void Quit();
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024

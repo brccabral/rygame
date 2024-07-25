@@ -324,6 +324,12 @@ void rg::Init(const int logLevel, const unsigned int config_flags, const rl::Tra
     rl::SetRandomSeed(std::time(nullptr));
 }
 
+void rg::Quit()
+{
+    rl::CloseAudioDevice();
+    rl::CloseWindow();
+}
+
 rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
 {
     lhs.x += rhs.x;
