@@ -130,14 +130,14 @@ namespace rg
 
     namespace sprite
     {
-        class SimpleSprite;
+        class Sprite;
 
         // Manages multiple sprites at once
-        class SpriteGroup
+        class Group
         {
         public:
 
-            virtual ~SpriteGroup();
+            virtual ~Group();
             // Draw all sprites into surface
             virtual void Draw(Surface *surface);
             // Updates all sprites
@@ -145,22 +145,22 @@ namespace rg
             // Deletes all sprites, removing them from other groups
             void DeleteAll();
 
-            std::vector<SimpleSprite *> sprites{};
-            std::vector<SimpleSprite *> to_delete{};
+            std::vector<Sprite *> sprites{};
+            std::vector<Sprite *> to_delete{};
         };
 
-        class SimpleSprite
+        class Sprite
         {
         public:
 
             // Pass group by reference because the sprite does not own the group
-            explicit SimpleSprite(SpriteGroup &sprite_group);
+            explicit Sprite(Group &sprite_group);
             // Pass group by reference because the sprite does not own the group
-            explicit SimpleSprite(const std::vector<SpriteGroup *> &sprite_groups);
-            virtual ~SimpleSprite();
+            explicit Sprite(const std::vector<Group *> &sprite_groups);
+            virtual ~Sprite();
 
             virtual void Update(float deltaTime){};
-            virtual void LeaveOtherGroups(const SpriteGroup *sprite_group);
+            virtual void LeaveOtherGroups(const Group *sprite_group);
             // removes sprite from group and mark for deletion
             virtual void Kill();
             // Flip Horizontally (-width)
@@ -170,7 +170,7 @@ namespace rg
 
             RectangleU rect{}; // world position
             Surface *image = nullptr;
-            std::vector<SpriteGroup *> groups{}; // groups that this sprite is in
+            std::vector<Group *> groups{}; // groups that this sprite is in
         };
     } // namespace sprite
 
