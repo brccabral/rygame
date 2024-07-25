@@ -184,7 +184,7 @@ void rg::Surface::Blit(const rl::Texture2D *texture, const rl::Vector2 offset, c
     }
     else
     {
-        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) texture->height}, offset, rl::WHITE);
+        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) -texture->height}, offset, rl::WHITE);
     }
     EndTextureModeSafe();
 }
@@ -199,6 +199,17 @@ rg::RectangleU rg::Surface::GetRect() const
 rl::Texture2D *rg::Surface::Texture()
 {
     return &render_texture.texture;
+}
+
+void rg::Surface::SetColorKey(const rl::Color color) const
+{
+    rl::Image current = LoadImageFromTexture(render_texture.texture);
+    ImageColorReplace(&current, color, rl::BLANK);
+    Fill(rl::BLANK);
+    const rl::Texture texture = LoadTextureFromImage(current);
+    Blit(&texture);
+    UnloadImage(current);
+    UnloadTexture(texture);
 }
 
 rg::Surface *rg::Surface::Load(const char *path)

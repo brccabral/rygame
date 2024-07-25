@@ -60,6 +60,7 @@ namespace rg
         // Returns the size of the Surface, not the atlas position
         [[nodiscard]] RectangleU GetRect() const;
         rl::Texture2D *Texture();
+        void SetColorKey(rl::Color color) const;
 
         static Surface *Load(const char *path);
 
