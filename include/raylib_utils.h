@@ -181,6 +181,46 @@ namespace rg
             Surface *image = nullptr;
             std::vector<Group *> groups{}; // groups that this sprite is in
         };
+
+        bool collide_rect(const Sprite *left, const Sprite *right);
+
+        class CollideCallable
+        {
+        public:
+
+            CollideCallable() = default;
+
+            virtual bool operator()(const Sprite *left, const Sprite *right) const = 0;
+
+        protected:
+
+            virtual ~CollideCallable() = default;
+        };
+
+        class collide_rect_ratio : public CollideCallable
+        {
+        public:
+
+            explicit collide_rect_ratio(float ratio);
+            bool operator()(const Sprite *left, const Sprite *right) const override;
+
+        private:
+
+            float ratio;
+        };
+
+
+        // Returns a list of all sprites in the group that collides with the sprite
+        // If dokill is true, all collided sprites are removed from group
+        std::vector<Sprite *> spritecollide(
+                Sprite *sprite, Group *group, bool dokill,
+                const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
+
+        // Tests if Sprite collides with any sprite in group, returns the first sprite in group
+        // that collides
+        Sprite *spritecollideany(
+                Sprite *sprite, Group *group,
+                const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
     } // namespace sprite
 
     // Remains active for certain duration, can repeat once it is done, can autostart

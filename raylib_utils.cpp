@@ -147,6 +147,57 @@ void rg::sprite::Sprite::FlipH()
     image->atlas_rect.width = -image->atlas_rect.width;
 }
 
+bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
+{
+    return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
+}
+
+rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
+{}
+
+bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
+{
+    RectangleU leftrect = left->rect;
+    RectangleU rightrect = right->rect;
+
+    RectInflate(leftrect, ratio);
+    RectInflate(rightrect, ratio);
+
+    return collide_rect(left, right);
+}
+
+std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
+        Sprite *sprite, Group *group, const bool dokill,
+        const std::function<bool(Sprite *left, Sprite *right)> &collided)
+{
+    std::vector<Sprite *> result;
+    for (auto *other_sprite: group->sprites)
+    {
+        if (collided(sprite, other_sprite))
+        {
+            result.push_back(other_sprite);
+            if (dokill)
+            {
+                other_sprite->Kill();
+            }
+        }
+    }
+    return result;
+}
+
+rg::sprite::Sprite *rg::sprite::spritecollideany(
+        Sprite *sprite, Group *group, const std::function<bool(Sprite *left, Sprite *right)> &collided)
+{
+    for (auto *other_sprite: group->sprites)
+    {
+        if (collided(sprite, other_sprite))
+        {
+            return other_sprite;
+        }
+    }
+    return nullptr;
+}
+
 rg::Surface::Surface(const int width, const int height)
 {
     render_texture = rl::LoadRenderTexture(width, height);
