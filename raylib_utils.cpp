@@ -51,7 +51,23 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-rg::sprite::Group::~Group() = default;
+rg::sprite::Group::~Group()
+{
+    if (!to_delete.empty())
+    {
+        for (const auto *sprite: to_delete)
+        {
+            // if not empty, it means it was removed from this group, but added in another
+            // so, we can't delete it here, need the other group to call the deletion
+            if (sprite->groups.empty())
+            {
+                delete sprite;
+            }
+        }
+        to_delete.clear();
+    }
+    DeleteAll();
+};
 
 void rg::sprite::Group::Draw(Surface *surface)
 {
@@ -66,14 +82,6 @@ void rg::sprite::Group::Update(const float deltaTime)
     for (auto *sprite: sprites)
     {
         sprite->Update(deltaTime);
-    }
-    if (!to_delete.empty())
-    {
-        for (const auto *sprite: to_delete)
-        {
-            delete sprite;
-        }
-        to_delete.clear();
     }
 }
 
@@ -108,10 +116,6 @@ rg::sprite::Sprite::~Sprite()
 
 void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)
 {
-    if (groups.empty())
-    {
-        return;
-    }
     for (const auto group: groups)
     {
         if (group != sprite_group)
@@ -123,16 +127,18 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)
 
 void rg::sprite::Sprite::Kill()
 {
-    // we add to another vector `to_delete` to delay the deletition to after
-    // all group sprites Update(dt)
+    // we add to another vector `to_delete` to delay the deletition to
+    // the groups deletion ~Group()
     if (!groups.empty())
     {
         groups[0]->to_delete.push_back(this);
     }
+    // leave all groups
     for (const auto group: groups)
     {
         group->sprites.erase(remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
     }
+    // it doesn't belong to any group
     groups.clear();
 }
 

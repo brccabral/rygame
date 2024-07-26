@@ -149,10 +149,13 @@ namespace rg
             // Updates all sprites
             void Update(float deltaTime);
             // Deletes all sprites, removing them from other groups
-            void DeleteAll();
 
             std::vector<Sprite *> sprites{};
             std::vector<Sprite *> to_delete{};
+
+        private:
+
+            void DeleteAll();
         };
 
         class Sprite
