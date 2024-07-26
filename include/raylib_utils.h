@@ -70,8 +70,8 @@ namespace rg
 
     struct TileInfo
     {
-        rl::Vector2 position;
-        Surface *surface;
+        rl::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
+        Surface *surface = nullptr; // if tile has image, allocate it in memory
     };
 
     // Warns if there is a render already active
