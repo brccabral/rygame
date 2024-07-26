@@ -190,12 +190,12 @@ namespace rg
     public:
 
         // Default constructor
-        Timer() : duration(0.0f), repeat(false), autostart(false), func([]() {})
+        Timer() : duration(0.0f), repeat(false), autostart(false), func(nullptr)
         {}
 
         // Parameterized constructor
         explicit
-        Timer(float duration, bool repeat = false, bool autostart = false, const std::function<void()> &func = [] {});
+        Timer(float duration, bool repeat = false, bool autostart = false, const std::function<void()> &func = nullptr);
         void Activate();
         void Deactivate();
         void Update();
