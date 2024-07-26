@@ -10,7 +10,7 @@ find_package(raylib-tmx REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 
-add_library(${PROJECT_NAME} STATIC raylib_utils.cpp)
+add_library(${PROJECT_NAME} STATIC src/raylib_utils.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
