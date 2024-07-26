@@ -1,4 +1,4 @@
-#include "raylib_utils.h"
+#include "rygame.h"
 
 int current_render = 0;
 rg::Surface *display_surface = nullptr;

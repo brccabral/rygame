@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(raylib_utils VERSION 0.0.1)
+project(rygame VERSION 0.0.1)
 
 include(GNUInstallDirs)
 
@@ -10,7 +10,7 @@ find_package(raylib-tmx REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 
-add_library(${PROJECT_NAME} STATIC src/raylib_utils.cpp)
+add_library(${PROJECT_NAME} STATIC src/rygame.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
