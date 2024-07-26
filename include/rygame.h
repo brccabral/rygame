@@ -25,7 +25,6 @@ rl::Vector2 operator*(const rl::Vector2 &lhs, float scale);
 
 namespace rg
 {
-
     void
     Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
          rl::TraceLogCallback callback = nullptr);
@@ -41,10 +40,12 @@ namespace rg
         {
             rl::Vector2 pos, size;
         };
+
         struct
         {
             rl::Rectangle rectangle;
         };
+
         struct
         {
             float x, y, width, height;
@@ -169,6 +170,14 @@ namespace rg
             void Update(float deltaTime);
             // Removes all sprites from Group
             void empty();
+            // Removes a list of sprites from this group (if they are part of this group)
+            void remove(const std::vector<Sprite *> &to_remove_sprites);
+            // Removes a Sprite from this group if it is in this group
+            void remove(Sprite *to_remove_sprite);
+            // Adds a list of sprites to this group
+            void add(const std::vector<Sprite *> &to_add_sprites);
+            // Adds a Sprite to this group
+            void add(Sprite *to_add_sprite);
 
             std::vector<Sprite *> sprites{};
             std::vector<Sprite *> to_delete{};
@@ -183,17 +192,22 @@ namespace rg
         public:
 
             // Pass group by reference because the sprite does not own the group
-            explicit Sprite(Group &sprite_group);
+            explicit Sprite(Group *group);
             // Pass group by reference because the sprite does not own the group
-            explicit Sprite(const std::vector<Group *> &sprite_groups);
+            explicit Sprite(const std::vector<Group *> &groups);
             virtual ~Sprite();
 
             // add this sprite to passed group
-            void add(Group *sprite_group);
+            void add(Group *to_add_group);
             // add this sprite to all groups
-            void add(const std::vector<Group *> &sprite_groups);
+            void add(const std::vector<Group *> &to_add_groups);
+            // remove group from this sprite
+            void remove(Group *to_remove_group);
+            // remove all groups from this sprite
+            void remove(const std::vector<Group *> &to_remove_groups);
+
             virtual void Update(float deltaTime){};
-            virtual void LeaveOtherGroups(const Group *sprite_group);
+            virtual void LeaveOtherGroups(const Group *not_leave_group);
             // removes sprite from group and mark for deletion
             virtual void Kill();
             // Flip Horizontally (-width)
@@ -321,9 +335,7 @@ namespace rg
         };
 
         Mask FromSurface(Surface *surface, unsigned char threshold = 127);
-
     } // namespace mask
-
 } // namespace rg
 
 // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`

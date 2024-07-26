@@ -92,13 +92,43 @@ void rg::sprite::Group::empty()
     for (auto *sprite: sprites)
     {
         sprite->groups.erase(
-                remove(sprite->groups.begin(), sprite->groups.end(), this), sprite->groups.end());
+                std::remove(sprite->groups.begin(), sprite->groups.end(), this),
+                sprite->groups.end());
         if (sprite->groups.empty())
         {
             to_delete.push_back(sprite);
         }
     }
     sprites.clear();
+}
+
+void rg::sprite::Group::remove(const std::vector<Sprite *> &to_remove_sprites)
+{
+    for (auto *sprite: to_remove_sprites)
+    {
+        remove(sprite);
+    }
+}
+
+void rg::sprite::Group::remove(Sprite *to_remove_sprite)
+{
+    sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
+    to_remove_sprite->groups.erase(
+            std::remove(to_remove_sprite->groups.begin(), to_remove_sprite->groups.end(), this),
+            to_remove_sprite->groups.end());
+}
+
+void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
+{
+    for (auto *sprite: to_add_sprites)
+    {
+        add(sprite);
+    }
+}
+
+void rg::sprite::Group::add(Sprite *to_add_sprite)
+{
+    sprites.push_back(to_add_sprite);
 }
 
 void rg::sprite::Group::DeleteAll()
@@ -110,14 +140,14 @@ void rg::sprite::Group::DeleteAll()
     }
 }
 
-rg::sprite::Sprite::Sprite(Group &sprite_group)
+rg::sprite::Sprite::Sprite(Group *group)
 {
-    add(&sprite_group);
+    add(group);
 }
 
-rg::sprite::Sprite::Sprite(const std::vector<Group *> &sprite_groups)
+rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups)
 {
-    add(sprite_groups);
+    add(groups);
 }
 
 rg::sprite::Sprite::~Sprite()
@@ -125,33 +155,47 @@ rg::sprite::Sprite::~Sprite()
     delete image;
 }
 
-void rg::sprite::Sprite::add(Group *sprite_group)
+void rg::sprite::Sprite::add(Group *to_add_group)
 {
-    groups.push_back(sprite_group);
-    sprite_group->sprites.push_back(this);
+    if (to_add_group)
+    {
+        groups.push_back(to_add_group);
+        to_add_group->add(this);
+    }
 }
 
-void rg::sprite::Sprite::add(const std::vector<Group *> &sprite_groups)
+void rg::sprite::Sprite::add(const std::vector<Group *> &to_add_groups)
 {
-    if (sprite_groups.empty())
-    {
-        TraceLog(rl::LOG_ERROR, "Groups cannot be empty.");
-        throw;
-    }
-    for (auto *sprite_group: sprite_groups)
+    for (auto *sprite_group: to_add_groups)
     {
         add(sprite_group);
     }
 }
 
-void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)
+void rg::sprite::Sprite::remove(Group *to_remove_group)
+{
+    groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
+    to_remove_group->sprites.erase(
+            std::remove(to_remove_group->sprites.begin(), to_remove_group->sprites.end(), this),
+            to_remove_group->sprites.end());
+}
+
+void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
+{
+    for (auto *to_remove_group: to_remove_groups)
+    {
+        remove(to_remove_group);
+    }
+}
+
+void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 {
     for (const auto group: groups)
     {
-        if (group != sprite_group)
+        if (group != not_leave_group)
         {
             group->sprites.erase(
-                    remove(group->sprites.begin(), group->sprites.end(), this),
+                    std::remove(group->sprites.begin(), group->sprites.end(), this),
                     group->sprites.end());
         }
     }
@@ -169,7 +213,8 @@ void rg::sprite::Sprite::Kill()
     for (const auto group: groups)
     {
         group->sprites.erase(
-                remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+                std::remove(group->sprites.begin(), group->sprites.end(), this),
+                group->sprites.end());
     }
     // it doesn't belong to any group
     groups.clear();
