@@ -310,6 +310,7 @@ void rg::Surface::SetColorKey(const rl::Color color) const
 rg::Surface *rg::Surface::Load(const char *path)
 {
     const rl::Texture2D texture = rl::LoadTexture(path);
+    // ReSharper disable once CppDFAMemoryLeak
     auto *surface = new Surface(texture.width, texture.height);
     BeginTextureModeSafe(surface->render_texture);
     DrawTextureV(texture, {0, 0}, rl::WHITE);
@@ -456,16 +457,30 @@ rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
     return lhs;
 }
 
-std::vector<rg::Surface *> rg::ImportFolder(const char *path)
+std::vector<rg::Surface *> rg::assets::ImportFolder(const char *path)
 {
-    std::vector<rg::Surface *> surfaces;
+    std::vector<Surface *> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
-        auto *surface = rg::Surface::Load(entryPath.c_str());
+        auto *surface = Surface::Load(entryPath.c_str());
         surfaces.push_back(surface);
     }
     return surfaces;
+}
+
+std::map<std::string, rg::Surface *> rg::assets::ImportFolderDict(const char *path)
+{
+    std::map<std::string, Surface *> result;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        auto filename = dirEntry.path().stem().string();
+        auto *surface = Surface::Load(entryPath.c_str());
+        result[filename] = surface;
+    }
+    // ReSharper disable once CppDFAMemoryLeak
+    return result;
 }
 
 // duration is in seconds

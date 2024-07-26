@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <filesystem>
+#include <map>
 
 namespace rl
 {
@@ -65,6 +66,8 @@ namespace rg
         rl::Texture2D *Texture();
         void SetColorKey(rl::Color color) const;
 
+        // Load a file into a Surface*
+        // The caller must delete Surface*
         static Surface *Load(const char *path);
 
         RectangleU atlas_rect{}; // atlas position
@@ -125,7 +128,17 @@ namespace rg
     // Increase/Decrease size of rect, keeping center position
     void RectInflate(RectangleU &rect, float ratio);
 
-    std::vector<Surface *> ImportFolder(const char *path);
+    namespace assets
+    {
+        // Walk a folder path and loads all images
+        // Returns a vector of Surface*
+        // The caller must delete Surface*
+        std::vector<Surface *> ImportFolder(const char *path);
+        // Walk a folder path and loads all images
+        // Returns a map where the key is filename and values are Surface*
+        // The caller must delete Surface*
+        std::map<std::string, Surface *> ImportFolderDict(const char *path);
+    } // namespace assets
 
     // get the tile image from the tileset
     Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
