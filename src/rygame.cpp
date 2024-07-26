@@ -651,7 +651,7 @@ float rg::time::Clock::tick(const int fps)
     return rl::GetFrameTime();
 }
 
-rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
+rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
 {
     auto *surface = new Surface(tile->width, tile->height);
 
@@ -679,7 +679,7 @@ rg::Surface *rg::GetTMXTileSurface(const rl::tmx_tile *tile)
     return surface;
 }
 
-std::vector<rg::TileInfo> rg::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
+std::vector<rg::TileInfo> rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     std::vector<TileInfo> tiles{};
     for (unsigned int y = 0; y < map->height; y++)
@@ -701,7 +701,7 @@ std::vector<rg::TileInfo> rg::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_
     return tiles;
 }
 
-rg::Surface *rg::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
+rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
     std::vector<TileInfo> tiles = GetTMXTiles(map, layer);

@@ -14,8 +14,8 @@
 namespace rl
 {
 #include <raylib.h>
-#include <raylib-tmx.h>
 #include <raymath.h>
+#include <raylib-tmx.h>
 } // namespace rl
 
 rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs);
@@ -88,9 +88,9 @@ namespace rg
     // Starts drawing with a Clear color
     void BeginDrawingC(rl::Color color);
 
-    // raylib has 4 buffers by default in TextFormat() - to add more, need to recompile raylib.
-    // This function receives a buffer created by the application.
-    // buffer max size is defined by MAX_TEXT_BUFFER_LENGTH
+    // raylib has 4 buffers by default in TextFormat() - to add more, need to recompile
+    // raylib. This function receives a buffer created by the application. buffer max size
+    // is defined by MAX_TEXT_BUFFER_LENGTH
     void TextFormatSafe(char *buffer, const char *format, ...);
 
     // Returns center of rectangle
@@ -140,12 +140,15 @@ namespace rg
         std::map<std::string, Surface *> ImportFolderDict(const char *path);
     } // namespace assets
 
-    // get the tile image from the tileset
-    Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
-    // get a vector with tile info (position on the layer and surface image)
-    std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
-    // merges all tiles into one single surface image
-    Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+    namespace tmx
+    {
+        // get the tile image from the tileset
+        Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
+        // get a vector with tile info (position on the layer and surface image)
+        std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        // merges all tiles into one single surface image
+        Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+    } // namespace tmx
 
     // Generate image with random pixel colors
     rl::Image GenImageRandomPixels(float width, float height);
@@ -237,8 +240,8 @@ namespace rg
                 Sprite *sprite, Group *group, bool dokill,
                 const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
 
-        // Tests if Sprite collides with any sprite in group, returns the first sprite in group
-        // that collides
+        // Tests if Sprite collides with any sprite in group, returns the first sprite in
+        // group that collides
         Sprite *spritecollideany(
                 Sprite *sprite, Group *group,
                 const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
