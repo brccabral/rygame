@@ -30,7 +30,7 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 BreakBeforeBraces: Custom
-ColumnLimit: 120
+ColumnLimit: 100
 ContinuationIndentWidth: 8
 EmptyLineAfterAccessModifier: Always
 IncludeCategories:

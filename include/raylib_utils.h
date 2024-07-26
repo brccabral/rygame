@@ -25,7 +25,9 @@ rl::Vector2 operator*(const rl::Vector2 &lhs, float scale);
 namespace rg
 {
 
-    void Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0, rl::TraceLogCallback callback = nullptr);
+    void
+    Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
+         rl::TraceLogCallback callback = nullptr);
     void Quit();
 
 #ifndef MAX_TEXT_BUFFER_LENGTH
@@ -56,7 +58,8 @@ namespace rg
         ~Surface();
         void Fill(rl::Color color) const;
         void Blit(Surface *surface, rl::Vector2 offset = {0, 0}) const;
-        void Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {}) const;
+        void
+        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {}) const;
         // Returns the size of the Surface, not the atlas position
         [[nodiscard]] RectangleU GetRect() const;
         rl::Texture2D *Texture();
@@ -240,7 +243,8 @@ namespace rg
 
         // Parameterized constructor
         explicit
-        Timer(float duration, bool repeat = false, bool autostart = false, const std::function<void()> &func = nullptr);
+        Timer(float duration, bool repeat = false, bool autostart = false,
+              const std::function<void()> &func = nullptr);
         void Activate();
         void Deactivate();
         void Update();
@@ -262,7 +266,9 @@ namespace rg
     };
 
     void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
-    void DrawCirc(const Surface *surface, rl::Color color, rl::Vector2 center, float radius, float lineThick = 0.0f);
+    void DrawCirc(
+            const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
+            float lineThick = 0.0f);
 
     namespace display
     {

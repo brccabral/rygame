@@ -8,7 +8,9 @@ void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
     if (current_render > 0)
     {
         char text[MAX_TEXT_BUFFER_LENGTH];
-        TextFormatSafe(text, "Double call to BeginTextureMode(), previous id %i new id %i", current_render, render.id);
+        TextFormatSafe(
+                text, "Double call to BeginTextureMode(), previous id %i new id %i", current_render,
+                render.id);
         TraceLog(rl::LOG_WARNING, text);
     }
     current_render = render.id;
@@ -148,7 +150,9 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)
     {
         if (group != sprite_group)
         {
-            group->sprites.erase(remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+            group->sprites.erase(
+                    remove(group->sprites.begin(), group->sprites.end(), this),
+                    group->sprites.end());
         }
     }
 }
@@ -164,7 +168,8 @@ void rg::sprite::Sprite::Kill()
     // leave all groups
     for (const auto group: groups)
     {
-        group->sprites.erase(remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
+        group->sprites.erase(
+                remove(group->sprites.begin(), group->sprites.end(), this), group->sprites.end());
     }
     // it doesn't belong to any group
     groups.clear();
@@ -214,7 +219,8 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
 }
 
 rg::sprite::Sprite *rg::sprite::spritecollideany(
-        Sprite *sprite, Group *group, const std::function<bool(Sprite *left, Sprite *right)> &collided)
+        Sprite *sprite, Group *group,
+        const std::function<bool(Sprite *left, Sprite *right)> &collided)
 {
     for (auto *other_sprite: group->sprites)
     {
@@ -236,7 +242,8 @@ rg::Surface::Surface(const int width, const int height)
         TraceLog(rl::LOG_ERROR, "Could not load render_texture");
     }
     // RenderTexture draws textures upside-down
-    atlas_rect = {0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
+    atlas_rect = {
+            0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
 
     // make sure surface is blank before drawing anything
     Fill(rl::BLANK);
@@ -260,7 +267,8 @@ void rg::Surface::Blit(Surface *surface, const rl::Vector2 offset) const
     EndTextureModeSafe();
 }
 
-void rg::Surface::Blit(const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area) const
+void rg::Surface::Blit(
+        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area) const
 {
     BeginTextureModeSafe(render_texture);
     if (area.height)
@@ -269,7 +277,9 @@ void rg::Surface::Blit(const rl::Texture2D *texture, const rl::Vector2 offset, c
     }
     else
     {
-        DrawTextureRec(*texture, {0, 0, (float) texture->width, (float) -texture->height}, offset, rl::WHITE);
+        DrawTextureRec(
+                *texture, {0, 0, (float) texture->width, (float) -texture->height}, offset,
+                rl::WHITE);
     }
     EndTextureModeSafe();
 }
@@ -417,7 +427,8 @@ rl::Vector2 operator*(const rl::Vector2 &lhs, const float scale)
     return rl::Vector2{lhs.x * scale, lhs.y * scale};
 }
 
-void rg::Init(const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
+void rg::Init(
+        const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
 {
     rl::SetTraceLogLevel(logLevel);
     rl::SetConfigFlags(config_flags);
@@ -458,7 +469,9 @@ std::vector<rg::Surface *> rg::ImportFolder(const char *path)
 }
 
 // duration is in seconds
-rg::Timer::Timer(const float duration, const bool repeat, const bool autostart, const std::function<void()> &func)
+rg::Timer::Timer(
+        const float duration, const bool repeat, const bool autostart,
+        const std::function<void()> &func)
     : duration(duration), repeat(repeat), autostart(autostart), func(func)
 {
     if (autostart)
@@ -500,7 +513,8 @@ void rg::Timer::Update()
     }
 }
 
-void rg::DrawRect(const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
+void rg::DrawRect(
+        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
@@ -606,8 +620,9 @@ void rg::display::Update()
     rl::BeginDrawing();
     DrawTextureRec(
             *display_surface->Texture(),
-            {0, 0, (float) display_surface->Texture()->width, (float) -display_surface->Texture()->height}, {0, 0},
-            rl::WHITE);
+            {0, 0, (float) display_surface->Texture()->width,
+             (float) -display_surface->Texture()->height},
+            {0, 0}, rl::WHITE);
     rl::EndDrawing();
 }
 
