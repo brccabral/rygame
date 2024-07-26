@@ -119,6 +119,8 @@ namespace rg
     void RectToTopRight(RectangleU &rect, rl::Vector2 pos);
     // Increase/Decrease size of rect, keeping center position
     void RectInflate(RectangleU &rect, float width, float height);
+    // Increase/Decrease size of rect, keeping center position
+    void RectInflate(RectangleU &rect, float ratio);
 
     std::vector<Surface *> ImportFolder(const char *path);
 

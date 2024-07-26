@@ -314,6 +314,14 @@ void rg::RectInflate(RectangleU &rect, const float width, const float height)
     RectToCenter(rect, oldCenter);
 }
 
+void rg::RectInflate(RectangleU &rect, const float ratio)
+{
+    const rl::Vector2 oldCenter = GetRectCenter(rect);
+    rect.width *= ratio;
+    rect.height *= ratio;
+    RectToCenter(rect, oldCenter);
+}
+
 rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs)
 {
     return rl::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
