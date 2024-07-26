@@ -116,6 +116,11 @@ void rg::sprite::Group::remove(Sprite *to_remove_sprite)
     to_remove_sprite->groups.erase(
             std::remove(to_remove_sprite->groups.begin(), to_remove_sprite->groups.end(), this),
             to_remove_sprite->groups.end());
+    // sprite is not in any more groups, mark for delete
+    if (to_remove_sprite->groups.empty())
+    {
+        to_delete.push_back(to_remove_sprite);
+    }
 }
 
 void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
@@ -178,6 +183,11 @@ void rg::sprite::Sprite::remove(Group *to_remove_group)
     to_remove_group->sprites.erase(
             std::remove(to_remove_group->sprites.begin(), to_remove_group->sprites.end(), this),
             to_remove_group->sprites.end());
+    // removed from the last group it was in, mark for delete
+    if (groups.empty())
+    {
+        to_remove_group->to_delete.push_back(this);
+    }
 }
 
 void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
