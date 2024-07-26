@@ -85,6 +85,20 @@ void rg::sprite::Group::Update(const float deltaTime)
     }
 }
 
+void rg::sprite::Group::empty()
+{
+    for (auto *sprite: sprites)
+    {
+        sprite->groups.erase(
+                remove(sprite->groups.begin(), sprite->groups.end(), this), sprite->groups.end());
+        if (sprite->groups.empty())
+        {
+            to_delete.push_back(sprite);
+        }
+    }
+    sprites.clear();
+}
+
 void rg::sprite::Group::DeleteAll()
 {
     for (auto *sprite: sprites)

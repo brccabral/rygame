@@ -148,7 +148,8 @@ namespace rg
             virtual void Draw(Surface *surface);
             // Updates all sprites
             void Update(float deltaTime);
-            // Deletes all sprites, removing them from other groups
+            // Removes all sprites from Group
+            void empty();
 
             std::vector<Sprite *> sprites{};
             std::vector<Sprite *> to_delete{};
