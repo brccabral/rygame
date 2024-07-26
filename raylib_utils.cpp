@@ -96,22 +96,36 @@ void rg::sprite::Group::DeleteAll()
 
 rg::sprite::Sprite::Sprite(Group &sprite_group)
 {
-    groups.push_back(&sprite_group);
-    sprite_group.sprites.push_back(this);
+    add(&sprite_group);
 }
 
 rg::sprite::Sprite::Sprite(const std::vector<Group *> &sprite_groups)
 {
-    for (auto *sprite_group: sprite_groups)
-    {
-        groups.push_back(sprite_group);
-        sprite_group->sprites.push_back(this);
-    }
+    add(sprite_groups);
 }
 
 rg::sprite::Sprite::~Sprite()
 {
     delete image;
+}
+
+void rg::sprite::Sprite::add(Group *sprite_group)
+{
+    groups.push_back(sprite_group);
+    sprite_group->sprites.push_back(this);
+}
+
+void rg::sprite::Sprite::add(const std::vector<Group *> &sprite_groups)
+{
+    if (sprite_groups.empty())
+    {
+        TraceLog(rl::LOG_ERROR, "Groups cannot be empty.");
+        throw;
+    }
+    for (auto *sprite_group: sprite_groups)
+    {
+        add(sprite_group);
+    }
 }
 
 void rg::sprite::Sprite::LeaveOtherGroups(const Group *sprite_group)

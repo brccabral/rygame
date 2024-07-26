@@ -168,6 +168,10 @@ namespace rg
             explicit Sprite(const std::vector<Group *> &sprite_groups);
             virtual ~Sprite();
 
+            // add this sprite to passed group
+            void add(Group *sprite_group);
+            // add this sprite to all groups
+            void add(const std::vector<Group *> &sprite_groups);
             virtual void Update(float deltaTime){};
             virtual void LeaveOtherGroups(const Group *sprite_group);
             // removes sprite from group and mark for deletion
