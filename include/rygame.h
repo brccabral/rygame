@@ -171,16 +171,15 @@ namespace rg
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<Sprite *> &to_remove_sprites);
+            void remove(const std::vector<Sprite *> &to_remove_sprites, bool deleteSprites = false);
             // Removes a Sprite from this group if it is in this group
-            void remove(Sprite *to_remove_sprite);
+            void remove(Sprite *to_remove_sprite, bool deleteSprite = false);
             // Adds a list of sprites to this group
             void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
             void add(Sprite *to_add_sprite);
 
             std::vector<Sprite *> sprites{};
-            std::vector<Sprite *> to_delete{};
 
         private:
 
@@ -209,7 +208,7 @@ namespace rg
             virtual void Update(float deltaTime){};
             virtual void LeaveOtherGroups(const Group *not_leave_group);
             // removes sprite from group and mark for deletion
-            virtual void Kill();
+            virtual Sprite *Kill(bool deleteSprite = false);
             // Flip Horizontally (-width)
             virtual void FlipH();
 

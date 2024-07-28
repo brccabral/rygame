@@ -55,19 +55,6 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
 
 rg::sprite::Group::~Group()
 {
-    if (!to_delete.empty())
-    {
-        for (const auto *sprite: to_delete)
-        {
-            // if not empty, it means it was removed from this group, but added in another
-            // so, we can't delete it here, need the other group to call the deletion
-            if (sprite->groups.empty())
-            {
-                delete sprite;
-            }
-        }
-        to_delete.clear();
-    }
     DeleteAll();
 };
 
@@ -102,24 +89,25 @@ void rg::sprite::Group::empty()
     sprites.clear();
 }
 
-void rg::sprite::Group::remove(const std::vector<Sprite *> &to_remove_sprites)
+void rg::sprite::Group::remove(
+        const std::vector<Sprite *> &to_remove_sprites, const bool deleteSprites)
 {
     for (auto *sprite: to_remove_sprites)
     {
-        remove(sprite);
+        remove(sprite, deleteSprites);
     }
 }
 
-void rg::sprite::Group::remove(Sprite *to_remove_sprite)
+void rg::sprite::Group::remove(Sprite *to_remove_sprite, const bool deleteSprite)
 {
-    sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
-    to_remove_sprite->groups.erase(
-            std::remove(to_remove_sprite->groups.begin(), to_remove_sprite->groups.end(), this),
-            to_remove_sprite->groups.end());
-    // sprite is not in any more groups, mark for delete
-    if (to_remove_sprite->groups.empty())
+    if (std::find(sprites.begin(), sprites.end(), to_remove_sprite) != sprites.end())
     {
-        to_delete.push_back(to_remove_sprite);
+        sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
+        to_remove_sprite->remove(this);
+        if (deleteSprite)
+        {
+            to_remove_sprite->Kill(deleteSprite);
+        }
     }
 }
 
@@ -179,14 +167,10 @@ void rg::sprite::Sprite::add(const std::vector<Group *> &to_add_groups)
 
 void rg::sprite::Sprite::remove(Group *to_remove_group)
 {
-    groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
-    to_remove_group->sprites.erase(
-            std::remove(to_remove_group->sprites.begin(), to_remove_group->sprites.end(), this),
-            to_remove_group->sprites.end());
-    // removed from the last group it was in, mark for delete
-    if (groups.empty())
+    if (std::find(groups.begin(), groups.end(), to_remove_group) != groups.end())
     {
-        to_remove_group->to_delete.push_back(this);
+        groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
+        to_remove_group->remove(this);
     }
 }
 
@@ -204,14 +188,12 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
     {
         if (group != not_leave_group)
         {
-            group->sprites.erase(
-                    std::remove(group->sprites.begin(), group->sprites.end(), this),
-                    group->sprites.end());
+            group->remove(this);
         }
     }
 }
 
-void rg::sprite::Sprite::Kill()
+rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
 {
     // we add to another vector `to_delete` to delay the deletition to
     // the groups deletion ~Group()
@@ -222,12 +204,17 @@ void rg::sprite::Sprite::Kill()
     // leave all groups
     for (const auto group: groups)
     {
-        group->sprites.erase(
-                std::remove(group->sprites.begin(), group->sprites.end(), this),
-                group->sprites.end());
+        group->remove(this);
     }
     // it doesn't belong to any group
     groups.clear();
+
+    if (deleteSprite)
+    {
+        delete this;
+        return nullptr;
+    }
+    return this;
 }
 
 void rg::sprite::Sprite::FlipH()
@@ -266,6 +253,9 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
             result.push_back(other_sprite);
             if (dokill)
             {
+                // just remove from group, don't delete
+                // it will be returned in the result
+                // if needed, delete it in the vector later
                 other_sprite->Kill();
             }
         }
