@@ -178,6 +178,10 @@ namespace rg
             void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
             void add(Sprite *to_add_sprite);
+            // Returns a copy of vector sprites
+            std::vector<Sprite *> Sprites();
+
+        protected:
 
             std::vector<Sprite *> sprites{};
 
@@ -204,6 +208,8 @@ namespace rg
             void remove(Group *to_remove_group);
             // remove all groups from this sprite
             void remove(const std::vector<Group *> &to_remove_groups);
+            // Returns a copy of the list of groups
+            std::vector<Group *> Groups();
 
             virtual void Update(float deltaTime){};
             virtual void LeaveOtherGroups(const Group *not_leave_group);
@@ -216,6 +222,9 @@ namespace rg
 
             RectangleU rect{}; // world position
             Surface *image = nullptr;
+
+        protected:
+
             std::vector<Group *> groups{}; // groups that this sprite is in
         };
 

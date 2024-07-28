@@ -68,7 +68,8 @@ void rg::sprite::Group::Draw(Surface *surface)
 
 void rg::sprite::Group::Update(const float deltaTime)
 {
-    for (auto *sprite: sprites)
+    const auto sprites_to_update = Sprites();
+    for (auto *sprite: sprites_to_update)
     {
         sprite->Update(deltaTime);
     }
@@ -76,15 +77,10 @@ void rg::sprite::Group::Update(const float deltaTime)
 
 void rg::sprite::Group::empty()
 {
-    for (auto *sprite: sprites)
+    const auto sprites_to_remove = Sprites();
+    for (auto *sprite: sprites_to_remove)
     {
-        sprite->groups.erase(
-                std::remove(sprite->groups.begin(), sprite->groups.end(), this),
-                sprite->groups.end());
-        if (sprite->groups.empty())
-        {
-            to_delete.push_back(sprite);
-        }
+        sprite->remove(this);
     }
     sprites.clear();
 }
@@ -124,8 +120,14 @@ void rg::sprite::Group::add(Sprite *to_add_sprite)
     sprites.push_back(to_add_sprite);
 }
 
+std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites()
+{
+    return sprites;
+}
+
 void rg::sprite::Group::DeleteAll()
 {
+    const auto sprites = Sprites();
     for (auto *sprite: sprites)
     {
         sprite->LeaveOtherGroups(this);
@@ -182,8 +184,14 @@ void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
     }
 }
 
+std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
+{
+    return groups;
+}
+
 void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 {
+    auto groups = Groups();
     for (const auto group: groups)
     {
         if (group != not_leave_group)
@@ -195,14 +203,9 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 
 rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
 {
-    // we add to another vector `to_delete` to delay the deletition to
-    // the groups deletion ~Group()
-    if (!groups.empty())
-    {
-        groups[0]->to_delete.push_back(this);
-    }
     // leave all groups
-    for (const auto group: groups)
+    const auto groups_to_leave = Groups();
+    for (const auto group: groups_to_leave)
     {
         group->remove(this);
     }
@@ -246,7 +249,8 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
         const std::function<bool(Sprite *left, Sprite *right)> &collided)
 {
     std::vector<Sprite *> result;
-    for (auto *other_sprite: group->sprites)
+    const auto sprites = group->Sprites();
+    for (auto *other_sprite: sprites)
     {
         if (collided(sprite, other_sprite))
         {
@@ -267,7 +271,8 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
         Sprite *sprite, Group *group,
         const std::function<bool(Sprite *left, Sprite *right)> &collided)
 {
-    for (auto *other_sprite: group->sprites)
+    const auto sprites = group->Sprites();
+    for (auto *other_sprite: sprites)
     {
         if (collided(sprite, other_sprite))
         {
