@@ -646,7 +646,8 @@ rg::Surface *rg::mask::Mask::ToSurface() const
 rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char threshold)
 {
     auto mask = Mask(surface->Texture()->width, surface->Texture()->height);
-    const rl::Image alphaImage = ImageFromChannel(LoadImageFromTexture(*surface->Texture()), 3);
+    const rl::Image surfImage = LoadImageFromTexture(*surface->Texture());
+    const rl::Image alphaImage = ImageFromChannel(surfImage, 3);
     const auto alphaData = (unsigned char *) alphaImage.data;
     const auto maskData = (unsigned char *) mask.image.data;
     for (int i = 0; i < mask.image.width * mask.image.height; i++)
@@ -658,6 +659,7 @@ rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char thres
     }
 
     UnloadImage(alphaImage);
+    UnloadImage(surfImage);
     return mask;
 }
 
