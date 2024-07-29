@@ -86,25 +86,21 @@ void rg::sprite::Group::empty()
     sprites.clear();
 }
 
-void rg::sprite::Group::remove(
-        const std::vector<Sprite *> &to_remove_sprites, const bool deleteSprites)
+void rg::sprite::Group::remove(const std::vector<Sprite *> &to_remove_sprites)
 {
     for (auto *sprite: to_remove_sprites)
     {
-        remove(sprite, deleteSprites);
+        remove(sprite);
     }
 }
 
-void rg::sprite::Group::remove(Sprite *to_remove_sprite, const bool deleteSprite)
+void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Sprite *to_remove_sprite)
 {
     if (has(to_remove_sprite))
     {
         sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
         to_remove_sprite->remove(this);
-        if (deleteSprite)
-        {
-            to_remove_sprite->Kill(deleteSprite);
-        }
     }
 }
 

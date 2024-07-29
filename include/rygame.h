@@ -171,9 +171,9 @@ namespace rg
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<Sprite *> &to_remove_sprites, bool deleteSprites = false);
+            void remove(const std::vector<Sprite *> &to_remove_sprites);
             // Removes a Sprite from this group if it is in this group
-            void remove(Sprite *to_remove_sprite, bool deleteSprite = false);
+            void remove(Sprite *to_remove_sprite);
             // Adds a list of sprites to this group
             void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
