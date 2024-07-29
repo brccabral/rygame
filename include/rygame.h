@@ -59,9 +59,12 @@ namespace rg
         Surface(int width, int height);
         ~Surface();
         void Fill(rl::Color color) const;
-        void Blit(Surface *surface, rl::Vector2 offset = {0, 0}) const;
         void
-        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {}) const;
+        Blit(Surface *surface, rl::Vector2 offset = {0, 0},
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
+        void
+        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {},
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         // Returns the size of the Surface, not the atlas position
         [[nodiscard]] RectangleU GetRect() const;
         rl::Texture2D *Texture();

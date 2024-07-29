@@ -359,17 +359,34 @@ void rg::Surface::Fill(const rl::Color color) const
     EndTextureModeSafe();
 }
 
-void rg::Surface::Blit(Surface *surface, const rl::Vector2 offset) const
+void rg::Surface::Blit(
+        Surface *surface, const rl::Vector2 offset, const rl::BlendMode blend_mode) const
 {
     BeginTextureModeSafe(render_texture);
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        BeginBlendMode(blend_mode);
+    }
+
     DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, rl::WHITE);
+
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        rl::EndBlendMode();
+    }
     EndTextureModeSafe();
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area) const
+        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area,
+        const rl::BlendMode blend_mode) const
 {
     BeginTextureModeSafe(render_texture);
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        BeginBlendMode(blend_mode);
+    }
+
     if (area.height)
     {
         DrawTextureRec(*texture, area.rectangle, offset, rl::WHITE);
@@ -379,6 +396,11 @@ void rg::Surface::Blit(
         DrawTextureRec(
                 *texture, {0, 0, (float) texture->width, (float) -texture->height}, offset,
                 rl::WHITE);
+    }
+
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        rl::EndBlendMode();
     }
     EndTextureModeSafe();
 }
