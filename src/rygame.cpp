@@ -388,7 +388,7 @@ rg::Surface *rg::Surface::Load(const char *path)
     const rl::Texture2D texture = rl::LoadTexture(path);
     // ReSharper disable once CppDFAMemoryLeak
     auto *surface = new Surface(texture.width, texture.height);
-    BeginTextureModeSafe(surface->render_texture);
+    BeginTextureModeC(surface->render_texture, rl::BLANK);
     DrawTextureV(texture, {0, 0}, rl::WHITE);
     EndTextureModeSafe();
     UnloadTexture(texture);
