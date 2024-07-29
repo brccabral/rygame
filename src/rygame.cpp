@@ -112,7 +112,9 @@ void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
     }
 }
 
-void rg::sprite::Group::add(Sprite *to_add_sprite)
+
+void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Sprite *to_add_sprite)
 {
     if (!has(to_add_sprite))
     {
@@ -163,7 +165,8 @@ rg::sprite::Sprite::~Sprite()
     delete image;
 }
 
-void rg::sprite::Sprite::add(Group *to_add_group)
+void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Group *to_add_group)
 {
     if (to_add_group)
     {
@@ -183,7 +186,8 @@ void rg::sprite::Sprite::add(const std::vector<Group *> &to_add_groups)
     }
 }
 
-void rg::sprite::Sprite::remove(Group *to_remove_group)
+void rg::sprite::Sprite::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Group *to_remove_group)
 {
     if (has(to_remove_group))
     {
