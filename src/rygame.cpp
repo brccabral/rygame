@@ -94,7 +94,7 @@ void rg::sprite::Group::remove(
 
 void rg::sprite::Group::remove(Sprite *to_remove_sprite, const bool deleteSprite)
 {
-    if (std::find(sprites.begin(), sprites.end(), to_remove_sprite) != sprites.end())
+    if (has(to_remove_sprite))
     {
         sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
         to_remove_sprite->remove(this);
@@ -115,8 +115,30 @@ void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
 
 void rg::sprite::Group::add(Sprite *to_add_sprite)
 {
-    sprites.push_back(to_add_sprite);
+    if (!has(to_add_sprite))
+    {
+        sprites.push_back(to_add_sprite);
+        to_add_sprite->add(this);
+    }
 }
+
+bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
+{
+    for (const auto *sprite: check_sprites)
+    {
+        if (!has(sprite))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool rg::sprite::Group::has(const Sprite *check_sprite)
+{
+    return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
+}
+
 
 std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites()
 {
@@ -132,9 +154,12 @@ void rg::sprite::Group::DeleteAll()
     }
 }
 
-rg::sprite::Sprite::Sprite(Group *group)
+rg::sprite::Sprite::Sprite(Group *to_add_group)
 {
-    add(group);
+    if (to_add_group)
+    {
+        add(to_add_group);
+    }
 }
 
 rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups)
@@ -151,8 +176,11 @@ void rg::sprite::Sprite::add(Group *to_add_group)
 {
     if (to_add_group)
     {
-        groups.push_back(to_add_group);
-        to_add_group->add(this);
+        if (!has(to_add_group))
+        {
+            groups.push_back(to_add_group);
+            to_add_group->add(this);
+        }
     }
 }
 
@@ -166,7 +194,7 @@ void rg::sprite::Sprite::add(const std::vector<Group *> &to_add_groups)
 
 void rg::sprite::Sprite::remove(Group *to_remove_group)
 {
-    if (std::find(groups.begin(), groups.end(), to_remove_group) != groups.end())
+    if (has(to_remove_group))
     {
         groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
         to_remove_group->remove(this);
@@ -179,6 +207,11 @@ void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
     {
         remove(to_remove_group);
     }
+}
+
+bool rg::sprite::Sprite::has(const Group *check_group)
+{
+    return std::find(groups.begin(), groups.end(), check_group) != groups.end();
 }
 
 std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()

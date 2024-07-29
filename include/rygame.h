@@ -178,6 +178,10 @@ namespace rg
             void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
             void add(Sprite *to_add_sprite);
+            // Check if all sprites are in group
+            bool has(const std::vector<Sprite *> &check_sprites);
+            // Check if sprite is in group
+            bool has(const Sprite *check_sprite);
             // Returns a copy of vector sprites
             std::vector<Sprite *> Sprites();
 
@@ -195,7 +199,7 @@ namespace rg
         public:
 
             // Pass group by reference because the sprite does not own the group
-            explicit Sprite(Group *group);
+            explicit Sprite(Group *to_add_group);
             // Pass group by reference because the sprite does not own the group
             explicit Sprite(const std::vector<Group *> &groups);
             virtual ~Sprite();
@@ -226,6 +230,9 @@ namespace rg
         protected:
 
             std::vector<Group *> groups{}; // groups that this sprite is in
+        private:
+
+            bool has(const Group *check_group);
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);
