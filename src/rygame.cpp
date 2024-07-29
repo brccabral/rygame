@@ -55,7 +55,10 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
 
 rg::sprite::Group::~Group()
 {
-    DeleteAll();
+    for (const auto *sprite: Sprites())
+    {
+        delete sprite;
+    }
 };
 
 void rg::sprite::Group::Draw(Surface *surface)
@@ -145,15 +148,6 @@ std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites()
     return sprites;
 }
 
-void rg::sprite::Group::DeleteAll()
-{
-    for (auto *sprite: Sprites())
-    {
-        sprite->LeaveOtherGroups(this);
-        delete sprite;
-    }
-}
-
 rg::sprite::Sprite::Sprite(Group *to_add_group)
 {
     if (to_add_group)
@@ -169,6 +163,7 @@ rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups)
 
 rg::sprite::Sprite::~Sprite()
 {
+    LeaveAllGroups();
     delete image;
 }
 
@@ -230,7 +225,8 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
     }
 }
 
-rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
+void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recursion does not happen
+                                          // because we pass `false`
 {
     // leave all groups
     for (const auto group: Groups())
@@ -239,6 +235,12 @@ rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
     }
     // it doesn't belong to any group
     groups.clear();
+}
+
+rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
+{
+    // leave all groups
+    LeaveAllGroups();
 
     if (deleteSprite)
     {
@@ -287,7 +289,7 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
                 // just remove from group, don't delete
                 // it will be returned in the result
                 // if needed, delete it in the vector later
-                other_sprite->Kill();
+                other_sprite->Kill(false);
             }
         }
     }

@@ -188,10 +188,6 @@ namespace rg
         protected:
 
             std::vector<Sprite *> sprites{};
-
-        private:
-
-            void DeleteAll();
         };
 
         class Sprite
@@ -216,9 +212,10 @@ namespace rg
             std::vector<Group *> Groups();
 
             virtual void Update(float deltaTime){};
-            virtual void LeaveOtherGroups(const Group *not_leave_group);
-            // removes sprite from group and mark for deletion
-            virtual Sprite *Kill(bool deleteSprite = false);
+            // removes sprite from group. If passed false, you must
+            // capture the returned value and delete it later. If passed true,
+            // it will mark for deletion and return `nullptr`
+            virtual Sprite *Kill(bool deleteSprite);
             // Flip Horizontally (-width)
             virtual void FlipH();
 
@@ -233,6 +230,10 @@ namespace rg
         private:
 
             bool has(const Group *check_group);
+            // Leave groups that are not the passed one
+            virtual void LeaveOtherGroups(const Group *not_leave_group);
+            // leave all groups
+            void LeaveAllGroups();
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);
