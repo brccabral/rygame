@@ -68,8 +68,7 @@ void rg::sprite::Group::Draw(Surface *surface)
 
 void rg::sprite::Group::Update(const float deltaTime)
 {
-    const auto sprites_to_update = Sprites();
-    for (auto *sprite: sprites_to_update)
+    for (auto *sprite: Sprites())
     {
         sprite->Update(deltaTime);
     }
@@ -77,8 +76,7 @@ void rg::sprite::Group::Update(const float deltaTime)
 
 void rg::sprite::Group::empty()
 {
-    const auto sprites_to_remove = Sprites();
-    for (auto *sprite: sprites_to_remove)
+    for (auto *sprite: Sprites())
     {
         sprite->remove(this);
     }
@@ -127,8 +125,7 @@ std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites()
 
 void rg::sprite::Group::DeleteAll()
 {
-    const auto sprites = Sprites();
-    for (auto *sprite: sprites)
+    for (auto *sprite: Sprites())
     {
         sprite->LeaveOtherGroups(this);
         delete sprite;
@@ -191,8 +188,7 @@ std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
 
 void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 {
-    auto groups = Groups();
-    for (const auto group: groups)
+    for (const auto group: Groups())
     {
         if (group != not_leave_group)
         {
@@ -204,8 +200,7 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
 {
     // leave all groups
-    const auto groups_to_leave = Groups();
-    for (const auto group: groups_to_leave)
+    for (const auto group: Groups())
     {
         group->remove(this);
     }
@@ -249,8 +244,7 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
         const std::function<bool(Sprite *left, Sprite *right)> &collided)
 {
     std::vector<Sprite *> result;
-    const auto sprites = group->Sprites();
-    for (auto *other_sprite: sprites)
+    for (auto *other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {
@@ -271,8 +265,7 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
         Sprite *sprite, Group *group,
         const std::function<bool(Sprite *left, Sprite *right)> &collided)
 {
-    const auto sprites = group->Sprites();
-    for (auto *other_sprite: sprites)
+    for (auto *other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {
