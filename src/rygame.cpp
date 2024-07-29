@@ -3,6 +3,27 @@
 int current_render = 0;
 rg::Surface *display_surface = nullptr;
 
+class KilledSprites final : public rg::sprite::Group
+{
+public:
+
+    KilledSprites() : Group(){};
+    ~KilledSprites() override
+    {
+        DoDelete();
+    };
+
+    void DoDelete()
+    {
+        for (const auto *sprite: Sprites())
+        {
+            delete sprite;
+        }
+    };
+};
+
+KilledSprites killedSprites{};
+
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
     if (current_render > 0)
@@ -244,7 +265,7 @@ rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
 
     if (deleteSprite)
     {
-        delete this;
+        killedSprites.add(this);
         return nullptr;
     }
     return this;
@@ -710,6 +731,8 @@ rg::Surface *rg::display::GetSurface()
 
 void rg::display::Update()
 {
+    killedSprites.DoDelete();
+
     // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
     // https://github.com/raysan5/raylib/issues/3803
     rl::BeginDrawing();
