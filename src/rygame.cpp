@@ -135,117 +135,213 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-rl::Vector2 rg::GetRectCenter(const RectangleU rect)
+float rg::Rect::right() const
 {
-    return {rect.x + rect.width / 2, rect.y + rect.height / 2};
+    return x + width;
 }
 
-rl::Vector2 rg::GetRectMidBottom(const RectangleU rect)
+float rg::Rect::right(const float v)
 {
-    return {rect.x + rect.width / 2, rect.y + rect.height};
+    x = v - width;
+    return right();
 }
 
-rl::Vector2 rg::GetRectMidTop(const RectangleU rect)
+float rg::Rect::left() const
 {
-    return {rect.x + rect.width / 2, rect.y};
+    return x;
 }
 
-rl::Vector2 rg::GetRectMidLeft(const RectangleU rect)
+float rg::Rect::left(const float v)
 {
-    return {rect.x, rect.y + rect.height / 2};
+    x = v;
+    return left();
 }
 
-rl::Vector2 rg::GetRectMidRight(const RectangleU rect)
+float rg::Rect::centerx() const
 {
-    return {rect.x + rect.width, rect.y + rect.height / 2};
+    return x + width / 2.0f;
 }
 
-rl::Vector2 rg::GetRectTopLeft(const RectangleU rect)
+float rg::Rect::centerx(const float v)
 {
-    // return {rect.x, rect.y};
-    return rect.pos;
+    x = v - width / 2.0f;
+    return centerx();
 }
 
-rl::Vector2 rg::GetRectTopRight(const RectangleU rect)
+float rg::Rect::centery() const
 {
-    return {rect.x + rect.width, rect.y};
+    return y + height / 2.0f;
 }
 
-rl::Vector2 rg::GetRectBottomLeft(const RectangleU rect)
+float rg::Rect::centery(const float v)
 {
-    return {rect.x, rect.y + rect.height};
+    y = v - height / 2.0f;
+    return centery();
 }
 
-rl::Vector2 rg::GetRectBottomRight(const RectangleU rect)
+rl::Vector2 rg::Rect::center() const
 {
-    return {rect.x + rect.width, rect.y + rect.height};
+    return {x + width / 2.0f, y + height / 2.0f};
 }
 
-rg::RectangleU rg::GetRectInflate(const RectangleU rect, const int width, const int height)
+rl::Vector2 rg::Rect::center(const rl::Vector2 pos)
 {
-    RectangleU result = rect;
-    RectInflate(result, width, height);
+    x = pos.x - width / 2.0f;
+    y = pos.y - height / 2.0f;
+    return center();
+}
+
+float rg::Rect::top() const
+{
+    return y;
+}
+
+float rg::Rect::top(const float v)
+{
+    y = v;
+    return top();
+}
+
+float rg::Rect::bottom() const
+{
+    return y + height;
+}
+
+float rg::Rect::bottom(const float v)
+{
+    y = v - height;
+    return bottom();
+}
+
+rl::Vector2 rg::Rect::topleft() const
+{
+    return {x, y};
+}
+
+rl::Vector2 rg::Rect::topleft(const rl::Vector2 pos)
+{
+    x = pos.x;
+    y = pos.y;
+    return topleft();
+}
+
+rl::Vector2 rg::Rect::bottomleft() const
+{
+    return {x, y + height};
+}
+
+rl::Vector2 rg::Rect::bottomleft(const rl::Vector2 pos)
+{
+    x = pos.x;
+    y = pos.y - height;
+    return bottomleft();
+}
+
+rl::Vector2 rg::Rect::topright() const
+{
+    return {x + width, y};
+}
+
+rl::Vector2 rg::Rect::topright(const rl::Vector2 pos)
+{
+    x = pos.x - width;
+    y = pos.y;
+    return topright();
+}
+
+rl::Vector2 rg::Rect::bottomright() const
+{
+    return {x + width, y + height};
+}
+
+rl::Vector2 rg::Rect::bottomright(const rl::Vector2 pos)
+{
+    x = pos.x - width;
+    y = pos.y - height;
+    return bottomright();
+}
+
+rl::Vector2 rg::Rect::midbottom() const
+{
+    return {x + width / 2.0f, y + height};
+}
+
+rl::Vector2 rg::Rect::midbottom(const rl::Vector2 pos)
+{
+    x = pos.x - width / 2.0f;
+    y = pos.y - height;
+    return midbottom();
+}
+
+rl::Vector2 rg::Rect::midtop() const
+{
+    return {x + width / 2.0f, y};
+}
+
+rl::Vector2 rg::Rect::midtop(const rl::Vector2 pos)
+{
+    x = pos.x - width / 2.0f;
+    y = pos.y;
+    return midbottom();
+}
+
+rl::Vector2 rg::Rect::midleft() const
+{
+    return {x, y + height / 2.0f};
+}
+
+rl::Vector2 rg::Rect::midleft(const rl::Vector2 pos)
+{
+    x = pos.x;
+    y = pos.y - height / 2.0f;
+    return midleft();
+}
+
+rl::Vector2 rg::Rect::midright() const
+{
+    return {x + width, y + height / 2.0f};
+}
+
+rl::Vector2 rg::Rect::midright(const rl::Vector2 pos)
+{
+    x = pos.x - width;
+    y = pos.y - height / 2.0f;
+    return midright();
+}
+
+rg::Rect rg::Rect::inflate(const float width, const float height) const
+{
+    Rect result{x, y, this->width, this->height};
+    result.inflate_ip(width, height);
     return result;
 }
 
-rg::RectangleU rg::GetRectInflate(const RectangleU rect, const float ratio)
+rg::Rect rg::Rect::scale_by(const float ratio) const
 {
-    RectangleU result = rect;
-    RectInflate(result, ratio);
+    Rect result{x, y, this->width, this->height};
+    result.scale_by_ip(ratio);
     return result;
 }
 
-void rg::RectToCenter(RectangleU &rect, const rl::Vector2 pos)
+void rg::Rect::inflate_ip(const float width, const float height)
 {
-    rect.x = pos.x - rect.width / 2;
-    rect.y = pos.y - rect.height / 2;
+    const rl::Vector2 oldCenter = center();
+    this->width += width;
+    this->height += height;
+    center(oldCenter);
 }
 
-void rg::RectToMidBottom(RectangleU &rect, const rl::Vector2 pos)
+void rg::Rect::scale_by_ip(const float ratio)
 {
-    rect.x = pos.x - rect.width / 2;
-    rect.y = pos.y - rect.height;
+    const rl::Vector2 oldCenter = center();
+    this->width *= ratio;
+    this->height *= ratio;
+    center(oldCenter);
 }
 
-void rg::RectToMidLeft(RectangleU &rect, const rl::Vector2 pos)
+rg::Rect rg::Rect::copy() const
 {
-    rect.x = pos.x;
-    rect.y = pos.y - rect.height / 2;
-}
-
-void rg::RectToBottomLeft(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x;
-    rect.y = pos.y - rect.height;
-}
-
-void rg::RectToTopLeft(RectangleU &rect, const rl::Vector2 pos)
-{
-    // rect.x = pos.x;
-    // rect.y = pos.y;
-    rect.pos = pos;
-}
-
-void rg::RectToTopRight(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x - rect.width;
-    rect.y = pos.y;
-}
-
-void rg::RectInflate(RectangleU &rect, const float width, const float height)
-{
-    const rl::Vector2 oldCenter = GetRectCenter(rect);
-    rect.width += width;
-    rect.height += height;
-    RectToCenter(rect, oldCenter);
-}
-
-void rg::RectInflate(RectangleU &rect, const float ratio)
-{
-    const rl::Vector2 oldCenter = GetRectCenter(rect);
-    rect.width *= ratio;
-    rect.height *= ratio;
-    RectToCenter(rect, oldCenter);
+    return {x, y, width, height};
 }
 
 rg::Surface::Surface(const int width, const int height)
@@ -299,7 +395,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area,
+        const rl::Texture2D *texture, const rl::Vector2 offset, const Rect area,
         const rl::BlendMode blend_mode) const
 {
     if (!texture)
@@ -328,7 +424,7 @@ void rg::Surface::Blit(
     EndTextureModeSafe();
 }
 
-rg::RectangleU rg::Surface::GetRect() const
+rg::Rect rg::Surface::GetRect() const
 {
     const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
     const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
@@ -364,7 +460,7 @@ rg::Surface *rg::Surface::Load(const char *path)
 }
 
 void rg::draw::rect(
-        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick,
+        const Surface *surface, const rl::Color color, const Rect rect, const float lineThick,
         const float radius)
 {
     BeginTextureModeSafe(surface->render_texture);
@@ -444,7 +540,7 @@ rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
     const rl::tmx_image *im = tile->image;
     const rl::Texture2D *map_texture = nullptr;
 
-    RectangleU srcRect;
+    Rect srcRect;
     srcRect.x = tile->ul_x;
     srcRect.y = tile->ul_y;
     srcRect.width = tile->width;
@@ -712,11 +808,11 @@ rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ra
 
 bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
 {
-    RectangleU leftrect = left->rect;
-    RectangleU rightrect = right->rect;
+    Rect leftrect = left->rect;
+    Rect rightrect = right->rect;
 
-    RectInflate(leftrect, ratio);
-    RectInflate(rightrect, ratio);
+    leftrect.scale_by_ip(ratio);
+    rightrect.scale_by_ip(ratio);
 
     return collide_rect(left, right);
 }

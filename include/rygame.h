@@ -82,7 +82,7 @@ namespace rg
         return keys;
     }
 
-    typedef union RectangleU
+    typedef union Rect
     {
         struct
         {
@@ -98,46 +98,43 @@ namespace rg
         {
             float x, y, width, height;
         };
-    } RectangleU;
 
-    // Returns center of rectangle
-    rl::Vector2 GetRectCenter(RectangleU rect);
-    // Returns mid-bottom of rectangle
-    rl::Vector2 GetRectMidBottom(RectangleU rect);
-    // Returns mid-top of rectangle
-    rl::Vector2 GetRectMidTop(RectangleU rect);
-    // Returns mid-left of rectangle
-    rl::Vector2 GetRectMidLeft(RectangleU rect);
-    // Returns mid-right of rectangle
-    rl::Vector2 GetRectMidRight(RectangleU rect);
-    // Returns top-left of rectangle
-    rl::Vector2 GetRectTopLeft(RectangleU rect);
-    // Returns top-right of rectangle
-    rl::Vector2 GetRectTopRight(RectangleU rect);
-    // Returns bottom-left of rectangle
-    rl::Vector2 GetRectBottomLeft(RectangleU rect);
-    // Returns bottom-right of rectangle
-    rl::Vector2 GetRectBottomRight(RectangleU rect);
-    // Returns a new RectangleU with size of rect Increased/Decreased, keeping center position
-    RectangleU GetRectInflate(RectangleU rect, int width, int height);
-    // Returns a new RectangleU with size of rect Increased/Decreased, keeping center position
-    RectangleU GetRectInflate(RectangleU rect, float ratio);
-    // move rectangle's center to position
-    void RectToCenter(RectangleU &rect, rl::Vector2 pos);
-    // move rectangle's mid-bottom to position
-    void RectToMidBottom(RectangleU &rect, rl::Vector2 pos);
-    // move rectangle's mid-left to position
-    void RectToMidLeft(RectangleU &rect, rl::Vector2 pos);
-    // move rectangle's bottom-left to position
-    void RectToBottomLeft(RectangleU &rect, rl::Vector2 pos);
-    // move rectangle's top-left to position
-    void RectToTopLeft(RectangleU &rect, rl::Vector2 pos);
-    // move rectangle's top-right to position
-    void RectToTopRight(RectangleU &rect, rl::Vector2 pos);
-    // Increase/Decrease size of rect, keeping center position
-    void RectInflate(RectangleU &rect, float width, float height);
-    // Increase/Decrease size of rect, keeping center position
-    void RectInflate(RectangleU &rect, float ratio);
+        [[nodiscard]] float right() const;
+        float right(float v);
+        [[nodiscard]] float left() const;
+        float left(float v);
+        [[nodiscard]] float centerx() const;
+        float centerx(float v);
+        [[nodiscard]] float centery() const;
+        float centery(float v);
+        [[nodiscard]] rl::Vector2 center() const;
+        rl::Vector2 center(rl::Vector2 pos);
+        [[nodiscard]] float top() const;
+        float top(float v);
+        [[nodiscard]] float bottom() const;
+        float bottom(float v);
+        [[nodiscard]] rl::Vector2 topleft() const;
+        rl::Vector2 topleft(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 bottomleft() const;
+        rl::Vector2 bottomleft(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 topright() const;
+        rl::Vector2 topright(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 bottomright() const;
+        rl::Vector2 bottomright(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 midbottom() const;
+        rl::Vector2 midbottom(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 midtop() const;
+        rl::Vector2 midtop(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 midleft() const;
+        rl::Vector2 midleft(rl::Vector2 pos);
+        [[nodiscard]] rl::Vector2 midright() const;
+        rl::Vector2 midright(rl::Vector2 pos);
+        [[nodiscard]] Rect inflate(float width, float height) const;
+        [[nodiscard]] Rect scale_by(float ratio) const;
+        void inflate_ip(float width, float height);
+        void scale_by_ip(float ratio);
+        [[nodiscard]] Rect copy() const;
+    } Rect;
 
     // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
     template<typename K, typename V>
@@ -216,10 +213,10 @@ namespace rg
         Blit(Surface *surface, rl::Vector2 offset = {0, 0},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         void
-        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {},
+        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, Rect area = {},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         // Returns the size of the Surface, not the atlas position
-        [[nodiscard]] RectangleU GetRect() const;
+        [[nodiscard]] Rect GetRect() const;
         rl::Texture2D *Texture();
         void SetColorKey(rl::Color color) const;
 
@@ -227,14 +224,14 @@ namespace rg
         // The caller must delete Surface*
         static Surface *Load(const char *path);
 
-        RectangleU atlas_rect{}; // atlas position
+        Rect atlas_rect{}; // atlas position
         rl::RenderTexture2D render_texture{}; // atlas texture
     };
 
     namespace draw
     {
         void
-        rect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f,
+        rect(const Surface *surface, rl::Color color, Rect rect, float lineThick = 0.0f,
              float radius = 0.0f);
         void
         circle(const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
@@ -335,7 +332,7 @@ namespace rg
 
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 
-            RectangleU rect{}; // world position
+            Rect rect{}; // world position
             Surface *image = nullptr;
 
         protected:
