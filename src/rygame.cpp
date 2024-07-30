@@ -364,16 +364,33 @@ rg::Surface *rg::Surface::Load(const char *path)
 }
 
 void rg::draw::rect(
-        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
+        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick,
+        const float radius)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
     {
-        DrawRectangleLinesEx(rect.rectangle, lineThick, color);
+        if (radius > 0)
+        {
+            const int segments = (rect.width > rect.height ? rect.width : rect.height) * radius;
+            DrawRectangleRoundedLines(rect.rectangle, 0.5f, segments, color);
+        }
+        else
+        {
+            DrawRectangleLinesEx(rect.rectangle, lineThick, color);
+        }
     }
     else if (lineThick == 0)
     {
-        DrawRectangleV(rect.pos, rect.size, color);
+        if (radius > 0)
+        {
+            const int segments = (rect.width > rect.height ? rect.width : rect.height) * radius;
+            DrawRectangleRounded(rect.rectangle, 0.5f, segments, color);
+        }
+        else
+        {
+            DrawRectangleV(rect.pos, rect.size, color);
+        }
     }
     EndTextureModeSafe();
 }

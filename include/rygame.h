@@ -233,7 +233,9 @@ namespace rg
 
     namespace draw
     {
-        void rect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
+        void
+        rect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f,
+             float radius = 0.0f);
         void
         circle(const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
                float lineThick = 0.0f);
