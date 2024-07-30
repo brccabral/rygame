@@ -68,8 +68,8 @@ namespace rg
     // is defined by MAX_TEXT_BUFFER_LENGTH
     void TextFormatSafe(char *buffer, const char *format, ...);
 
-    template<typename K, typename V>
-    std::vector<K> getKeys(const std::map<K, V> &map)
+    template<typename K, typename C>
+    std::vector<K> getKeys(C &map)
     {
         std::vector<K> keys;
         keys.reserve(map.size());
@@ -144,6 +144,7 @@ namespace rg
         InsertOrderMap() = default;
         InsertOrderMap(std::initializer_list<std::pair<K, V>> init);
 
+        [[nodiscard]] unsigned int size() const;
         void insert(const K &key, const V &value);
         V &operator[](const K &key);
         typename std::list<std::pair<K, V>>::iterator begin();
@@ -164,6 +165,12 @@ namespace rg
         {
             insert(key, value);
         }
+    }
+
+    template<typename K, typename V>
+    unsigned int InsertOrderMap<K, V>::size() const
+    {
+        return map_.size();
     }
 
     template<typename K, typename V>
@@ -439,4 +446,27 @@ namespace rg
 
         Mask FromSurface(Surface *surface, unsigned char threshold = 127);
     } // namespace mask
+
+    namespace font
+    {
+        class Font
+        {
+        public:
+
+            // Default Font, size 1
+            Font();
+            // Load font from file
+            Font(const char *file, float size);
+            // Raylib Font
+            Font(rl::Font font, float size);
+            ~Font();
+            // Creates a Text surface from this Font. Make sure to delete it.
+            Surface *render(const char *text, rl::Color color, float spacing = 1) const;
+
+        private:
+
+            rl::Font font;
+            float size;
+        };
+    } // namespace font
 } // namespace rg

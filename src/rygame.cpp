@@ -304,9 +304,7 @@ void rg::Surface::Blit(
     }
     else
     {
-        DrawTextureRec(
-                *texture, {0, 0, (float) texture->width, (float) -texture->height}, offset,
-                rl::WHITE);
+        DrawTexture(*texture, offset.x, offset.y, rl::WHITE);
     }
 
     if (blend_mode != rl::BLEND_ALPHA)
@@ -845,7 +843,7 @@ rg::Surface *rg::mask::Mask::ToSurface() const
 {
     auto *surface = new Surface(image.width, image.height);
     const rl::Texture2D maskTexture = LoadTextureFromImage(image);
-    surface->Blit(&maskTexture, {}, {0, 0, (float) image.width, (float) -image.height});
+    surface->Blit(&maskTexture);
     UnloadTexture(maskTexture);
     return surface;
 }
@@ -868,4 +866,35 @@ rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char thres
     UnloadImage(alphaImage);
     UnloadImage(surfImage);
     return mask;
+}
+
+rg::font::Font::Font() : font(rl::GetFontDefault()), size(1)
+{}
+
+rg::font::Font::Font(const char *file, const float size)
+    : font(rl::LoadFontEx(file, size, nullptr, 0)), size(size)
+{}
+
+// rl:Font is trivial copiable
+// ReSharper disable once CppPassValueParameterByConstReference
+rg::font::Font::Font(rl::Font font, const float size) : font(font), size(size)
+{}
+
+rg::font::Font::~Font()
+{
+    UnloadFont(font);
+}
+
+rg::Surface *
+rg::font::Font::render(const char *text, const rl::Color color, const float spacing) const
+{
+    const rl::Image imageText = ImageTextEx(font, text, size, spacing, color);
+    const rl::Texture texture = LoadTextureFromImage(imageText);
+
+    auto *result = new Surface(imageText.width, imageText.height);
+    result->Blit(&texture);
+
+    UnloadTexture(texture);
+    UnloadImage(imageText);
+    return result;
 }
