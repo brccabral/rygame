@@ -181,6 +181,20 @@ rl::Vector2 rg::GetRectBottomRight(const RectangleU rect)
     return {rect.x + rect.width, rect.y + rect.height};
 }
 
+rg::RectangleU rg::GetRectInflate(const RectangleU rect, const int width, const int height)
+{
+    RectangleU result = rect;
+    RectInflate(result, width, height);
+    return result;
+}
+
+rg::RectangleU rg::GetRectInflate(const RectangleU rect, const float ratio)
+{
+    RectangleU result = rect;
+    RectInflate(result, ratio);
+    return result;
+}
+
 void rg::RectToCenter(RectangleU &rect, const rl::Vector2 pos)
 {
     rect.x = pos.x - rect.width / 2;

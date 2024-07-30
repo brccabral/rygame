@@ -118,6 +118,10 @@ namespace rg
     rl::Vector2 GetRectBottomLeft(RectangleU rect);
     // Returns bottom-right of rectangle
     rl::Vector2 GetRectBottomRight(RectangleU rect);
+    // Returns a new RectangleU with size of rect Increased/Decreased, keeping center position
+    RectangleU GetRectInflate(RectangleU rect, int width, int height);
+    // Returns a new RectangleU with size of rect Increased/Decreased, keeping center position
+    RectangleU GetRectInflate(RectangleU rect, float ratio);
     // move rectangle's center to position
     void RectToCenter(RectangleU &rect, rl::Vector2 pos);
     // move rectangle's mid-bottom to position
