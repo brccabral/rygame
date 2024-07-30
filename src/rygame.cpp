@@ -744,7 +744,8 @@ rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char thres
 
 rg::Surface *rg::display::SetMode(const int width, const int height)
 {
-    rl::InitWindow(width, height, "raygame");
+    rl::InitWindow(width, height, "rygame");
+    SetExitKey(rl::KEY_NULL);
     display_surface = new Surface(width, height);
     return display_surface;
 }
