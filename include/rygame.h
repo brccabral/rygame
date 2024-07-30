@@ -68,6 +68,20 @@ namespace rg
     // is defined by MAX_TEXT_BUFFER_LENGTH
     void TextFormatSafe(char *buffer, const char *format, ...);
 
+    template<typename K, typename V>
+    std::vector<K> getKeys(const std::map<K, V> &map)
+    {
+        std::vector<K> keys;
+        keys.reserve(map.size());
+
+        for (const auto &pair: map)
+        {
+            keys.push_back(pair.first);
+        }
+
+        return keys;
+    }
+
     typedef union RectangleU
     {
         struct
