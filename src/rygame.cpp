@@ -362,6 +362,10 @@ void rg::Surface::Fill(const rl::Color color) const
 void rg::Surface::Blit(
         Surface *surface, const rl::Vector2 offset, const rl::BlendMode blend_mode) const
 {
+    if (!surface)
+    {
+        return;
+    }
     BeginTextureModeSafe(render_texture);
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -381,6 +385,10 @@ void rg::Surface::Blit(
         const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area,
         const rl::BlendMode blend_mode) const
 {
+    if (!texture)
+    {
+        return;
+    }
     BeginTextureModeSafe(render_texture);
     if (blend_mode != rl::BLEND_ALPHA)
     {
