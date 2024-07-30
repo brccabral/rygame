@@ -349,7 +349,7 @@ rg::Surface *rg::Surface::Load(const char *path)
     return surface;
 }
 
-void rg::DrawRect(
+void rg::draw::rect(
         const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
@@ -364,7 +364,7 @@ void rg::DrawRect(
     EndTextureModeSafe();
 }
 
-void rg::DrawCirc(
+void rg::draw::circle(
         const Surface *surface, const rl::Color color, const rl::Vector2 center, const float radius,
         const float lineThick)
 {

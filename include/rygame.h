@@ -227,10 +227,13 @@ namespace rg
         rl::RenderTexture2D render_texture{}; // atlas texture
     };
 
-    void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
-    void DrawCirc(
-            const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
-            float lineThick = 0.0f);
+    namespace draw
+    {
+        void rect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
+        void
+        circle(const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
+               float lineThick = 0.0f);
+    } // namespace draw
 
     namespace assets
     {
