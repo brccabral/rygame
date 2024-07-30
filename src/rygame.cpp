@@ -24,6 +24,46 @@ public:
 
 KilledSprites killedSprites{};
 
+
+rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs)
+{
+    return rl::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+rl::Vector2 operator*(const rl::Vector2 &lhs, const float scale)
+{
+    return rl::Vector2{lhs.x * scale, lhs.y * scale};
+}
+
+rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
+{
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
+}
+
+rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
+{
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
+}
+
+void rg::Init(
+        const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
+{
+    rl::SetTraceLogLevel(logLevel);
+    rl::SetConfigFlags(config_flags);
+    rl::SetTraceLogCallback(callback);
+    rl::SetRandomSeed(std::time(nullptr));
+}
+
+void rg::Quit()
+{
+    rl::CloseAudioDevice();
+    rl::CloseWindow();
+}
+
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
     if (current_render > 0)
@@ -56,11 +96,32 @@ void rg::BeginDrawingC(const rl::Color color)
     ClearBackground(color);
 }
 
+rl::Image rg::GenImageRandomPixels(const float width, const float height)
+{
+    rl::Image image{};
+    image.format = rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    image.height = height;
+    image.width = width;
+    image.mipmaps = 1;
+
+    auto *pixels = (rl::Color *) RL_CALLOC(width * height, sizeof(rl::Color));
+    for (int i = 0; i < width * height; i++)
+    {
+        pixels[i].r = rl::GetRandomValue(0, 255);
+        pixels[i].g = rl::GetRandomValue(0, 255);
+        pixels[i].b = rl::GetRandomValue(0, 255);
+        pixels[i].a = rl::GetRandomValue(0, 255);
+    }
+    image.data = pixels;
+
+    return image;
+}
+
 void rg::TextFormatSafe(char *buffer, const char *format, ...)
 {
-    memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH); // Clear buffer before using
+    std::memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH); // Clear buffer before using
 
-    va_list args;
+    std::va_list args;
     va_start(args, format);
     const int requiredByteCount = vsnprintf(buffer, MAX_TEXT_BUFFER_LENGTH, format, args);
     va_end(args);
@@ -72,6 +133,342 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
         char *truncBuffer = buffer + MAX_TEXT_BUFFER_LENGTH - 4; // Adding 4 bytes = "...\0"
         sprintf(truncBuffer, "...");
     }
+}
+
+rl::Vector2 rg::GetRectCenter(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y + rect.height / 2};
+}
+
+rl::Vector2 rg::GetRectMidBottom(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y + rect.height};
+}
+
+rl::Vector2 rg::GetRectMidTop(const RectangleU rect)
+{
+    return {rect.x + rect.width / 2, rect.y};
+}
+
+rl::Vector2 rg::GetRectMidLeft(const RectangleU rect)
+{
+    return {rect.x, rect.y + rect.height / 2};
+}
+
+rl::Vector2 rg::GetRectMidRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y + rect.height / 2};
+}
+
+rl::Vector2 rg::GetRectTopLeft(const RectangleU rect)
+{
+    // return {rect.x, rect.y};
+    return rect.pos;
+}
+
+rl::Vector2 rg::GetRectTopRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y};
+}
+
+rl::Vector2 rg::GetRectBottomLeft(const RectangleU rect)
+{
+    return {rect.x, rect.y + rect.height};
+}
+
+rl::Vector2 rg::GetRectBottomRight(const RectangleU rect)
+{
+    return {rect.x + rect.width, rect.y + rect.height};
+}
+
+void rg::RectToCenter(RectangleU &rect, const rl::Vector2 pos)
+{
+    rect.x = pos.x - rect.width / 2;
+    rect.y = pos.y - rect.height / 2;
+}
+
+void rg::RectToMidBottom(RectangleU &rect, const rl::Vector2 pos)
+{
+    rect.x = pos.x - rect.width / 2;
+    rect.y = pos.y - rect.height;
+}
+
+void rg::RectToMidLeft(RectangleU &rect, const rl::Vector2 pos)
+{
+    rect.x = pos.x;
+    rect.y = pos.y - rect.height / 2;
+}
+
+void rg::RectToBottomLeft(RectangleU &rect, const rl::Vector2 pos)
+{
+    rect.x = pos.x;
+    rect.y = pos.y - rect.height;
+}
+
+void rg::RectToTopLeft(RectangleU &rect, const rl::Vector2 pos)
+{
+    // rect.x = pos.x;
+    // rect.y = pos.y;
+    rect.pos = pos;
+}
+
+void rg::RectToTopRight(RectangleU &rect, const rl::Vector2 pos)
+{
+    rect.x = pos.x - rect.width;
+    rect.y = pos.y;
+}
+
+void rg::RectInflate(RectangleU &rect, const float width, const float height)
+{
+    const rl::Vector2 oldCenter = GetRectCenter(rect);
+    rect.width += width;
+    rect.height += height;
+    RectToCenter(rect, oldCenter);
+}
+
+void rg::RectInflate(RectangleU &rect, const float ratio)
+{
+    const rl::Vector2 oldCenter = GetRectCenter(rect);
+    rect.width *= ratio;
+    rect.height *= ratio;
+    RectToCenter(rect, oldCenter);
+}
+
+rg::Surface::Surface(const int width, const int height)
+{
+    render_texture = rl::LoadRenderTexture(width, height);
+    // IsRenderTextureReady does not retry nor waits for RenderTexture to be ready
+    // in fact, it checks if it has an Id, Width and Height
+    if (!IsRenderTextureReady(render_texture))
+    {
+        TraceLog(rl::LOG_ERROR, "Could not load render_texture");
+    }
+    // RenderTexture draws textures upside-down
+    atlas_rect = {
+            0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
+
+    // make sure surface is blank before drawing anything
+    Fill(rl::BLANK);
+}
+
+rg::Surface::~Surface()
+{
+    UnloadRenderTexture(render_texture);
+}
+
+void rg::Surface::Fill(const rl::Color color) const
+{
+    BeginTextureModeC(render_texture, color);
+    EndTextureModeSafe();
+}
+
+void rg::Surface::Blit(
+        Surface *surface, const rl::Vector2 offset, const rl::BlendMode blend_mode) const
+{
+    if (!surface)
+    {
+        return;
+    }
+    BeginTextureModeSafe(render_texture);
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        BeginBlendMode(blend_mode);
+    }
+
+    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, rl::WHITE);
+
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        rl::EndBlendMode();
+    }
+    EndTextureModeSafe();
+}
+
+void rg::Surface::Blit(
+        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area,
+        const rl::BlendMode blend_mode) const
+{
+    if (!texture)
+    {
+        return;
+    }
+    BeginTextureModeSafe(render_texture);
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        BeginBlendMode(blend_mode);
+    }
+
+    if (area.height)
+    {
+        DrawTextureRec(*texture, area.rectangle, offset, rl::WHITE);
+    }
+    else
+    {
+        DrawTextureRec(
+                *texture, {0, 0, (float) texture->width, (float) -texture->height}, offset,
+                rl::WHITE);
+    }
+
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        rl::EndBlendMode();
+    }
+    EndTextureModeSafe();
+}
+
+rg::RectangleU rg::Surface::GetRect() const
+{
+    const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
+    const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
+    return {0, 0, absWidth, absHeight};
+}
+
+rl::Texture2D *rg::Surface::Texture()
+{
+    return &render_texture.texture;
+}
+
+void rg::Surface::SetColorKey(const rl::Color color) const
+{
+    rl::Image current = LoadImageFromTexture(render_texture.texture);
+    ImageColorReplace(&current, color, rl::BLANK);
+    Fill(rl::BLANK);
+    const rl::Texture texture = LoadTextureFromImage(current);
+    Blit(&texture);
+    UnloadImage(current);
+    UnloadTexture(texture);
+}
+
+rg::Surface *rg::Surface::Load(const char *path)
+{
+    const rl::Texture2D texture = rl::LoadTexture(path);
+    // ReSharper disable once CppDFAMemoryLeak
+    auto *surface = new Surface(texture.width, texture.height);
+    BeginTextureModeC(surface->render_texture, rl::BLANK);
+    DrawTextureV(texture, {0, 0}, rl::WHITE);
+    EndTextureModeSafe();
+    UnloadTexture(texture);
+    return surface;
+}
+
+void rg::DrawRect(
+        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
+{
+    BeginTextureModeSafe(surface->render_texture);
+    if (lineThick > 0)
+    {
+        DrawRectangleLinesEx(rect.rectangle, lineThick, color);
+    }
+    else if (lineThick == 0)
+    {
+        DrawRectangleV(rect.pos, rect.size, color);
+    }
+    EndTextureModeSafe();
+}
+
+void rg::DrawCirc(
+        const Surface *surface, const rl::Color color, const rl::Vector2 center, const float radius,
+        const float lineThick)
+{
+    BeginTextureModeSafe(surface->render_texture);
+    if (lineThick > 0)
+    {
+        DrawCircleLinesV(center, radius, color);
+    }
+    else if (lineThick == 0)
+    {
+        DrawCircleV(center, radius, color);
+    }
+    EndTextureModeSafe();
+}
+
+std::vector<rg::Surface *> rg::assets::ImportFolder(const char *path)
+{
+    std::vector<Surface *> surfaces;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        auto *surface = Surface::Load(entryPath.c_str());
+        surfaces.push_back(surface);
+    }
+    return surfaces;
+}
+
+std::map<std::string, rg::Surface *> rg::assets::ImportFolderDict(const char *path)
+{
+    std::map<std::string, Surface *> result;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        auto filename = dirEntry.path().stem().string();
+        auto *surface = Surface::Load(entryPath.c_str());
+        result[filename] = surface;
+    }
+    // ReSharper disable once CppDFAMemoryLeak
+    return result;
+}
+
+rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
+{
+    auto *surface = new Surface(tile->width, tile->height);
+
+    const rl::tmx_image *im = tile->image;
+    const rl::Texture2D *map_texture = nullptr;
+
+    RectangleU srcRect;
+    srcRect.x = tile->ul_x;
+    srcRect.y = tile->ul_y;
+    srcRect.width = tile->width;
+    srcRect.height = tile->height;
+
+    if (im && im->resource_image)
+    {
+        map_texture = (rl::Texture2D *) im->resource_image;
+    }
+    else if (tile->tileset->image->resource_image)
+    {
+        map_texture = (rl::Texture2D *) tile->tileset->image->resource_image;
+    }
+    if (map_texture)
+    {
+        surface->Blit(map_texture, {}, srcRect);
+    }
+    return surface;
+}
+
+std::vector<rg::tmx::TileInfo>
+rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
+{
+    std::vector<TileInfo> tiles{};
+    for (unsigned int y = 0; y < map->height; y++)
+    {
+        for (unsigned int x = 0; x < map->width; x++)
+        {
+            const unsigned int baseGid = layer->content.gids[(y * map->width) + x];
+            const unsigned int gid = (baseGid) &TMX_FLIP_BITS_REMOVAL;
+            if (map->tiles[gid])
+            {
+                const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
+                auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
+                const rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
+                TileInfo tile_info = {pos, tileSurface};
+                tiles.push_back(tile_info);
+            }
+        }
+    }
+    return tiles;
+}
+
+rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
+{
+    auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
+    std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
+    for (auto &[position, tileSurface]: tiles)
+    {
+        surface->Blit(tileSurface, position);
+        delete tileSurface;
+    }
+    return surface;
 }
 
 rg::sprite::Group::~Group()
@@ -331,287 +728,6 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
     return nullptr;
 }
 
-rg::Surface::Surface(const int width, const int height)
-{
-    render_texture = rl::LoadRenderTexture(width, height);
-    // IsRenderTextureReady does not retry nor waits for RenderTexture to be ready
-    // in fact, it checks if it has an Id, Width and Height
-    if (!IsRenderTextureReady(render_texture))
-    {
-        TraceLog(rl::LOG_ERROR, "Could not load render_texture");
-    }
-    // RenderTexture draws textures upside-down
-    atlas_rect = {
-            0, 0, (float) render_texture.texture.width, (float) -render_texture.texture.height};
-
-    // make sure surface is blank before drawing anything
-    Fill(rl::BLANK);
-}
-
-rg::Surface::~Surface()
-{
-    UnloadRenderTexture(render_texture);
-}
-
-void rg::Surface::Fill(const rl::Color color) const
-{
-    BeginTextureModeC(render_texture, color);
-    EndTextureModeSafe();
-}
-
-void rg::Surface::Blit(
-        Surface *surface, const rl::Vector2 offset, const rl::BlendMode blend_mode) const
-{
-    if (!surface)
-    {
-        return;
-    }
-    BeginTextureModeSafe(render_texture);
-    if (blend_mode != rl::BLEND_ALPHA)
-    {
-        BeginBlendMode(blend_mode);
-    }
-
-    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, rl::WHITE);
-
-    if (blend_mode != rl::BLEND_ALPHA)
-    {
-        rl::EndBlendMode();
-    }
-    EndTextureModeSafe();
-}
-
-void rg::Surface::Blit(
-        const rl::Texture2D *texture, const rl::Vector2 offset, const RectangleU area,
-        const rl::BlendMode blend_mode) const
-{
-    if (!texture)
-    {
-        return;
-    }
-    BeginTextureModeSafe(render_texture);
-    if (blend_mode != rl::BLEND_ALPHA)
-    {
-        BeginBlendMode(blend_mode);
-    }
-
-    if (area.height)
-    {
-        DrawTextureRec(*texture, area.rectangle, offset, rl::WHITE);
-    }
-    else
-    {
-        DrawTextureRec(
-                *texture, {0, 0, (float) texture->width, (float) -texture->height}, offset,
-                rl::WHITE);
-    }
-
-    if (blend_mode != rl::BLEND_ALPHA)
-    {
-        rl::EndBlendMode();
-    }
-    EndTextureModeSafe();
-}
-
-rg::RectangleU rg::Surface::GetRect() const
-{
-    const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
-    const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
-    return {0, 0, absWidth, absHeight};
-}
-
-rl::Texture2D *rg::Surface::Texture()
-{
-    return &render_texture.texture;
-}
-
-void rg::Surface::SetColorKey(const rl::Color color) const
-{
-    rl::Image current = LoadImageFromTexture(render_texture.texture);
-    ImageColorReplace(&current, color, rl::BLANK);
-    Fill(rl::BLANK);
-    const rl::Texture texture = LoadTextureFromImage(current);
-    Blit(&texture);
-    UnloadImage(current);
-    UnloadTexture(texture);
-}
-
-rg::Surface *rg::Surface::Load(const char *path)
-{
-    const rl::Texture2D texture = rl::LoadTexture(path);
-    // ReSharper disable once CppDFAMemoryLeak
-    auto *surface = new Surface(texture.width, texture.height);
-    BeginTextureModeC(surface->render_texture, rl::BLANK);
-    DrawTextureV(texture, {0, 0}, rl::WHITE);
-    EndTextureModeSafe();
-    UnloadTexture(texture);
-    return surface;
-}
-
-rl::Vector2 rg::GetRectCenter(const RectangleU rect)
-{
-    return {rect.x + rect.width / 2, rect.y + rect.height / 2};
-}
-
-rl::Vector2 rg::GetRectMidBottom(const RectangleU rect)
-{
-    return {rect.x + rect.width / 2, rect.y + rect.height};
-}
-
-rl::Vector2 rg::GetRectMidTop(const RectangleU rect)
-{
-    return {rect.x + rect.width / 2, rect.y};
-}
-
-rl::Vector2 rg::GetRectMidLeft(const RectangleU rect)
-{
-    return {rect.x, rect.y + rect.height / 2};
-}
-
-rl::Vector2 rg::GetRectMidRight(const RectangleU rect)
-{
-    return {rect.x + rect.width, rect.y + rect.height / 2};
-}
-
-rl::Vector2 rg::GetRectTopLeft(const RectangleU rect)
-{
-    // return {rect.x, rect.y};
-    return rect.pos;
-}
-
-rl::Vector2 rg::GetRectTopRight(const RectangleU rect)
-{
-    return {rect.x + rect.width, rect.y};
-}
-
-rl::Vector2 rg::GetRectBottomLeft(const RectangleU rect)
-{
-    return {rect.x, rect.y + rect.height};
-}
-
-rl::Vector2 rg::GetRectBottomRight(const RectangleU rect)
-{
-    return {rect.x + rect.width, rect.y + rect.height};
-}
-
-void rg::RectToCenter(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x - rect.width / 2;
-    rect.y = pos.y - rect.height / 2;
-}
-
-void rg::RectToMidBottom(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x - rect.width / 2;
-    rect.y = pos.y - rect.height;
-}
-
-void rg::RectToMidLeft(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x;
-    rect.y = pos.y - rect.height / 2;
-}
-
-void rg::RectToBottomLeft(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x;
-    rect.y = pos.y - rect.height;
-}
-
-void rg::RectToTopLeft(RectangleU &rect, const rl::Vector2 pos)
-{
-    // rect.x = pos.x;
-    // rect.y = pos.y;
-    rect.pos = pos;
-}
-
-void rg::RectToTopRight(RectangleU &rect, const rl::Vector2 pos)
-{
-    rect.x = pos.x - rect.width;
-    rect.y = pos.y;
-}
-
-void rg::RectInflate(RectangleU &rect, const float width, const float height)
-{
-    const rl::Vector2 oldCenter = GetRectCenter(rect);
-    rect.width += width;
-    rect.height += height;
-    RectToCenter(rect, oldCenter);
-}
-
-void rg::RectInflate(RectangleU &rect, const float ratio)
-{
-    const rl::Vector2 oldCenter = GetRectCenter(rect);
-    rect.width *= ratio;
-    rect.height *= ratio;
-    RectToCenter(rect, oldCenter);
-}
-
-rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    return rl::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
-}
-
-rl::Vector2 operator*(const rl::Vector2 &lhs, const float scale)
-{
-    return rl::Vector2{lhs.x * scale, lhs.y * scale};
-}
-
-void rg::Init(
-        const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
-{
-    rl::SetTraceLogLevel(logLevel);
-    rl::SetConfigFlags(config_flags);
-    rl::SetTraceLogCallback(callback);
-    rl::SetRandomSeed(std::time(nullptr));
-}
-
-void rg::Quit()
-{
-    rl::CloseAudioDevice();
-    rl::CloseWindow();
-}
-
-rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    lhs.x += rhs.x;
-    lhs.y += rhs.y;
-    return lhs;
-}
-
-rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    lhs.x -= rhs.x;
-    lhs.y -= rhs.y;
-    return lhs;
-}
-
-std::vector<rg::Surface *> rg::assets::ImportFolder(const char *path)
-{
-    std::vector<Surface *> surfaces;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        auto *surface = Surface::Load(entryPath.c_str());
-        surfaces.push_back(surface);
-    }
-    return surfaces;
-}
-
-std::map<std::string, rg::Surface *> rg::assets::ImportFolderDict(const char *path)
-{
-    std::map<std::string, Surface *> result;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        auto filename = dirEntry.path().stem().string();
-        auto *surface = Surface::Load(entryPath.c_str());
-        result[filename] = surface;
-    }
-    // ReSharper disable once CppDFAMemoryLeak
-    return result;
-}
-
 // duration is in seconds
 rg::Timer::Timer(
         const float duration, const bool repeat, const bool autostart,
@@ -657,35 +773,47 @@ void rg::Timer::Update()
     }
 }
 
-void rg::DrawRect(
-        const Surface *surface, const rl::Color color, const RectangleU rect, const float lineThick)
+rg::Surface *rg::display::SetMode(const int width, const int height)
 {
-    BeginTextureModeSafe(surface->render_texture);
-    if (lineThick > 0)
-    {
-        DrawRectangleLinesEx(rect.rectangle, lineThick, color);
-    }
-    else if (lineThick == 0)
-    {
-        DrawRectangleV(rect.pos, rect.size, color);
-    }
-    EndTextureModeSafe();
+    rl::InitWindow(width, height, "rygame");
+    SetExitKey(rl::KEY_NULL);
+    display_surface = new Surface(width, height);
+    return display_surface;
 }
 
-void rg::DrawCirc(
-        const Surface *surface, const rl::Color color, const rl::Vector2 center, const float radius,
-        const float lineThick)
+void rg::display::SetCaption(const char *title)
 {
-    BeginTextureModeSafe(surface->render_texture);
-    if (lineThick > 0)
+    rl::SetWindowTitle(title);
+}
+
+rg::Surface *rg::display::GetSurface()
+{
+    return display_surface;
+}
+
+void rg::display::Update()
+{
+    killedSprites.DoDelete();
+
+    // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
+    // https://github.com/raysan5/raylib/issues/3803
+    rl::BeginDrawing();
+    DrawTextureRec(
+            *display_surface->Texture(),
+            {0, 0, (float) display_surface->Texture()->width,
+             (float) -display_surface->Texture()->height},
+            {0, 0}, rl::WHITE);
+    rl::EndDrawing();
+}
+
+// ReSharper disable once CppMemberFunctionMayBeStatic
+float rg::time::Clock::tick(const int fps)
+{
+    if (fps)
     {
-        DrawCircleLinesV(center, radius, color);
+        rl::SetTargetFPS(fps);
     }
-    else if (lineThick == 0)
-    {
-        DrawCircleV(center, radius, color);
-    }
-    EndTextureModeSafe();
+    return rl::GetFrameTime();
 }
 
 rg::mask::Mask::Mask(const unsigned int width, const unsigned int height, const bool fill)
@@ -740,130 +868,4 @@ rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char thres
     UnloadImage(alphaImage);
     UnloadImage(surfImage);
     return mask;
-}
-
-rg::Surface *rg::display::SetMode(const int width, const int height)
-{
-    rl::InitWindow(width, height, "rygame");
-    SetExitKey(rl::KEY_NULL);
-    display_surface = new Surface(width, height);
-    return display_surface;
-}
-
-void rg::display::SetCaption(const char *title)
-{
-    rl::SetWindowTitle(title);
-}
-
-rg::Surface *rg::display::GetSurface()
-{
-    return display_surface;
-}
-
-void rg::display::Update()
-{
-    killedSprites.DoDelete();
-
-    // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
-    // https://github.com/raysan5/raylib/issues/3803
-    rl::BeginDrawing();
-    DrawTextureRec(
-            *display_surface->Texture(),
-            {0, 0, (float) display_surface->Texture()->width,
-             (float) -display_surface->Texture()->height},
-            {0, 0}, rl::WHITE);
-    rl::EndDrawing();
-}
-
-// ReSharper disable once CppMemberFunctionMayBeStatic
-float rg::time::Clock::tick(const int fps)
-{
-    if (fps)
-    {
-        rl::SetTargetFPS(fps);
-    }
-    return rl::GetFrameTime();
-}
-
-rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
-{
-    auto *surface = new Surface(tile->width, tile->height);
-
-    const rl::tmx_image *im = tile->image;
-    const rl::Texture2D *map_texture = nullptr;
-
-    RectangleU srcRect;
-    srcRect.x = tile->ul_x;
-    srcRect.y = tile->ul_y;
-    srcRect.width = tile->width;
-    srcRect.height = tile->height;
-
-    if (im && im->resource_image)
-    {
-        map_texture = (rl::Texture2D *) im->resource_image;
-    }
-    else if (tile->tileset->image->resource_image)
-    {
-        map_texture = (rl::Texture2D *) tile->tileset->image->resource_image;
-    }
-    if (map_texture)
-    {
-        surface->Blit(map_texture, {}, srcRect);
-    }
-    return surface;
-}
-
-std::vector<rg::TileInfo> rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
-{
-    std::vector<TileInfo> tiles{};
-    for (unsigned int y = 0; y < map->height; y++)
-    {
-        for (unsigned int x = 0; x < map->width; x++)
-        {
-            const unsigned int baseGid = layer->content.gids[(y * map->width) + x];
-            const unsigned int gid = (baseGid) &TMX_FLIP_BITS_REMOVAL;
-            if (map->tiles[gid])
-            {
-                const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
-                auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
-                const rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
-                TileInfo tile_info = {pos, tileSurface};
-                tiles.push_back(tile_info);
-            }
-        }
-    }
-    return tiles;
-}
-
-rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
-{
-    auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
-    std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
-    for (auto &[position, tileSurface]: tiles)
-    {
-        surface->Blit(tileSurface, position);
-        delete tileSurface;
-    }
-    return surface;
-}
-
-rl::Image rg::GenImageRandomPixels(const float width, const float height)
-{
-    rl::Image image{};
-    image.format = rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
-    image.height = height;
-    image.width = width;
-    image.mipmaps = 1;
-
-    auto *pixels = (rl::Color *) RL_CALLOC(width * height, sizeof(rl::Color));
-    for (int i = 0; i < width * height; i++)
-    {
-        pixels[i].r = rl::GetRandomValue(0, 255);
-        pixels[i].g = rl::GetRandomValue(0, 255);
-        pixels[i].b = rl::GetRandomValue(0, 255);
-        pixels[i].a = rl::GetRandomValue(0, 255);
-    }
-    image.data = pixels;
-
-    return image;
 }

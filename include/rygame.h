@@ -2,6 +2,7 @@
 #pragma once
 #include <functional>
 #include <list>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -9,6 +10,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <filesystem>
+#include <ctime>
 #include <map>
 
 namespace rl
@@ -25,14 +27,46 @@ rl::Vector2 operator*(const rl::Vector2 &lhs, float scale);
 
 namespace rg
 {
+    // using std::function;
+    // using std::initializer_list;
+    // using std::list;
+    // using std::map;
+    // using std::pair;
+    // using std::string;
+    // using std::unordered_map;
+    // using std::va_list;
+    // using std::vector;
+
+    enum Axis
+    {
+        HORIZONTAL = 0,
+        VERTICAL
+    };
+
     void
     Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
          rl::TraceLogCallback callback = nullptr);
     void Quit();
 
+    // Warns if there is a render already active
+    void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
+    void EndTextureModeSafe();
+    // Starts a render with a Clear color
+    void BeginTextureModeC(const rl::RenderTexture2D &render, rl::Color color);
+    // Starts drawing with a Clear color
+    void BeginDrawingC(rl::Color color);
+
+    // Generate image with random pixel colors
+    rl::Image GenImageRandomPixels(float width, float height);
+
 #ifndef MAX_TEXT_BUFFER_LENGTH
 #define MAX_TEXT_BUFFER_LENGTH 1024
 #endif
+
+    // raylib has 4 buffers by default in TextFormat() - to add more, need to recompile
+    // raylib. This function receives a buffer created by the application. buffer max size
+    // is defined by MAX_TEXT_BUFFER_LENGTH
+    void TextFormatSafe(char *buffer, const char *format, ...);
 
     typedef union RectangleU
     {
@@ -51,51 +85,6 @@ namespace rg
             float x, y, width, height;
         };
     } RectangleU;
-
-    class Surface
-    {
-    public:
-
-        Surface(int width, int height);
-        ~Surface();
-        void Fill(rl::Color color) const;
-        void
-        Blit(Surface *surface, rl::Vector2 offset = {0, 0},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
-        void
-        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
-        // Returns the size of the Surface, not the atlas position
-        [[nodiscard]] RectangleU GetRect() const;
-        rl::Texture2D *Texture();
-        void SetColorKey(rl::Color color) const;
-
-        // Load a file into a Surface*
-        // The caller must delete Surface*
-        static Surface *Load(const char *path);
-
-        RectangleU atlas_rect{}; // atlas position
-        rl::RenderTexture2D render_texture{}; // atlas texture
-    };
-
-    struct TileInfo
-    {
-        rl::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
-        Surface *surface = nullptr; // if tile has image, allocate it in memory
-    };
-
-    // Warns if there is a render already active
-    void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
-    void EndTextureModeSafe();
-    // Starts a render with a Clear color
-    void BeginTextureModeC(const rl::RenderTexture2D &render, rl::Color color);
-    // Starts drawing with a Clear color
-    void BeginDrawingC(rl::Color color);
-
-    // raylib has 4 buffers by default in TextFormat() - to add more, need to recompile
-    // raylib. This function receives a buffer created by the application. buffer max size
-    // is defined by MAX_TEXT_BUFFER_LENGTH
-    void TextFormatSafe(char *buffer, const char *format, ...);
 
     // Returns center of rectangle
     rl::Vector2 GetRectCenter(RectangleU rect);
@@ -132,6 +121,96 @@ namespace rg
     // Increase/Decrease size of rect, keeping center position
     void RectInflate(RectangleU &rect, float ratio);
 
+    // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
+    template<typename K, typename V>
+    class InsertOrderMap
+    {
+    public:
+
+        InsertOrderMap() = default;
+        InsertOrderMap(std::initializer_list<std::pair<K, V>> init);
+
+        void insert(const K &key, const V &value);
+        V &operator[](const K &key);
+        typename std::list<std::pair<K, V>>::iterator begin();
+        typename std::list<std::pair<K, V>>::iterator end();
+
+    private:
+
+        std::list<std::pair<K, V>> order_;
+        std::unordered_map<K, V> map_;
+    };
+
+    // !!!! template<> classes must have definitions in .h files
+    // due to specialization during executable compilation->linking
+    template<typename K, typename V>
+    InsertOrderMap<K, V>::InsertOrderMap(const std::initializer_list<std::pair<K, V>> init)
+    {
+        for (auto &[key, value]: init)
+        {
+            insert(key, value);
+        }
+    }
+
+    template<typename K, typename V>
+    void InsertOrderMap<K, V>::insert(const K &key, const V &value)
+    {
+        if (map_.find(key) == map_.end())
+        {
+            order_.emplace_back(key, value);
+        }
+        map_[key] = value;
+    }
+
+    template<typename K, typename V>
+    V &InsertOrderMap<K, V>::operator[](const K &key)
+    {
+        return map_[key];
+    }
+
+    template<typename K, typename V>
+    typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::begin()
+    {
+        return order_.begin();
+    }
+
+    template<typename K, typename V>
+    typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
+    {
+        return order_.end();
+    }
+
+    class Surface
+    {
+    public:
+
+        Surface(int width, int height);
+        ~Surface();
+        void Fill(rl::Color color) const;
+        void
+        Blit(Surface *surface, rl::Vector2 offset = {0, 0},
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
+        void
+        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, RectangleU area = {},
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
+        // Returns the size of the Surface, not the atlas position
+        [[nodiscard]] RectangleU GetRect() const;
+        rl::Texture2D *Texture();
+        void SetColorKey(rl::Color color) const;
+
+        // Load a file into a Surface*
+        // The caller must delete Surface*
+        static Surface *Load(const char *path);
+
+        RectangleU atlas_rect{}; // atlas position
+        rl::RenderTexture2D render_texture{}; // atlas texture
+    };
+
+    void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
+    void DrawCirc(
+            const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
+            float lineThick = 0.0f);
+
     namespace assets
     {
         // Walk a folder path and loads all images
@@ -146,6 +225,11 @@ namespace rg
 
     namespace tmx
     {
+        struct TileInfo
+        {
+            rl::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
+            Surface *surface = nullptr; // if tile has image, allocate it in memory
+        };
         // get the tile image from the tileset
         Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
         // get a vector with tile info (position on the layer and surface image)
@@ -153,9 +237,6 @@ namespace rg
         // merges all tiles into one single surface image
         Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
     } // namespace tmx
-
-    // Generate image with random pixel colors
-    rl::Image GenImageRandomPixels(float width, float height);
 
     namespace sprite
     {
@@ -308,17 +389,6 @@ namespace rg
         double start_time{};
     };
 
-    enum Axis
-    {
-        HORIZONTAL = 0,
-        VERTICAL
-    };
-
-    void DrawRect(const Surface *surface, rl::Color color, RectangleU rect, float lineThick = 0.0f);
-    void DrawCirc(
-            const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
-            float lineThick = 0.0f);
-
     namespace display
     {
         Surface *SetMode(int width, int height);
@@ -356,62 +426,3 @@ namespace rg
         Mask FromSurface(Surface *surface, unsigned char threshold = 127);
     } // namespace mask
 } // namespace rg
-
-// Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
-template<typename K, typename V>
-class InsertOrderMap
-{
-public:
-
-    InsertOrderMap() = default;
-    InsertOrderMap(std::initializer_list<std::pair<K, V>> init);
-
-    void insert(const K &key, const V &value);
-    V &operator[](const K &key);
-    typename std::list<std::pair<K, V>>::iterator begin();
-    typename std::list<std::pair<K, V>>::iterator end();
-
-private:
-
-    std::list<std::pair<K, V>> order_;
-    std::unordered_map<K, V> map_;
-};
-
-// template<> classes must have definitions in .h files
-// due to specialization during executable compilation->linking
-template<typename K, typename V>
-InsertOrderMap<K, V>::InsertOrderMap(const std::initializer_list<std::pair<K, V>> init)
-{
-    for (auto &[key, value]: init)
-    {
-        insert(key, value);
-    }
-}
-
-template<typename K, typename V>
-void InsertOrderMap<K, V>::insert(const K &key, const V &value)
-{
-    if (map_.find(key) == map_.end())
-    {
-        order_.emplace_back(key, value);
-    }
-    map_[key] = value;
-}
-
-template<typename K, typename V>
-V &InsertOrderMap<K, V>::operator[](const K &key)
-{
-    return map_[key];
-}
-
-template<typename K, typename V>
-typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::begin()
-{
-    return order_.begin();
-}
-
-template<typename K, typename V>
-typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
-{
-    return order_.end();
-}
