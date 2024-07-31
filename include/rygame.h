@@ -506,6 +506,8 @@ namespace rg
         };
     } // namespace font
 
+    static bool isSoundInit;
+
     namespace mixer
     {
         class Sound

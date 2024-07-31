@@ -60,7 +60,10 @@ void rg::Init(
 
 void rg::Quit()
 {
-    rl::CloseAudioDevice();
+    if (isSoundInit)
+    {
+        rl::CloseAudioDevice();
+    }
     rl::CloseWindow();
 }
 
@@ -900,6 +903,11 @@ void rg::Timer::Update()
 
 rg::mixer::Sound::Sound(const char *file)
 {
+    if (!isSoundInit)
+    {
+        rl::InitAudioDevice();
+        isSoundInit = rl::IsAudioDeviceReady();
+    }
     sound = rl::LoadSound(file);
 }
 
