@@ -180,6 +180,25 @@ namespace rg
         } Vector2;
     } // namespace math
 
+    typedef union Line
+    {
+        struct
+        {
+            math::Vector2 start;
+            math::Vector2 end;
+        };
+        struct
+        {
+            float x1;
+            float y1;
+            float x2;
+            float y2;
+        };
+
+        [[nodiscard]] bool collidepoint(math::Vector2 point, float threshold = 0.0f) const;
+        [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
+    } Line;
+
     typedef union Rect
     {
         struct
@@ -233,6 +252,7 @@ namespace rg
         void scale_by_ip(float ratio);
         [[nodiscard]] Rect copy() const;
         [[nodiscard]] bool collidepoint(math::Vector2 point) const;
+        [[nodiscard]] bool collideline(Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
     class Surface

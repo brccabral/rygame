@@ -343,6 +343,65 @@ bool rg::Rect::collidepoint(const math::Vector2 point) const
     return CheckCollisionPointRec(point.vector2, rectangle);
 }
 
+bool rg::Rect::collideline(
+        Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const
+{
+    bool hasCollision = false;
+    bool secondCollision = false;
+    math::Vector2 *collisionPoint = collisionPoint1;
+
+    const Line lineTop{topleft(), topright()};
+    const Line lineBottom{bottomleft(), bottomright()};
+    const Line lineLeft{topleft(), bottomleft()};
+    const Line lineRight{topright(), bottomright()};
+
+    if (line.collideline(lineTop, collisionPoint))
+    {
+        collisionPoint = collisionPoint2;
+        hasCollision = true;
+    }
+    if (line.collideline(lineBottom, collisionPoint))
+    {
+        if (hasCollision)
+        {
+            secondCollision = true;
+        }
+        else
+        {
+            collisionPoint = collisionPoint2;
+        }
+        hasCollision = true;
+    }
+    if (!secondCollision && line.collideline(lineLeft, collisionPoint))
+    {
+        if (hasCollision)
+        {
+            secondCollision = true;
+        }
+        else
+        {
+            collisionPoint = collisionPoint2;
+        }
+        hasCollision = true;
+    }
+    if (!secondCollision && line.collideline(lineRight, collisionPoint))
+    {
+        hasCollision = true;
+    }
+
+    return hasCollision;
+}
+
+bool rg::Line::collidepoint(const math::Vector2 point, const float threshold) const
+{
+    return CheckCollisionPointLine(point.vector2, start.vector2, end.vector2, threshold);
+}
+
+bool rg::Line::collideline(const Line other, math::Vector2 *collisionPoint) const
+{
+    return CheckCollisionLines(start.vector2, end.vector2, other.start.vector2, other.end.vector2, &collisionPoint->vector2);
+}
+
 rg::Surface::Surface(const int width, const int height)
 {
     render_texture = rl::LoadRenderTexture(width, height);
