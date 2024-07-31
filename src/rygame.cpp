@@ -901,29 +901,63 @@ void rg::Timer::Update()
     }
 }
 
-rg::mixer::Sound::Sound(const char *file)
+rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic), file(file)
 {
     if (!isSoundInit)
     {
         rl::InitAudioDevice();
         isSoundInit = rl::IsAudioDeviceReady();
     }
-    sound = rl::LoadSound(file);
+    if (isMusic)
+    {
+        audio = new rl::Music;
+        (*(rl::Music *) audio) = rl::LoadMusicStream(file);
+        musics.push_back(this);
+    }
+    else
+    {
+        audio = new rl::Sound;
+        (*(rl::Sound *) audio) = rl::LoadSound(file);
+    }
 }
 
 rg::mixer::Sound::~Sound()
 {
-    UnloadSound(sound);
+    if (isMusic)
+    {
+        musics.erase(std::remove(musics.begin(), musics.end(), this), musics.end());
+        UnloadMusicStream(*(rl::Music *) audio);
+        delete (rl::Music *) audio;
+    }
+    else
+    {
+        UnloadSound(*(rl::Sound *) audio);
+        delete (rl::Sound *) audio;
+    }
 }
 
 void rg::mixer::Sound::Play() const
 {
-    PlaySound(sound);
+    if (isMusic)
+    {
+        PlayMusicStream(*(rl::Music *) audio);
+    }
+    else
+    {
+        PlaySound(*(rl::Sound *) audio);
+    }
 }
 
 void rg::mixer::Sound::SetVolume(const float value) const
 {
-    SetSoundVolume(sound, value);
+    if (isMusic)
+    {
+        SetMusicVolume(*(rl::Music *) audio, value);
+    }
+    else
+    {
+        SetSoundVolume(*(rl::Sound *) audio, value);
+    }
 }
 
 rg::Surface *rg::display::SetMode(const int width, const int height)
@@ -947,6 +981,10 @@ rg::Surface *rg::display::GetSurface()
 void rg::display::Update()
 {
     killedSprites.DoDelete();
+    for (const auto *music: musics)
+    {
+        UpdateMusicStream(*(rl::Music *) music->audio);
+    }
 
     // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
     // https://github.com/raysan5/raylib/issues/3803

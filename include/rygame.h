@@ -4,7 +4,6 @@
 #include <list>
 #include <utility>
 #include <vector>
-#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -514,15 +513,19 @@ namespace rg
         {
         public:
 
-            explicit Sound(const char *file);
+            explicit Sound(const char *file, bool isMusic = false);
             ~Sound();
 
             void Play() const;
             void SetVolume(float value) const;
+            void *audio;
 
         private:
 
-            rl::Sound sound{};
+            bool isMusic{};
+            const char *file;
         };
     } // namespace mixer
+
+    static std::vector<mixer::Sound *> musics;
 } // namespace rg
