@@ -551,6 +551,7 @@ namespace rg
 } // namespace rg
 
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
+rg::math::Vector2 operator-(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
 rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
 rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
 rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, float scale);
