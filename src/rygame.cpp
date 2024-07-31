@@ -469,7 +469,7 @@ void rg::draw::rect(
         if (radius > 0)
         {
             const int segments = (rect.width > rect.height ? rect.width : rect.height) * radius;
-            DrawRectangleRoundedLines(rect.rectangle, 0.5f, segments, color);
+            DrawRectangleRoundedLinesEx(rect.rectangle, 0.5f, segments, lineThick, color);
         }
         else
         {
