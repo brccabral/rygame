@@ -535,6 +535,7 @@ namespace rg
             ~Sound();
 
             void Play() const;
+            void Stop() const;
             void SetVolume(float value) const;
 
             void *audio = nullptr;

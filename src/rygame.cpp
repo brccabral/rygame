@@ -942,6 +942,24 @@ void rg::mixer::Sound::Play() const
     }
 }
 
+void rg::mixer::Sound::Stop() const
+{
+    if (isMusic)
+    {
+        if(IsMusicStreamPlaying(*(rl::Music *) audio))
+        {
+            StopMusicStream(*(rl::Music *) audio);
+        }
+    }
+    else
+    {
+        if(IsSoundPlaying(*(rl::Sound *) audio))
+        {
+            StopSound(*(rl::Sound *) audio);
+        }
+    }
+}
+
 void rg::mixer::Sound::SetVolume(const float value) const
 {
     if (isMusic)
