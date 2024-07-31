@@ -898,6 +898,21 @@ void rg::Timer::Update()
     }
 }
 
+rg::mixer::Sound::Sound(const char *file)
+{
+    sound = rl::LoadSound(file);
+}
+
+rg::mixer::Sound::~Sound()
+{
+    UnloadSound(sound);
+}
+
+void rg::mixer::Sound::Play() const
+{
+    PlaySound(sound);
+}
+
 rg::Surface *rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");

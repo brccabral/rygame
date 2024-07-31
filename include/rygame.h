@@ -505,4 +505,21 @@ namespace rg
             float size;
         };
     } // namespace font
+
+    namespace mixer
+    {
+        class Sound
+        {
+        public:
+
+            explicit Sound(const char *file);
+            ~Sound();
+
+            void Play() const;
+
+        private:
+
+            rl::Sound sound{};
+        };
+    } // namespace mixer
 } // namespace rg
