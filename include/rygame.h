@@ -81,6 +81,19 @@ namespace rg
 
         return keys;
     }
+    template<typename K, typename C>
+    std::vector<K> getValues(C &map)
+    {
+        std::vector<K> values;
+        values.reserve(map.size());
+
+        for (const auto &pair: map)
+        {
+            values.push_back(pair.second);
+        }
+
+        return values;
+    }
 
     typedef union Rect
     {
@@ -154,7 +167,9 @@ namespace rg
     private:
 
         std::list<std::pair<K, V>> order_;
-        std::unordered_map<K, V> map_;
+        // the `map_` points to an element inside `order_`, not to the value. The value is stored in
+        // `order_` only
+        std::unordered_map<K, typename std::list<std::pair<K, V>>::iterator> map_;
     };
 
     // !!!! template<> classes must have definitions in .h files
@@ -177,17 +192,29 @@ namespace rg
     template<typename K, typename V>
     void InsertOrderMap<K, V>::insert(const K &key, const V &value)
     {
-        if (map_.find(key) == map_.end())
+        auto it = map_.find(key);
+        if (it != map_.end())
+        {
+            it->second->second = value; // Update value inside `order_`
+        }
+        else
         {
             order_.emplace_back(key, value);
+            map_[key] = --order_.end(); // Point to the `order_` location
         }
-        map_[key] = value;
     }
 
     template<typename K, typename V>
     V &InsertOrderMap<K, V>::operator[](const K &key)
     {
-        return map_[key];
+        auto it = map_.find(key);
+        if (it != map_.end())
+        {
+            return it->second->second; // returns value inside `order_`
+        }
+        order_.emplace_back(key, V{}); // create a new default value
+        map_[key] = --order_.end(); // Point to the `order_` location
+        return map_[key]->second; // return the value
     }
 
     template<typename K, typename V>
