@@ -21,16 +21,6 @@ namespace rl
 
 namespace rg
 {
-    // using std::function;
-    // using std::initializer_list;
-    // using std::list;
-    // using std::map;
-    // using std::pair;
-    // using std::string;
-    // using std::unordered_map;
-    // using std::va_list;
-    // using std::vector;
-
     enum Axis
     {
         HORIZONTAL = 0,
