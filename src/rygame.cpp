@@ -36,6 +36,8 @@ void rg::Init(
 
 void rg::Quit()
 {
+    UnloadRenderTexture(display_surface->render_texture);
+    delete display_surface;
     if (isSoundInit)
     {
         rl::CloseAudioDevice();
