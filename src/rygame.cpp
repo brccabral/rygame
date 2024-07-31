@@ -25,30 +25,6 @@ public:
 KilledSprites killedSprites{};
 
 
-rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    return rl::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
-}
-
-rl::Vector2 operator*(const rl::Vector2 &lhs, const float scale)
-{
-    return rl::Vector2{lhs.x * scale, lhs.y * scale};
-}
-
-rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    lhs.x += rhs.x;
-    lhs.y += rhs.y;
-    return lhs;
-}
-
-rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs)
-{
-    lhs.x -= rhs.x;
-    lhs.y -= rhs.y;
-    return lhs;
-}
-
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
 {
@@ -138,6 +114,19 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
+float rg::math::Vector2::operator[](const unsigned int &i) const
+{
+    if (i == 0)
+    {
+        return x;
+    }
+    if (i == 1)
+    {
+        return y;
+    }
+    throw;
+}
+
 float rg::Rect::right() const
 {
     return x + width;
@@ -182,12 +171,12 @@ rg::Rect rg::Rect::centery(const float v)
     return copy();
 }
 
-rl::Vector2 rg::Rect::center() const
+rg::math::Vector2 rg::Rect::center() const
 {
     return {x + width / 2.0f, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::center(const rl::Vector2 pos)
+rg::Rect rg::Rect::center(const math::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height / 2.0f;
@@ -216,96 +205,96 @@ rg::Rect rg::Rect::bottom(const float v)
     return copy();
 }
 
-rl::Vector2 rg::Rect::topleft() const
+rg::math::Vector2 rg::Rect::topleft() const
 {
     return {x, y};
 }
 
-rg::Rect rg::Rect::topleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::topleft(const math::Vector2 pos)
 {
     x = pos.x;
     y = pos.y;
     return copy();
 }
 
-rl::Vector2 rg::Rect::bottomleft() const
+rg::math::Vector2 rg::Rect::bottomleft() const
 {
     return {x, y + height};
 }
 
-rg::Rect rg::Rect::bottomleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::bottomleft(const math::Vector2 pos)
 {
     x = pos.x;
     y = pos.y - height;
     return copy();
 }
 
-rl::Vector2 rg::Rect::topright() const
+rg::math::Vector2 rg::Rect::topright() const
 {
     return {x + width, y};
 }
 
-rg::Rect rg::Rect::topright(const rl::Vector2 pos)
+rg::Rect rg::Rect::topright(const math::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y;
     return copy();
 }
 
-rl::Vector2 rg::Rect::bottomright() const
+rg::math::Vector2 rg::Rect::bottomright() const
 {
     return {x + width, y + height};
 }
 
-rg::Rect rg::Rect::bottomright(const rl::Vector2 pos)
+rg::Rect rg::Rect::bottomright(const math::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y - height;
     return copy();
 }
 
-rl::Vector2 rg::Rect::midbottom() const
+rg::math::Vector2 rg::Rect::midbottom() const
 {
     return {x + width / 2.0f, y + height};
 }
 
-rg::Rect rg::Rect::midbottom(const rl::Vector2 pos)
+rg::Rect rg::Rect::midbottom(const math::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height;
     return copy();
 }
 
-rl::Vector2 rg::Rect::midtop() const
+rg::math::Vector2 rg::Rect::midtop() const
 {
     return {x + width / 2.0f, y};
 }
 
-rg::Rect rg::Rect::midtop(const rl::Vector2 pos)
+rg::Rect rg::Rect::midtop(const math::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y;
     return copy();
 }
 
-rl::Vector2 rg::Rect::midleft() const
+rg::math::Vector2 rg::Rect::midleft() const
 {
     return {x, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::midleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::midleft(const math::Vector2 pos)
 {
     x = pos.x;
     y = pos.y - height / 2.0f;
     return copy();
 }
 
-rl::Vector2 rg::Rect::midright() const
+rg::math::Vector2 rg::Rect::midright() const
 {
     return {x + width, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::midright(const rl::Vector2 pos)
+rg::Rect rg::Rect::midright(const math::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y - height / 2.0f;
@@ -328,7 +317,7 @@ rg::Rect rg::Rect::scale_by(const float ratio) const
 
 void rg::Rect::inflate_ip(const float width, const float height)
 {
-    const rl::Vector2 oldCenter = center();
+    const math::Vector2 oldCenter = center();
     this->width += width;
     this->height += height;
     center(oldCenter);
@@ -336,7 +325,7 @@ void rg::Rect::inflate_ip(const float width, const float height)
 
 void rg::Rect::scale_by_ip(const float ratio)
 {
-    const rl::Vector2 oldCenter = center();
+    const math::Vector2 oldCenter = center();
     this->width *= ratio;
     this->height *= ratio;
     center(oldCenter);
@@ -345,6 +334,11 @@ void rg::Rect::scale_by_ip(const float ratio)
 rg::Rect rg::Rect::copy() const
 {
     return {x, y, width, height};
+}
+
+bool rg::Rect::collidepoint(const math::Vector2 point) const
+{
+    return CheckCollisionPointRec(point.vector2, rectangle);
 }
 
 rg::Surface::Surface(const int width, const int height)
@@ -376,7 +370,7 @@ void rg::Surface::Fill(const rl::Color color) const
 }
 
 void rg::Surface::Blit(
-        Surface *surface, const rl::Vector2 offset, const rl::BlendMode blend_mode) const
+        Surface *surface, const math::Vector2 offset, const rl::BlendMode blend_mode) const
 {
     if (!surface)
     {
@@ -388,7 +382,7 @@ void rg::Surface::Blit(
         BeginBlendMode(blend_mode);
     }
 
-    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset, rl::WHITE);
+    DrawTextureRec(*surface->Texture(), surface->atlas_rect.rectangle, offset.vector2, rl::WHITE);
 
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -398,7 +392,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D *texture, const rl::Vector2 offset, const Rect area,
+        const rl::Texture2D *texture, const math::Vector2 offset, const Rect area,
         const rl::BlendMode blend_mode) const
 {
     if (!texture)
@@ -413,7 +407,7 @@ void rg::Surface::Blit(
 
     if (area.height)
     {
-        DrawTextureRec(*texture, area.rectangle, offset, rl::WHITE);
+        DrawTextureRec(*texture, area.rectangle, offset.vector2, rl::WHITE);
     }
     else
     {
@@ -488,24 +482,24 @@ void rg::draw::rect(
         }
         else
         {
-            DrawRectangleV(rect.pos, rect.size, color);
+            DrawRectangleV(rect.pos.vector2, rect.size.vector2, color);
         }
     }
     EndTextureModeSafe();
 }
 
 void rg::draw::circle(
-        const Surface *surface, const rl::Color color, const rl::Vector2 center, const float radius,
-        const float lineThick)
+        const Surface *surface, const rl::Color color, const math::Vector2 center,
+        const float radius, const float lineThick)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
     {
-        DrawCircleLinesV(center, radius, color);
+        DrawCircleLinesV(center.vector2, radius, color);
     }
     else if (lineThick == 0)
     {
-        DrawCircleV(center, radius, color);
+        DrawCircleV(center.vector2, radius, color);
     }
     EndTextureModeSafe();
 }
@@ -578,7 +572,7 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
             {
                 const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
                 auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
-                const rl::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
+                const math::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
                 TileInfo tile_info = {pos, tileSurface};
                 tiles.push_back(tile_info);
             }
@@ -1090,4 +1084,43 @@ rg::font::Font::render(const char *text, const rl::Color color, const float spac
     UnloadTexture(texture);
     UnloadImage(imageText);
     return result;
+}
+
+rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
+{
+    return rg::math::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, const float scale)
+{
+    return rg::math::Vector2{lhs.x * scale, lhs.y * scale};
+}
+
+rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
+{
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
+}
+
+rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
+{
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
+}
+
+float rg::math::Vector2::magnitude() const
+{
+    return Vector2Length(vector2);
+}
+
+rg::math::Vector2 rg::math::Vector2::normalize() const
+{
+    return {Vector2Normalize(vector2)};
+}
+
+void rg::math::Vector2::normalize_ip()
+{
+    vector2 = Vector2Normalize(vector2);
 }

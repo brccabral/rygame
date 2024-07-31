@@ -19,11 +19,6 @@ namespace rl
 #include <raylib-tmx.h>
 } // namespace rl
 
-rl::Vector2 operator+(const rl::Vector2 &lhs, const rl::Vector2 &rhs);
-rl::Vector2 &operator+=(rl::Vector2 &lhs, const rl::Vector2 &rhs);
-rl::Vector2 &operator-=(rl::Vector2 &lhs, const rl::Vector2 &rhs);
-rl::Vector2 operator*(const rl::Vector2 &lhs, float scale);
-
 namespace rg
 {
     // using std::function;
@@ -93,60 +88,6 @@ namespace rg
 
         return values;
     }
-
-    typedef union Rect
-    {
-        struct
-        {
-            rl::Vector2 pos, size;
-        };
-
-        struct
-        {
-            rl::Rectangle rectangle;
-        };
-
-        struct
-        {
-            float x, y, width, height;
-        };
-
-        [[nodiscard]] float right() const;
-        Rect right(float v);
-        [[nodiscard]] float left() const;
-        Rect left(float v);
-        [[nodiscard]] float centerx() const;
-        Rect centerx(float v);
-        [[nodiscard]] float centery() const;
-        Rect centery(float v);
-        [[nodiscard]] rl::Vector2 center() const;
-        Rect center(rl::Vector2 pos);
-        [[nodiscard]] float top() const;
-        Rect top(float v);
-        [[nodiscard]] float bottom() const;
-        Rect bottom(float v);
-        [[nodiscard]] rl::Vector2 topleft() const;
-        Rect topleft(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 bottomleft() const;
-        Rect bottomleft(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 topright() const;
-        Rect topright(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 bottomright() const;
-        Rect bottomright(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 midbottom() const;
-        Rect midbottom(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 midtop() const;
-        Rect midtop(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 midleft() const;
-        Rect midleft(rl::Vector2 pos);
-        [[nodiscard]] rl::Vector2 midright() const;
-        Rect midright(rl::Vector2 pos);
-        [[nodiscard]] Rect inflate(float width, float height) const;
-        [[nodiscard]] Rect scale_by(float ratio) const;
-        void inflate_ip(float width, float height);
-        void scale_by_ip(float ratio);
-        [[nodiscard]] Rect copy() const;
-    } Rect;
 
     // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
     template<typename K, typename V>
@@ -228,6 +169,82 @@ namespace rg
         return order_.end();
     }
 
+    namespace math
+    {
+        typedef union Vector2
+        {
+            struct
+            {
+                rl::Vector2 vector2;
+            };
+            struct
+            {
+                float x;
+                float y;
+            };
+
+            [[nodiscard]] float magnitude() const;
+            [[nodiscard]] Vector2 normalize() const;
+            void normalize_ip();
+            float operator[](const unsigned int &i) const;
+        } Vector2;
+    } // namespace math
+
+    typedef union Rect
+    {
+        struct
+        {
+            math::Vector2 pos, size;
+        };
+
+        struct
+        {
+            rl::Rectangle rectangle;
+        };
+
+        struct
+        {
+            float x, y, width, height;
+        };
+
+        [[nodiscard]] float right() const;
+        Rect right(float v);
+        [[nodiscard]] float left() const;
+        Rect left(float v);
+        [[nodiscard]] float centerx() const;
+        Rect centerx(float v);
+        [[nodiscard]] float centery() const;
+        Rect centery(float v);
+        [[nodiscard]] math::Vector2 center() const;
+        Rect center(math::Vector2 pos);
+        [[nodiscard]] float top() const;
+        Rect top(float v);
+        [[nodiscard]] float bottom() const;
+        Rect bottom(float v);
+        [[nodiscard]] math::Vector2 topleft() const;
+        Rect topleft(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 bottomleft() const;
+        Rect bottomleft(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 topright() const;
+        Rect topright(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 bottomright() const;
+        Rect bottomright(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 midbottom() const;
+        Rect midbottom(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 midtop() const;
+        Rect midtop(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 midleft() const;
+        Rect midleft(math::Vector2 pos);
+        [[nodiscard]] math::Vector2 midright() const;
+        Rect midright(math::Vector2 pos);
+        [[nodiscard]] Rect inflate(float width, float height) const;
+        [[nodiscard]] Rect scale_by(float ratio) const;
+        void inflate_ip(float width, float height);
+        void scale_by_ip(float ratio);
+        [[nodiscard]] Rect copy() const;
+        [[nodiscard]] bool collidepoint(math::Vector2 point) const;
+    } Rect;
+
     class Surface
     {
     public:
@@ -236,10 +253,10 @@ namespace rg
         ~Surface();
         void Fill(rl::Color color) const;
         void
-        Blit(Surface *surface, rl::Vector2 offset = {0, 0},
+        Blit(Surface *surface, rg::math::Vector2 offset = {0, 0},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         void
-        Blit(const rl::Texture2D *texture, rl::Vector2 offset = {0, 0}, Rect area = {},
+        Blit(const rl::Texture2D *texture, rg::math::Vector2 offset = {0, 0}, Rect area = {},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         // Returns the size of the Surface, not the atlas position
         [[nodiscard]] Rect GetRect() const;
@@ -260,7 +277,7 @@ namespace rg
         rect(const Surface *surface, rl::Color color, Rect rect, float lineThick = 0.0f,
              float radius = 0.0f);
         void
-        circle(const Surface *surface, rl::Color color, rl::Vector2 center, float radius,
+        circle(const Surface *surface, rl::Color color, rg::math::Vector2 center, float radius,
                float lineThick = 0.0f);
     } // namespace draw
 
@@ -280,7 +297,7 @@ namespace rg
     {
         struct TileInfo
         {
-            rl::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
+            rg::math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
             Surface *surface = nullptr; // if tile has image, allocate it in memory
         };
         // get the tile image from the tileset
@@ -529,3 +546,8 @@ namespace rg
 
     static std::vector<mixer::Sound *> musics;
 } // namespace rg
+
+rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
+rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
+rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
+rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, float scale);
