@@ -530,17 +530,19 @@ namespace rg
         {
         public:
 
+            Sound() = default;
             explicit Sound(const char *file, bool isMusic = false);
             ~Sound();
 
             void Play() const;
             void SetVolume(float value) const;
-            void *audio;
+
+            void *audio = nullptr;
 
         private:
 
             bool isMusic{};
-            const char *file;
+            const char *file = nullptr;
         };
     } // namespace mixer
 
