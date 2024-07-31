@@ -516,6 +516,7 @@ namespace rg
             ~Sound();
 
             void Play() const;
+            void SetVolume(float value) const;
 
         private:
 

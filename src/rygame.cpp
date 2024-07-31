@@ -913,6 +913,11 @@ void rg::mixer::Sound::Play() const
     PlaySound(sound);
 }
 
+void rg::mixer::Sound::SetVolume(const float value) const
+{
+    SetSoundVolume(sound, value);
+}
+
 rg::Surface *rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");
