@@ -140,10 +140,10 @@ float rg::Rect::right() const
     return x + width;
 }
 
-float rg::Rect::right(const float v)
+rg::Rect rg::Rect::right(const float v)
 {
     x = v - width;
-    return right();
+    return copy();
 }
 
 float rg::Rect::left() const
@@ -151,10 +151,10 @@ float rg::Rect::left() const
     return x;
 }
 
-float rg::Rect::left(const float v)
+rg::Rect rg::Rect::left(const float v)
 {
     x = v;
-    return left();
+    return copy();
 }
 
 float rg::Rect::centerx() const
@@ -162,10 +162,10 @@ float rg::Rect::centerx() const
     return x + width / 2.0f;
 }
 
-float rg::Rect::centerx(const float v)
+rg::Rect rg::Rect::centerx(const float v)
 {
     x = v - width / 2.0f;
-    return centerx();
+    return copy();
 }
 
 float rg::Rect::centery() const
@@ -173,10 +173,10 @@ float rg::Rect::centery() const
     return y + height / 2.0f;
 }
 
-float rg::Rect::centery(const float v)
+rg::Rect rg::Rect::centery(const float v)
 {
     y = v - height / 2.0f;
-    return centery();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::center() const
@@ -184,11 +184,11 @@ rl::Vector2 rg::Rect::center() const
     return {x + width / 2.0f, y + height / 2.0f};
 }
 
-rl::Vector2 rg::Rect::center(const rl::Vector2 pos)
+rg::Rect rg::Rect::center(const rl::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height / 2.0f;
-    return center();
+    return copy();
 }
 
 float rg::Rect::top() const
@@ -196,10 +196,10 @@ float rg::Rect::top() const
     return y;
 }
 
-float rg::Rect::top(const float v)
+rg::Rect rg::Rect::top(const float v)
 {
     y = v;
-    return top();
+    return copy();
 }
 
 float rg::Rect::bottom() const
@@ -207,10 +207,10 @@ float rg::Rect::bottom() const
     return y + height;
 }
 
-float rg::Rect::bottom(const float v)
+rg::Rect rg::Rect::bottom(const float v)
 {
     y = v - height;
-    return bottom();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::topleft() const
@@ -218,11 +218,11 @@ rl::Vector2 rg::Rect::topleft() const
     return {x, y};
 }
 
-rl::Vector2 rg::Rect::topleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::topleft(const rl::Vector2 pos)
 {
     x = pos.x;
     y = pos.y;
-    return topleft();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::bottomleft() const
@@ -230,11 +230,11 @@ rl::Vector2 rg::Rect::bottomleft() const
     return {x, y + height};
 }
 
-rl::Vector2 rg::Rect::bottomleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::bottomleft(const rl::Vector2 pos)
 {
     x = pos.x;
     y = pos.y - height;
-    return bottomleft();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::topright() const
@@ -242,11 +242,11 @@ rl::Vector2 rg::Rect::topright() const
     return {x + width, y};
 }
 
-rl::Vector2 rg::Rect::topright(const rl::Vector2 pos)
+rg::Rect rg::Rect::topright(const rl::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y;
-    return topright();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::bottomright() const
@@ -254,11 +254,11 @@ rl::Vector2 rg::Rect::bottomright() const
     return {x + width, y + height};
 }
 
-rl::Vector2 rg::Rect::bottomright(const rl::Vector2 pos)
+rg::Rect rg::Rect::bottomright(const rl::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y - height;
-    return bottomright();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::midbottom() const
@@ -266,11 +266,11 @@ rl::Vector2 rg::Rect::midbottom() const
     return {x + width / 2.0f, y + height};
 }
 
-rl::Vector2 rg::Rect::midbottom(const rl::Vector2 pos)
+rg::Rect rg::Rect::midbottom(const rl::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height;
-    return midbottom();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::midtop() const
@@ -278,11 +278,11 @@ rl::Vector2 rg::Rect::midtop() const
     return {x + width / 2.0f, y};
 }
 
-rl::Vector2 rg::Rect::midtop(const rl::Vector2 pos)
+rg::Rect rg::Rect::midtop(const rl::Vector2 pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y;
-    return midbottom();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::midleft() const
@@ -290,11 +290,11 @@ rl::Vector2 rg::Rect::midleft() const
     return {x, y + height / 2.0f};
 }
 
-rl::Vector2 rg::Rect::midleft(const rl::Vector2 pos)
+rg::Rect rg::Rect::midleft(const rl::Vector2 pos)
 {
     x = pos.x;
     y = pos.y - height / 2.0f;
-    return midleft();
+    return copy();
 }
 
 rl::Vector2 rg::Rect::midright() const
@@ -302,11 +302,11 @@ rl::Vector2 rg::Rect::midright() const
     return {x + width, y + height / 2.0f};
 }
 
-rl::Vector2 rg::Rect::midright(const rl::Vector2 pos)
+rg::Rect rg::Rect::midright(const rl::Vector2 pos)
 {
     x = pos.x - width;
     y = pos.y - height / 2.0f;
-    return midright();
+    return copy();
 }
 
 rg::Rect rg::Rect::inflate(const float width, const float height) const
