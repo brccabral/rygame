@@ -301,6 +301,9 @@ namespace rg
         {
         public:
 
+            // Group cannot be allocated in Heap
+            void *operator new(size_t) = delete;
+
             virtual ~Group();
             // Draw all sprites into surface
             virtual void Draw(Surface *surface);
