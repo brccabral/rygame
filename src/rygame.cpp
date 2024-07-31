@@ -1134,16 +1134,16 @@ rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char thres
     return mask;
 }
 
-rg::font::Font::Font() : font(rl::GetFontDefault()), size(1)
+rg::font::Font::Font() : font(rl::GetFontDefault()), font_size(1)
 {}
 
-rg::font::Font::Font(const char *file, const float size)
-    : font(rl::LoadFontEx(file, size, nullptr, 0)), size(size)
+rg::font::Font::Font(const char *file, const float font_size)
+    : font(rl::LoadFontEx(file, font_size, nullptr, 0)), font_size(font_size)
 {}
 
 // rl:Font is trivial copiable
 // ReSharper disable once CppPassValueParameterByConstReference
-rg::font::Font::Font(rl::Font font, const float size) : font(font), size(size)
+rg::font::Font::Font(rl::Font font, const float font_size) : font(font), font_size(font_size)
 {}
 
 rg::font::Font::~Font()
@@ -1154,7 +1154,7 @@ rg::font::Font::~Font()
 rg::Surface *
 rg::font::Font::render(const char *text, const rl::Color color, const float spacing) const
 {
-    const rl::Image imageText = ImageTextEx(font, text, size, spacing, color);
+    const rl::Image imageText = ImageTextEx(font, text, font_size, spacing, color);
     const rl::Texture texture = LoadTextureFromImage(imageText);
 
     auto *result = new Surface(imageText.width, imageText.height);
@@ -1163,6 +1163,11 @@ rg::font::Font::render(const char *text, const rl::Color color, const float spac
     UnloadTexture(texture);
     UnloadImage(imageText);
     return result;
+}
+
+rg::math::Vector2 rg::font::Font::size(const char *text) const
+{
+    return {MeasureTextEx(font, text, font_size, 1)};
 }
 
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)

@@ -518,17 +518,18 @@ namespace rg
             // Default Font, size 1
             Font();
             // Load font from file
-            Font(const char *file, float size);
+            Font(const char *file, float font_size);
             // Raylib Font
-            Font(rl::Font font, float size);
+            Font(rl::Font font, float font_size);
             ~Font();
             // Creates a Text surface from this Font. Make sure to delete it.
             Surface *render(const char *text, rl::Color color, float spacing = 1) const;
+            math::Vector2 size(const char *text) const;
 
         private:
 
             rl::Font font;
-            float size;
+            float font_size;
         };
     } // namespace font
 
