@@ -278,7 +278,7 @@ namespace rg
         [[nodiscard]] Rect GetRect() const;
         rl::Texture2D *Texture();
         void SetColorKey(rl::Color color) const;
-        Surface *convert(rl::PixelFormat format) const;
+        [[nodiscard]] Surface *convert(rl::PixelFormat format) const;
 
         // Load a file into a Surface*
         // The caller must delete Surface*
@@ -295,8 +295,11 @@ namespace rg
              float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
              bool bottomRight = true);
         void
-        circle(const Surface *surface, rl::Color color, rg::math::Vector2 center, float radius,
+        circle(const Surface *surface, rl::Color color, math::Vector2 center, float radius,
                float lineThick = 0.0f);
+        void
+        bar(const Surface *surface, Rect rect, float value, float max_value, rl::Color color,
+            rl::Color bg_color, float radius = 0.0f);
     } // namespace draw
 
     namespace assets

@@ -613,6 +613,26 @@ void rg::draw::circle(
     EndTextureModeSafe();
 }
 
+void rg::draw::bar(
+        const Surface *surface, const Rect rect, const float value, const float max_value,
+        const rl::Color color, const rl::Color bg_color, const float radius)
+{
+    const float ratio = rect.width / max_value;
+    const rg::Rect progress_rect = {
+            rect.x, rect.y, rg::math::clamp(value * ratio, 0, rect.width), rect.height};
+
+    if (radius == 0)
+    {
+        draw::rect(surface, bg_color, rect);
+        draw::rect(surface, color, progress_rect);
+    }
+    else
+    {
+        draw::rect(surface, bg_color, rect, 0, radius);
+        draw::rect(surface, color, progress_rect, 0, radius);
+    }
+}
+
 std::vector<rg::Surface *> rg::assets::ImportFolder(const char *path)
 {
     std::vector<Surface *> surfaces;
