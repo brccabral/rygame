@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <ctime>
 #include <map>
+#include <random>
 
 namespace rl
 {
@@ -178,6 +179,10 @@ namespace rg
             void normalize_ip();
             float operator[](const unsigned int &i) const;
         } Vector2;
+
+    std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
+    float random_uniform(std::uniform_real_distribution<float> dist);
+
     } // namespace math
 
     typedef union Line

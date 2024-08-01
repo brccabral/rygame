@@ -129,6 +129,20 @@ float rg::math::Vector2::operator[](const unsigned int &i) const
     throw;
 }
 
+std::random_device rd{};
+std::mt19937 gen(rd());
+
+std::uniform_real_distribution<float> rg::math::random_uniform_dist(const float min, const float max)
+{
+    const std::uniform_real_distribution<float> dist(min, max);
+    return dist;
+}
+
+float rg::math::random_uniform(std::uniform_real_distribution<float> dist)
+{
+    return dist(gen);
+}
+
 float rg::Rect::right() const
 {
     return x + width;
