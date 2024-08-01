@@ -3,6 +3,9 @@
 int current_render = 0;
 rg::Surface *display_surface = nullptr;
 
+std::random_device rd{};
+std::mt19937 gen(rd());
+
 class KilledSprites final : public rg::sprite::Group
 {
 public:
@@ -115,22 +118,6 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
         sprintf(truncBuffer, "...");
     }
 }
-
-float rg::math::Vector2::operator[](const unsigned int &i) const
-{
-    if (i == 0)
-    {
-        return x;
-    }
-    if (i == 1)
-    {
-        return y;
-    }
-    throw;
-}
-
-std::random_device rd{};
-std::mt19937 gen(rd());
 
 std::uniform_real_distribution<float> rg::math::random_uniform_dist(const float min, const float max)
 {
@@ -875,20 +862,6 @@ bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
     return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
 }
 
-rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
-{}
-
-bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
-{
-    Rect leftrect = left->rect;
-    Rect rightrect = right->rect;
-
-    leftrect.scale_by_ip(ratio);
-    rightrect.scale_by_ip(ratio);
-
-    return collide_rect(left, right);
-}
-
 std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
         Sprite *sprite, Group *group, const bool dokill,
         const std::function<bool(Sprite *left, Sprite *right)> &collided)
@@ -923,6 +896,20 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
         }
     }
     return nullptr;
+}
+
+rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
+{}
+
+bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
+{
+    Rect leftrect = left->rect;
+    Rect rightrect = right->rect;
+
+    leftrect.scale_by_ip(ratio);
+    rightrect.scale_by_ip(ratio);
+
+    return collide_rect(left, right);
 }
 
 // duration is in seconds
@@ -1226,4 +1213,17 @@ rg::math::Vector2 rg::math::Vector2::normalize() const
 void rg::math::Vector2::normalize_ip()
 {
     vector2 = Vector2Normalize(vector2);
+}
+
+float rg::math::Vector2::operator[](const unsigned int &i) const
+{
+    if (i == 0)
+    {
+        return x;
+    }
+    if (i == 1)
+    {
+        return y;
+    }
+    throw;
 }
