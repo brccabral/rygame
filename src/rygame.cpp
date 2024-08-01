@@ -1299,11 +1299,6 @@ rg::math::Vector2 operator-(const rg::math::Vector2 &lhs, const rg::math::Vector
     return rg::math::Vector2{lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
-rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, const float scale)
-{
-    return rg::math::Vector2{lhs.x * scale, lhs.y * scale};
-}
-
 rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
 {
     lhs.x += rhs.x;
@@ -1315,6 +1310,18 @@ rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &r
 {
     lhs.x -= rhs.x;
     lhs.y -= rhs.y;
+    return lhs;
+}
+
+rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, const float scale)
+{
+    return rg::math::Vector2{lhs.x * scale, lhs.y * scale};
+}
+
+rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, const float scale)
+{
+    lhs.x *= scale;
+    lhs.y *= scale;
     return lhs;
 }
 
