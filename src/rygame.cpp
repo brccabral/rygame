@@ -1,4 +1,8 @@
 #include "rygame.h"
+namespace rl
+{
+#include <raymath.h>
+}
 
 int current_render = 0;
 rg::Surface *display_surface = nullptr;
@@ -539,6 +543,39 @@ rg::Surface *rg::Surface::Load(const char *path)
     EndTextureModeSafe();
     UnloadTexture(texture);
     return surface;
+}
+
+rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surface(width, height)
+{
+    if (rows <= 0)
+    {
+        rows = 1;
+    }
+    if (cols <= 0)
+    {
+        cols = 1;
+    }
+    const float w = 1.0f * width / cols;
+    const float h = 1.0f * height / rows;
+
+    for (int r = 0; r < rows; ++r)
+    {
+        const float y = r * h;
+        for (int c = 0; c < cols; ++c)
+        {
+            const float x = c * w;
+            frames.push_back({x, y, w, h});
+        }
+    }
+}
+
+void rg::Frames::SetAtlas(const int frame_index)
+{
+    if (frame_index >= 0)
+    {
+        current_frame_index = frame_index % frames.size();
+    }
+    atlas_rect = frames[current_frame_index];
 }
 
 void rg::draw::rect(
@@ -1150,7 +1187,6 @@ void rg::display::Update()
     rl::EndDrawing();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeStatic
 float rg::time::Clock::tick(const int fps)
 {
     if (fps)

@@ -4,7 +4,6 @@
 #include <list>
 #include <utility>
 #include <vector>
-#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
@@ -16,7 +15,6 @@
 namespace rl
 {
 #include <raylib.h>
-#include <raymath.h>
 #include <raylib-tmx.h>
 } // namespace rl
 
@@ -261,6 +259,8 @@ namespace rg
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
+    class Frames; // forward declaration
+
     class Surface
     {
     public:
@@ -268,9 +268,11 @@ namespace rg
         Surface(int width, int height);
         ~Surface();
         void Fill(rl::Color color) const;
+        // Blit a surface into this surface.
         void
         Blit(Surface *surface, math::Vector2 offset = {0, 0},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
+        // Blit a texture into this surface.
         void
         Blit(const rl::Texture2D *texture, math::Vector2 offset = {0, 0}, Rect area = {},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
@@ -286,6 +288,18 @@ namespace rg
 
         Rect atlas_rect{}; // atlas position
         rl::RenderTexture2D render_texture{}; // atlas texture
+    };
+
+    class Frames : public Surface
+    {
+    public:
+
+        Frames(int width, int height, int rows, int cols);
+        // Set current atlas rect. If passed value is negative, set to current_frame_index.
+        // If greater or equal 0, module with frame length.
+        void SetAtlas(int frame_index = -1);
+        unsigned int current_frame_index{};
+        std::vector<Rect> frames{};
     };
 
     namespace draw
@@ -331,7 +345,7 @@ namespace rg
 
     namespace sprite
     {
-        class Sprite;
+        class Sprite; // forward declaration
 
         // Manages multiple sprites at once
         class Group
