@@ -481,7 +481,7 @@ void rg::Surface::Blit(
     }
     else
     {
-        DrawTexture(*texture, offset.x, offset.y, rl::WHITE);
+        DrawTextureV(*texture, {offset.x, offset.y}, rl::WHITE);
     }
 
     if (blend_mode != rl::BLEND_ALPHA)
