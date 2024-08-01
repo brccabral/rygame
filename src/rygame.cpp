@@ -545,6 +545,29 @@ rg::Surface *rg::Surface::Load(const char *path)
     return surface;
 }
 
+std::vector<rg::Surface *> rg::Surface::LoadFolderList(const char *path)
+{
+    std::vector<Surface *> surfaces;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        surfaces.push_back(Load(entryPath.c_str()));
+    }
+    return surfaces;
+}
+
+std::map<std::string, rg::Surface *> rg::Surface::LoadFolderDict(const char *path)
+{
+    std::map<std::string, Surface *> surfaces;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto filename = dirEntry.path().stem().string();
+        auto entryPath = dirEntry.path().string();
+        surfaces[filename] = Load(entryPath.c_str());
+    }
+    return surfaces;
+}
+
 rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surface(width, height)
 {
     if (rows <= 0)

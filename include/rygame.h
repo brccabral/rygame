@@ -285,6 +285,13 @@ namespace rg
         // Load a file into a Surface*
         // The caller must delete Surface*
         static Surface *Load(const char *path);
+        // Loads all files in a folder and returns a vector<>
+        // The caller must delete in all elements Surface*
+        static std::vector<Surface *> LoadFolderList(const char *path);
+        // Loads all files in a folder and returns a map<> (dictionary)
+        // where the key is the filename
+        // The caller must delete in all elements Surface*
+        static std::map<std::string, Surface *> LoadFolderDict(const char *path);
 
         Rect atlas_rect{}; // atlas position
         rl::RenderTexture2D render_texture{}; // atlas texture
