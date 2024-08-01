@@ -602,6 +602,27 @@ void rg::Frames::SetAtlas(const int frame_index)
     atlas_rect = frames[current_frame_index];
 }
 
+rg::Frames *
+rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const int cols)
+{
+    if (surfaces.empty())
+    {
+        return nullptr;
+    }
+    const int singleWidth = surfaces[0]->Texture()->width;
+    const int singleHeight = surfaces[0]->Texture()->height;
+    auto *result = new Frames{singleWidth * cols, singleHeight * rows, rows, cols};
+    for (int r = 0; r < rows; ++r)
+    {
+        for (int c = 0; c < cols; ++c)
+        {
+            const unsigned int s = r * cols + c;
+            result->Blit(surfaces[s], {(float) c * singleWidth, (float) r * singleHeight});
+        }
+    }
+    return result;
+}
+
 void rg::draw::rect(
         const Surface *surface, const rl::Color color, const Rect rect, const float lineThick,
         const float radius, const bool topLeft, const bool topRight, const bool bottomLeft,

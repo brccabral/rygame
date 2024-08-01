@@ -301,10 +301,17 @@ namespace rg
     {
     public:
 
+        // Width/Height is the total size of the image
+        // Rows/Cols will create atlas of N=rows*cols, each N of
+        // size (Width/Cols, Height/Rows)
         Frames(int width, int height, int rows, int cols);
         // Set current atlas rect. If passed value is negative, set to current_frame_index.
         // If greater or equal 0, module with frame length.
         void SetAtlas(int frame_index = -1);
+        // Merge a list of Surfaces. Assumes all surfaces are same size.
+        // Caller must delete returned Frame*
+        static Frames *Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
+
         unsigned int current_frame_index{};
         std::vector<Rect> frames{};
     };
