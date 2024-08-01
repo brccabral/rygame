@@ -1252,6 +1252,9 @@ void rg::display::Update()
             {0, 0, (float) display_surface->Texture()->width,
              (float) -display_surface->Texture()->height},
             {0, 0}, rl::WHITE);
+#ifdef SHOW_FPS
+    rl::DrawFPS(20, 20);
+#endif
     rl::EndDrawing();
 }
 
