@@ -500,7 +500,7 @@ namespace rg
             Clock() = default;
 
             // Gets frame time, sets FPS if passed value
-            static float tick(int fps);
+            static float tick(int fps = 0.0f);
         };
     } // namespace time
 
