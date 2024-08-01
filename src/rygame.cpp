@@ -119,7 +119,8 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
     }
 }
 
-std::uniform_real_distribution<float> rg::math::random_uniform_dist(const float min, const float max)
+std::uniform_real_distribution<float>
+rg::math::random_uniform_dist(const float min, const float max)
 {
     const std::uniform_real_distribution<float> dist(min, max);
     return dist;
@@ -400,7 +401,9 @@ bool rg::Line::collidepoint(const math::Vector2 point, const float threshold) co
 
 bool rg::Line::collideline(const Line other, math::Vector2 *collisionPoint) const
 {
-    return CheckCollisionLines(start.vector2, end.vector2, other.start.vector2, other.end.vector2, &collisionPoint->vector2);
+    return CheckCollisionLines(
+            start.vector2, end.vector2, other.start.vector2, other.end.vector2,
+            &collisionPoint->vector2);
 }
 
 rg::Surface::Surface(const int width, const int height)
@@ -520,14 +523,16 @@ rg::Surface *rg::Surface::Load(const char *path)
 
 void rg::draw::rect(
         const Surface *surface, const rl::Color color, const Rect rect, const float lineThick,
-        const float radius)
+        const float radius, const bool topLeft, const bool topRight, const bool bottomLeft,
+        const bool bottomRight)
 {
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
     {
         if (radius > 0)
         {
-            const int segments = (rect.width > rect.height ? rect.width : rect.height) * radius;
+            const int segments =
+                    (rect.width > rect.height ? rect.width : rect.height) * radius * 0.5f;
             DrawRectangleRoundedLinesEx(rect.rectangle, 0.5f, segments, lineThick, color);
         }
         else
@@ -539,8 +544,30 @@ void rg::draw::rect(
     {
         if (radius > 0)
         {
-            const int segments = (rect.width > rect.height ? rect.width : rect.height) * radius;
+            const int segments =
+                    (rect.width < rect.height ? rect.width : rect.height) * radius * 0.5f;
             DrawRectangleRounded(rect.rectangle, 0.5f, segments, color);
+            Rect corner = {0, 0, radius, radius};
+            if (!topLeft)
+            {
+                corner.topleft(rect.topleft());
+                DrawRectangleRec(corner.rectangle, color);
+            }
+            if (!topRight)
+            {
+                corner.topright(rect.topright());
+                DrawRectangleRec(corner.rectangle, color);
+            }
+            if (!bottomLeft)
+            {
+                corner.bottomleft(rect.bottomleft());
+                DrawRectangleRec(corner.rectangle, color);
+            }
+            if (!bottomRight)
+            {
+                corner.bottomright(rect.bottomright());
+                DrawRectangleRec(corner.rectangle, color);
+            }
         }
         else
         {
@@ -1008,14 +1035,14 @@ void rg::mixer::Sound::Stop() const
 {
     if (isMusic)
     {
-        if(IsMusicStreamPlaying(*(rl::Music *) audio))
+        if (IsMusicStreamPlaying(*(rl::Music *) audio))
         {
             StopMusicStream(*(rl::Music *) audio);
         }
     }
     else
     {
-        if(IsSoundPlaying(*(rl::Sound *) audio))
+        if (IsSoundPlaying(*(rl::Sound *) audio))
         {
             StopSound(*(rl::Sound *) audio);
         }
@@ -1178,7 +1205,7 @@ rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector
 
 rg::math::Vector2 operator-(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
 {
-    return rg::math::Vector2{lhs.x - rhs.x, lhs.y-rhs.y};
+    return rg::math::Vector2{lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
 rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, const float scale)

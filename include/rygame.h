@@ -180,8 +180,8 @@ namespace rg
             float operator[](const unsigned int &i) const;
         } Vector2;
 
-    std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
-    float random_uniform(std::uniform_real_distribution<float> dist);
+        std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
+        float random_uniform(std::uniform_real_distribution<float> dist);
 
     } // namespace math
 
@@ -257,7 +257,8 @@ namespace rg
         void scale_by_ip(float ratio);
         [[nodiscard]] Rect copy() const;
         [[nodiscard]] bool collidepoint(math::Vector2 point) const;
-        [[nodiscard]] bool collideline(Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
+        [[nodiscard]] bool collideline(
+                Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
     class Surface
@@ -290,7 +291,8 @@ namespace rg
     {
         void
         rect(const Surface *surface, rl::Color color, Rect rect, float lineThick = 0.0f,
-             float radius = 0.0f);
+             float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
+             bool bottomRight = true);
         void
         circle(const Surface *surface, rl::Color color, rg::math::Vector2 center, float radius,
                float lineThick = 0.0f);
