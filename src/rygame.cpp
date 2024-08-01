@@ -131,6 +131,11 @@ float rg::math::random_uniform(std::uniform_real_distribution<float> dist)
     return dist(gen);
 }
 
+float rg::math::clamp(const float value, const float min, const float max)
+{
+    return rl::Clamp(value, min, max);
+}
+
 float rg::Rect::right() const
 {
     return x + width;

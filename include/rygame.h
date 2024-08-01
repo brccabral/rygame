@@ -182,7 +182,7 @@ namespace rg
 
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
         float random_uniform(std::uniform_real_distribution<float> dist);
-
+        float clamp(float value, float min, float max);
     } // namespace math
 
     typedef union Line
