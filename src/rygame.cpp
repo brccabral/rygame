@@ -509,6 +509,21 @@ void rg::Surface::SetColorKey(const rl::Color color) const
     UnloadTexture(texture);
 }
 
+rg::Surface *rg::Surface::convert(const rl::PixelFormat format) const
+{
+    auto *result = new Surface(render_texture.texture.width, render_texture.texture.height);
+
+    rl::Image toConvert = LoadImageFromTexture(render_texture.texture);
+    ImageFormat(&toConvert, format);
+
+    const rl::Texture2D converted = LoadTextureFromImage(toConvert);
+    result->Blit(&converted);
+
+    UnloadTexture(converted);
+    UnloadImage(toConvert);
+    return result;
+}
+
 rg::Surface *rg::Surface::Load(const char *path)
 {
     const rl::Texture2D texture = rl::LoadTexture(path);

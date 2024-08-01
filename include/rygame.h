@@ -278,6 +278,7 @@ namespace rg
         [[nodiscard]] Rect GetRect() const;
         rl::Texture2D *Texture();
         void SetColorKey(rl::Color color) const;
+        Surface *convert(rl::PixelFormat format) const;
 
         // Load a file into a Surface*
         // The caller must delete Surface*
