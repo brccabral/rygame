@@ -269,10 +269,10 @@ namespace rg
         ~Surface();
         void Fill(rl::Color color) const;
         void
-        Blit(Surface *surface, rg::math::Vector2 offset = {0, 0},
+        Blit(Surface *surface, math::Vector2 offset = {0, 0},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         void
-        Blit(const rl::Texture2D *texture, rg::math::Vector2 offset = {0, 0}, Rect area = {},
+        Blit(const rl::Texture2D *texture, math::Vector2 offset = {0, 0}, Rect area = {},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         // Returns the size of the Surface, not the atlas position
         [[nodiscard]] Rect GetRect() const;
@@ -318,7 +318,7 @@ namespace rg
     {
         struct TileInfo
         {
-            rg::math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
+            math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
             Surface *surface = nullptr; // if tile has image, allocate it in memory
         };
         // get the tile image from the tileset

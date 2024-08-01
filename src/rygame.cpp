@@ -630,8 +630,8 @@ void rg::draw::bar(
         return;
     }
     const float ratio = rect.width / max_value;
-    const rg::Rect progress_rect = {
-            rect.x, rect.y, rg::math::clamp(value * ratio, 0, rect.width), rect.height};
+    const Rect progress_rect = {
+            rect.x, rect.y, math::clamp(value * ratio, 0, rect.width), rect.height};
 
     if (radius == 0)
     {
