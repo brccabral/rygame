@@ -465,6 +465,34 @@ void rg::Surface::Blit(
     EndTextureModeSafe();
 }
 
+void rg::Surface::Blits(
+        const std::vector<sprite::Sprite *> &sprites, const math::Vector2 offset,
+        const rl::BlendMode blend_mode) const
+{
+    if (sprites.empty())
+    {
+        return;
+    }
+    BeginTextureModeSafe(render_texture);
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        BeginBlendMode(blend_mode);
+    }
+
+    for (const auto *sprite: sprites)
+    {
+        DrawTextureRec(
+                *sprite->image->Texture(), sprite->image->atlas_rect.rectangle,
+                (sprite->rect.pos + offset).vector2, rl::WHITE);
+    }
+
+    if (blend_mode != rl::BLEND_ALPHA)
+    {
+        rl::EndBlendMode();
+    }
+    EndTextureModeSafe();
+}
+
 void rg::Surface::Blit(
         const rl::Texture2D *texture, const math::Vector2 offset, const Rect area,
         const rl::BlendMode blend_mode) const

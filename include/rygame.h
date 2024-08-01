@@ -259,6 +259,11 @@ namespace rg
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
+    namespace sprite
+    {
+        class Sprite; // forward declaration
+    }
+
     class Frames; // forward declaration
 
     class Surface
@@ -272,6 +277,10 @@ namespace rg
         void
         Blit(Surface *surface, math::Vector2 offset = {0, 0},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
+        // Blit a vector<Sprite*> into this surface.
+        void
+        Blits(const std::vector<sprite::Sprite *> &sprites, math::Vector2 offset = {0, 0},
+              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
         // Blit a texture into this surface.
         void
         Blit(const rl::Texture2D *texture, math::Vector2 offset = {0, 0}, Rect area = {},
