@@ -546,6 +546,10 @@ void rg::draw::rect(
         const float radius, const bool topLeft, const bool topRight, const bool bottomLeft,
         const bool bottomRight)
 {
+    if (!surface)
+    {
+        return;
+    }
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
     {
@@ -601,6 +605,10 @@ void rg::draw::circle(
         const Surface *surface, const rl::Color color, const math::Vector2 center,
         const float radius, const float lineThick)
 {
+    if (!surface)
+    {
+        return;
+    }
     BeginTextureModeSafe(surface->render_texture);
     if (lineThick > 0)
     {
@@ -617,6 +625,10 @@ void rg::draw::bar(
         const Surface *surface, const Rect rect, const float value, const float max_value,
         const rl::Color color, const rl::Color bg_color, const float radius)
 {
+    if (!surface)
+    {
+        return;
+    }
     const float ratio = rect.width / max_value;
     const rg::Rect progress_rect = {
             rect.x, rect.y, rg::math::clamp(value * ratio, 0, rect.width), rect.height};
@@ -1184,6 +1196,10 @@ rg::Surface *rg::mask::Mask::ToSurface() const
 
 rg::mask::Mask rg::mask::FromSurface(Surface *surface, const unsigned char threshold)
 {
+    if (!surface)
+    {
+        return {0, 0};
+    }
     auto mask = Mask(surface->Texture()->width, surface->Texture()->height);
     const rl::Image surfImage = LoadImageFromTexture(*surface->Texture());
     const rl::Image alphaImage = ImageFromChannel(surfImage, 3);
