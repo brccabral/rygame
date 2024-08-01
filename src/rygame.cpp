@@ -708,18 +708,15 @@ std::map<std::string, rg::Surface *> rg::assets::ImportFolderDict(const char *pa
     return result;
 }
 
-rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
+rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect)
 {
-    auto *surface = new Surface(tile->width, tile->height);
-
     const rl::tmx_image *im = tile->image;
-    const rl::Texture2D *map_texture = nullptr;
+    rl::Texture2D *map_texture = nullptr;
 
-    Rect srcRect;
-    srcRect.x = tile->ul_x;
-    srcRect.y = tile->ul_y;
-    srcRect.width = tile->width;
-    srcRect.height = tile->height;
+    atlas_rect->x = tile->ul_x;
+    atlas_rect->y = tile->ul_y;
+    atlas_rect->width = tile->width;
+    atlas_rect->height = tile->height;
 
     if (im && im->resource_image)
     {
@@ -729,11 +726,8 @@ rg::Surface *rg::tmx::GetTMXTileSurface(const rl::tmx_tile *tile)
     {
         map_texture = (rl::Texture2D *) tile->tileset->image->resource_image;
     }
-    if (map_texture)
-    {
-        surface->Blit(map_texture, {}, srcRect);
-    }
-    return surface;
+
+    return map_texture;
 }
 
 std::vector<rg::tmx::TileInfo>
@@ -749,9 +743,10 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
             if (map->tiles[gid])
             {
                 const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
-                auto *tileSurface = GetTMXTileSurface(map->tiles[gid]);
+                Rect atlas_rect{};
+                auto *tileTexture = GetTMXTileTexture(map->tiles[gid], &atlas_rect);
                 const math::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
-                TileInfo tile_info = {pos, tileSurface};
+                TileInfo tile_info = {pos, tileTexture, atlas_rect};
                 tiles.push_back(tile_info);
             }
         }
@@ -762,11 +757,11 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
 rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     auto *surface = new Surface(map->width * map->tile_width, map->height * map->tile_height);
+    // it will return many Texture*, but we don't need to unload them here, only at rg::UnloadTMX
     std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
-    for (auto &[position, tileSurface]: tiles)
+    for (auto &[position, tileTexture, atlas_rect]: tiles)
     {
-        surface->Blit(tileSurface, position);
-        delete tileSurface;
+        surface->Blit(tileTexture, position, atlas_rect);
     }
     return surface;
 }

@@ -333,10 +333,11 @@ namespace rg
         struct TileInfo
         {
             math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
-            Surface *surface = nullptr; // if tile has image, allocate it in memory
+            rl::Texture2D *texture = nullptr; // if tile has image, allocate it in memory
+            Rect atlas_rect{};
         };
         // get the tile image from the tileset
-        Surface *GetTMXTileSurface(const rl::tmx_tile *tile);
+        rl::Texture2D *GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect);
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
