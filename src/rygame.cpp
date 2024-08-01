@@ -1219,14 +1219,18 @@ rg::font::Font::~Font()
     UnloadFont(font);
 }
 
-rg::Surface *
-rg::font::Font::render(const char *text, const rl::Color color, const float spacing) const
+rg::Surface *rg::font::Font::render(
+        const char *text, const rl::Color color, const float spacing, const rl::Color bg,
+        const float padding_width, const float padding_height) const
 {
     const rl::Image imageText = ImageTextEx(font, text, font_size, spacing, color);
     const rl::Texture texture = LoadTextureFromImage(imageText);
 
-    auto *result = new Surface(imageText.width, imageText.height);
-    result->Blit(&texture);
+    const float surfWidth = imageText.width + padding_width;
+    const float surfHeight = imageText.height + padding_height;
+
+    auto *result = new Surface(surfWidth, surfHeight);
+    result->Blit(&texture, {padding_width / 2.0f, padding_height / 2.0f});
 
     UnloadTexture(texture);
     UnloadImage(imageText);

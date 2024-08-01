@@ -534,7 +534,11 @@ namespace rg
             Font(rl::Font font, float font_size);
             ~Font();
             // Creates a Text surface from this Font. Make sure to delete it.
-            Surface *render(const char *text, rl::Color color, float spacing = 1) const;
+            // If passed padding_width or padding_height, surface dimensions will be added
+            // (textsize + (width,height))
+            Surface *
+            render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
+                   float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
 
         private:
