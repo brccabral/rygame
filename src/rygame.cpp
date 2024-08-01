@@ -590,6 +590,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surf
             frames.push_back({x, y, w, h});
         }
     }
+    atlas_rect = frames[current_frame_index];
 }
 
 void rg::Frames::SetAtlas(const int frame_index)
