@@ -264,52 +264,89 @@ namespace rg
         class Sprite; // forward declaration
     }
 
+    namespace tmx
+    {
+        struct TileInfo; // forward declaration
+    }
+
     class Frames; // forward declaration
 
     class Surface
     {
     public:
 
+        // Surface cannot be allocated in Heap
+        void *operator new(size_t) = delete;
+
+        Surface() = default;
+
+        // Create a surface with a local texture. This texture will be Unloaded in ~Surface()
         Surface(int width, int height);
-        ~Surface();
-        void Fill(rl::Color color) const;
-        // Blit a surface into this surface.
+        // Crete a Surface from existing texture. This texture will not be Unloaded
+        // by this surface, Unload from the caller
+        Surface(const rl::Texture2D &texture, Rect atlas);
+        virtual ~Surface();
+
+        // Fill a Surface* with a color
+        void Fill(rl::Color color);
+        // All `color` inside Surface* will become BLANK
+        void SetColorKey(rl::Color color);
+        // Blit incoming Surface into surface*. If you are calling Blit() inside a loop,
+        // consider using `Blits()` or call StartRender(true)/EndRender(true) before/after
+        // the loop
         void
-        Blit(Surface *surface, math::Vector2 offset = {0, 0},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
-        // Blit a vector<Sprite*> into this surface.
+        Blit(const Surface &incoming, math::Vector2 offset,
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        // Blit incoming Texture2D into surface*. If you are calling Blit() inside a loop,
+        // consider using `Blits()` or call StartRender(true)/EndRender(true) before/after
+        // the loop
         void
-        Blits(const std::vector<sprite::Sprite *> &sprites, math::Vector2 offset = {0, 0},
-              rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
-        // Blit a texture into this surface.
+        Blit(const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
+        // surface* and offset
         void
-        Blit(const rl::Texture2D *texture, math::Vector2 offset = {0, 0}, Rect area = {},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA) const;
-        // Returns the size of the Surface, not the atlas position
+        Blits(const std::vector<std::pair<Surface, math::Vector2>> &blit_sequence,
+              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        // Creates a new Surface*
+        [[nodiscard]] Surface convert(rl::PixelFormat format) const;
+
+        void BeginRender();
+        void StartRender(bool start_manual = false);
+        virtual void RenderTexture() const;
+        void EndRender(bool end_manual = false);
+        virtual void ReplaceTextureWithRender();
+
+        // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
-        rl::Texture2D *Texture();
-        void SetColorKey(rl::Color color) const;
-        [[nodiscard]] Surface *convert(rl::PixelFormat format) const;
+        virtual rl::Texture2D Texture();
 
         // Load a file into a Surface*
         // The caller must delete Surface*
-        static Surface *Load(const char *path);
+        static Surface Load(const char *path);
         // Loads all files in a folder and returns a vector<>
         // The caller must delete in all elements Surface*
-        static std::vector<Surface *> LoadFolderList(const char *path);
+        static std::vector<Surface> LoadFolderList(const char *path);
         // Loads all files in a folder and returns a map<> (dictionary)
         // where the key is the filename
         // The caller must delete in all elements Surface*
-        static std::map<std::string, Surface *> LoadFolderDict(const char *path);
+        static std::map<std::string, Surface> LoadFolderDict(const char *path);
 
         Rect atlas_rect{}; // atlas position
-        rl::RenderTexture2D render_texture{}; // atlas texture
+
+    protected:
+
+        rl::Texture texture{};
+        bool isTextureLocal{};
+        rl::RenderTexture2D render{};
+        bool isManualRendering{};
     };
 
     class Frames : public Surface
     {
     public:
 
+        Frames() = default;
         // Width/Height is the total size of the image
         // Rows/Cols will create atlas of N=rows*cols, each N of
         // size (Width/Cols, Height/Rows)
@@ -319,7 +356,7 @@ namespace rg
         void SetAtlas(int frame_index = -1);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames *Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
+        static Frames Merge(const std::vector<Surface> &surfaces, int rows, int cols);
 
         unsigned int current_frame_index{};
         std::vector<Rect> frames{};
@@ -328,14 +365,14 @@ namespace rg
     namespace draw
     {
         void
-        rect(const Surface *surface, rl::Color color, Rect rect, float lineThick = 0.0f,
+        rect(Surface &surface, rl::Color color, Rect rect, float lineThick = 0.0f,
              float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
              bool bottomRight = true);
         void
-        circle(const Surface *surface, rl::Color color, math::Vector2 center, float radius,
+        circle(Surface &surface, rl::Color color, math::Vector2 center, float radius,
                float lineThick = 0.0f);
         void
-        bar(const Surface *surface, Rect rect, float value, float max_value, rl::Color color,
+        bar(Surface &surface, Rect rect, float value, float max_value, rl::Color color,
             rl::Color bg_color, float radius = 0.0f);
     } // namespace draw
 
@@ -344,15 +381,16 @@ namespace rg
         // Walk a folder path and loads all images
         // Returns a vector of Surface*
         // The caller must delete Surface*
-        std::vector<Surface *> ImportFolder(const char *path);
+        std::vector<Surface> ImportFolder(const char *path);
         // Walk a folder path and loads all images
         // Returns a map where the key is filename and values are Surface*
         // The caller must delete Surface*
-        std::map<std::string, Surface *> ImportFolderDict(const char *path);
+        std::map<std::string, Surface> ImportFolderDict(const char *path);
     } // namespace assets
 
     namespace tmx
     {
+        // World Position, Atlas image*, Atlas position
         struct TileInfo
         {
             math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
@@ -364,7 +402,8 @@ namespace rg
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        void
+        GetTMXLayerSurface(Surface &surface, const rl::tmx_map *map, const rl::tmx_layer *layer);
     } // namespace tmx
 
     namespace sprite
@@ -381,9 +420,9 @@ namespace rg
 
             virtual ~Group();
             // Draw all sprites into surface
-            virtual void Draw(Surface *surface);
+            virtual void Draw(Surface &surface);
             // Updates all sprites
-            void Update(float deltaTime);
+            void Update(float deltaTime) const;
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
@@ -399,7 +438,8 @@ namespace rg
             // Check if sprite is in group
             bool has(const Sprite *check_sprite);
             // Returns a copy of vector sprites
-            std::vector<Sprite *> Sprites();
+            [[nodiscard]] std::vector<Sprite *> Sprites() const;
+
 
         protected:
 
@@ -438,7 +478,7 @@ namespace rg
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            Surface *image = nullptr;
+            Surface image{};
 
         protected:
 
@@ -483,13 +523,13 @@ namespace rg
         // Returns a list of all sprites in the group that collides with the sprite
         // If dokill is true, all collided sprites are removed from group
         std::vector<Sprite *> spritecollide(
-                Sprite *sprite, Group *group, bool dokill,
+                Sprite *sprite, const Group *group, bool dokill,
                 const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
 
         // Tests if Sprite collides with any sprite in group, returns the first sprite in
         // group that collides
         Sprite *spritecollideany(
-                Sprite *sprite, Group *group,
+                Sprite *sprite, const Group *group,
                 const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
     } // namespace sprite
 
@@ -550,12 +590,12 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            [[nodiscard]] Surface *ToSurface() const;
+            [[nodiscard]] Surface ToSurface() const;
 
             rl::Image image{};
         };
 
-        Mask FromSurface(Surface *surface, unsigned char threshold = 127);
+        Mask FromSurface(Surface &surface, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
@@ -574,7 +614,7 @@ namespace rg
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
             // (textsize + (width,height))
-            Surface *
+            Surface
             render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
