@@ -10,79 +10,31 @@ static int current_render = 0; // TODO make it stack<> ?
 std::random_device rd{};
 std::mt19937 gen(rd());
 
-class KilledSprites final : public rg::sprite::Group
-{
-public:
-
-    KilledSprites() : Group(){};
-    ~KilledSprites() override
-    {
-        DoDelete();
-    };
-
-    void DoDelete()
-    {
-        for (const auto *sprite: Sprites())
-        {
-            delete sprite;
-        }
-    };
-};
-
-KilledSprites killedSprites{};
-
-
 // Private class used only for show on screen
 class DisplaySurface : public rg::Surface
 {
 public:
 
-    DisplaySurface() = default;
-    ~DisplaySurface() override
-    {
-        // Before DisplaySurface is destroyed, the Quit() calls UnloadDisplay()
-        // Set these values to skip ~Surface() UnloadFunctions
-        isTextureLocal = false;
-        render.id = 0;
-    };
+    static DisplaySurface *Create(int width, int height);
 
-    void SetDisplay(const int width, const int height)
-    {
-        const rl::Image blackImage = GenImageColor(width, height, rl::BLACK);
-        texture = LoadTextureFromImage(blackImage);
-        UnloadImage(blackImage);
+    ~DisplaySurface() override = default;
 
-        // RenderTexture draws textures upside-down
-        atlas_rect = {0, 0, (float) width, (float) -height};
+protected:
 
-        render = rl::LoadRenderTexture(width, height);
-        SetColorKey(rl::BLACK);
-    }
-
-    DisplaySurface(const rl::Texture2D &texture, const rg::Rect &atlas) = delete;
-
-    rl::Texture2D Texture() override
-    {
-        return render.texture;
-    };
-
-    void UnloadDisplay() const;
-
-private:
-
-    // we don't need to replace texture in DisplaySurface, we use `render` directly
-    void ReplaceTextureWithRender() override{};
-    // we don't need to render texture in DisplaySurface
-    void RenderTexture() const override{};
+    DisplaySurface(int width, int height);
 };
 
-void DisplaySurface::UnloadDisplay() const
+DisplaySurface::DisplaySurface(const int width, const int height) : Surface(width, height)
+{}
+
+DisplaySurface *DisplaySurface::Create(const int width, const int height)
 {
-    UnloadRenderTexture(render);
-    UnloadTexture(texture);
+    const auto result = new DisplaySurface(width, height);
+    return result;
 }
 
-DisplaySurface display_surface;
+
+DisplaySurface *display_surface = nullptr;
 
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
@@ -95,7 +47,7 @@ void rg::Init(
 
 void rg::Quit()
 {
-    display_surface.UnloadDisplay();
+    delete display_surface;
     if (isSoundInit)
     {
         rl::CloseAudioDevice();
@@ -119,8 +71,11 @@ void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 
 void rg::EndTextureModeSafe()
 {
+    if (current_render)
+    {
+        rl::EndTextureMode();
+    }
     current_render = 0;
-    rl::EndTextureMode();
 }
 
 void rg::BeginTextureModeC(const rl::RenderTexture2D &render, const rl::Color color)
@@ -466,47 +421,74 @@ bool rg::Line::collideline(const Line other, math::Vector2 *collisionPoint) cons
             &collisionPoint->vector2);
 }
 
-rg::Surface::Surface(const int width, const int height) : isTextureLocal(true)
+rg::Surface::Surface(const int width, const int height)
 {
-    const rl::Image blackImage = GenImageColor(width, height, rl::BLACK);
-    texture = LoadTextureFromImage(blackImage);
-    UnloadImage(blackImage);
-
+    if (!render.id)
+    {
+        EndTextureModeSafe();
+        render = rl::LoadRenderTexture(width, height);
+    }
+    else
+    {
+        TraceLog(rl::LOG_ERROR, "Surface already has a render, CreateSurface has been called.");
+        throw;
+    }
     // RenderTexture draws textures upside-down
-    atlas_rect = {0, 0, (float) texture.width, (float) -texture.height};
+    atlas_rect = {0, 0, (float) width, (float) -height};
+
+    Fill(rl::BLACK);
 }
 
-rg::Surface::Surface(const rl::Texture2D &texture, const Rect atlas)
-    : atlas_rect(atlas), texture(texture)
-{}
+rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
+{
+    shared_texture = texture;
+    atlas_rect = atlas;
+}
+
+rg::Surface *rg::Surface::Create(const int width, const int height)
+{
+    const auto result = new Surface(width, height);
+    return result;
+}
+
+rg::Surface *rg::Surface::Create(rl::Texture2D *texture, Rect atlas)
+{
+    if (!atlas.width)
+    {
+        atlas.width = texture->width;
+    }
+    if (!atlas.height)
+    {
+        atlas.height = -texture->height;
+    }
+    const auto result = new Surface(texture, atlas);
+    return result;
+}
 
 rg::Surface::~Surface()
 {
-    if (isTextureLocal)
-    {
-        UnloadTexture(texture);
-    }
     if (render.id)
     {
         UnloadRenderTexture(render);
+        render.id = 0;
     }
 }
 
 void rg::Surface::Fill(const rl::Color color)
 {
-    BeginRender();
+    ToggleRender();
     ClearBackground(color);
-    EndRender();
+    EndTextureModeSafe();
 }
 
 void rg::Surface::Blit(
-        const Surface &incoming, const math::Vector2 offset, const rl::BlendMode blend_mode)
+        const Surface *incoming, const math::Vector2 offset, const rl::BlendMode blend_mode)
 {
-    this->Blit(incoming.texture, offset, incoming.atlas_rect, blend_mode);
+    this->Blit(incoming->GetTexture(), offset, incoming->atlas_rect, blend_mode);
 }
 
 void rg::Surface::Blits(
-        const std::vector<std::pair<Surface, math::Vector2>> &blit_sequence,
+        const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
         const rl::BlendMode blend_mode)
 {
     if (blit_sequence.empty())
@@ -514,23 +496,24 @@ void rg::Surface::Blits(
         return;
     }
 
-    StartRender();
+    ToggleRender();
 
     // draw incoming as blended
     if (blend_mode != rl::BLEND_ALPHA)
     {
         BeginBlendMode(blend_mode);
     }
-    for (const auto &[surface, offset]: blit_sequence)
+    for (auto &[surface, offset]: blit_sequence)
     {
-        DrawTextureRec(surface.texture, surface.atlas_rect.rectangle, offset.vector2, rl::WHITE);
+        DrawTextureRec(
+                surface->GetTexture(), surface->atlas_rect.rectangle, offset.vector2, rl::WHITE);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
         rl::EndBlendMode();
     }
 
-    EndRender();
+    EndTextureModeSafe();
 }
 
 void rg::Surface::Blit(
@@ -542,7 +525,7 @@ void rg::Surface::Blit(
         return;
     }
 
-    StartRender();
+    ToggleRender();
 
     // draw incoming as blended
     if (blend_mode != rl::BLEND_ALPHA)
@@ -561,8 +544,6 @@ void rg::Surface::Blit(
     {
         rl::EndBlendMode();
     }
-
-    EndRender();
 }
 
 rg::Rect rg::Surface::GetRect() const
@@ -572,112 +553,73 @@ rg::Rect rg::Surface::GetRect() const
     return {0, 0, absWidth, absHeight};
 }
 
-rl::Texture2D rg::Surface::Texture()
+rl::Texture2D rg::Surface::GetTexture() const
 {
-    return texture;
+    if (shared_texture)
+    {
+        return *shared_texture;
+    }
+    return render.texture;
+}
+
+void rg::Surface::ToggleRender()
+{
+    if (current_render != render.id)
+    {
+        EndTextureModeSafe();
+        BeginTextureModeSafe(render);
+        shared_texture = nullptr;
+    }
 }
 
 void rg::Surface::SetColorKey(const rl::Color color)
 {
-    rl::Image current = LoadImageFromTexture(texture);
+    EndTextureModeSafe();
+    rl::Image current = LoadImageFromTexture(GetTexture());
     ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImage(current);
 
     // replace
-    if (isTextureLocal)
-    {
-        UnloadTexture(texture);
-    }
-    isTextureLocal = true;
-    texture = color_texture;
+    Fill(rl::BLANK);
+    Blit(color_texture, {}, atlas_rect);
 
     // clean up
+    EndTextureModeSafe();
     UnloadImage(current);
+    UnloadTexture(color_texture);
 }
 
-rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
+rg::Surface *rg::Surface::convert(const rl::PixelFormat format) const
 {
-    Surface result{texture.width, texture.height};
+    const auto result = new Surface(GetTexture().width, GetTexture().height);
 
-    rl::Image toConvert = LoadImageFromTexture(texture);
+    rl::Image toConvert = LoadImageFromTexture(GetTexture());
     ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImage(toConvert);
-    result.Blit(converted, {}, {});
+    result->Blit(converted, {}, {});
 
+    EndTextureModeSafe();
     UnloadTexture(converted);
     UnloadImage(toConvert);
     return result;
 }
 
-void rg::Surface::BeginRender()
-{
-    if (!render.id)
-    {
-        render = rl::LoadRenderTexture(texture.width, texture.height);
-    }
-    BeginTextureModeSafe(render);
-}
-
-void rg::Surface::StartRender(const bool start_manual)
-{
-    if (!isManualRendering)
-    {
-        BeginRender();
-        RenderTexture(); // DisplaySurface class overrides this
-    }
-    if (start_manual)
-    {
-        isManualRendering = true;
-    }
-}
-
-void rg::Surface::RenderTexture() const
-{
-    DrawTextureV(texture, {}, rl::WHITE);
-}
-
-void rg::Surface::EndRender(const bool end_manual)
-{
-    if (end_manual)
-    {
-        isManualRendering = false;
-    }
-    if (!isManualRendering)
-    {
-        EndTextureModeSafe();
-        ReplaceTextureWithRender(); // DisplaySurface class overrides this
-    }
-}
-
-void rg::Surface::ReplaceTextureWithRender()
-{
-    const rl::Image image = LoadImageFromTexture(render.texture);
-    const rl::Texture2D replace = LoadTextureFromImage(image);
-
-    if (isTextureLocal)
-    {
-        UnloadTexture(texture);
-    }
-    isTextureLocal = true;
-    texture = replace;
-
-    UnloadImage(image);
-}
-
-rg::Surface rg::Surface::Load(const char *path)
+rg::Surface *rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     const rl::Texture2D loaded_texture = rl::LoadTexture(path);
-    // ReSharper disable once CppDFAMemoryLeak
-    Surface surface{loaded_texture.width, loaded_texture.height};
-    surface.Blit(loaded_texture, {}, {});
+    const auto surface = Surface::Create(loaded_texture.width, loaded_texture.height);
+    surface->Fill(rl::BLANK);
+    surface->Blit(loaded_texture, {});
+    EndTextureModeSafe();
+    UnloadTexture(loaded_texture);
     return surface;
 }
 
-std::vector<rg::Surface> rg::Surface::LoadFolderList(const char *path)
+std::vector<rg::Surface *> rg::image::LoadFolderList(const char *path)
 {
-    std::vector<Surface> surfaces;
+    std::vector<Surface *> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
@@ -686,9 +628,9 @@ std::vector<rg::Surface> rg::Surface::LoadFolderList(const char *path)
     return surfaces;
 }
 
-std::map<std::string, rg::Surface> rg::Surface::LoadFolderDict(const char *path)
+std::map<std::string, rg::Surface *> rg::image::LoadFolderDict(const char *path)
 {
-    std::map<std::string, Surface> surfaces;
+    std::map<std::string, Surface *> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto filename = dirEntry.path().stem().string();
@@ -696,6 +638,38 @@ std::map<std::string, rg::Surface> rg::Surface::LoadFolderDict(const char *path)
         surfaces[filename] = Load(entryPath.c_str());
     }
     return surfaces;
+}
+
+void rg::image::DeleteAllVector(const std::vector<Surface *> &surfaces)
+{
+    for (const auto *surf: surfaces)
+    {
+        delete surf;
+    }
+}
+
+std::vector<rg::Surface *> rg::image::ImportFolder(const char *path)
+{
+    std::vector<Surface *> surfaces;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        surfaces.push_back(image::Load(entryPath.c_str()));
+    }
+    return surfaces;
+}
+
+std::map<std::string, rg::Surface *> rg::image::ImportFolderDict(const char *path)
+{
+    std::map<std::string, Surface *> result;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto entryPath = dirEntry.path().string();
+        auto filename = dirEntry.path().stem().string();
+        result[filename] = image::Load(entryPath.c_str());
+    }
+    // ReSharper disable once CppDFAMemoryLeak
+    return result;
 }
 
 rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surface(width, height)
@@ -717,40 +691,56 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surf
         for (int c = 0; c < cols; ++c)
         {
             const float x = c * w;
-            frames.push_back({x, y, w, h});
+            frames.push_back({x, y, w, -h});
         }
     }
     atlas_rect = frames[current_frame_index];
 }
 
-void rg::Frames::SetAtlas(const int frame_index)
+rg::Frames *rg::Frames::Create(const int width, const int height, const int rows, const int cols)
 {
-    if (frame_index >= 0)
-    {
-        current_frame_index = frame_index % frames.size();
-    }
+    // ReSharper disable once CppDFAMemoryLeak
+    const auto result = new Frames(width, height, rows, cols);
+    return result;
+}
+
+rg::Frames *rg::Frames::Create(const Surface *surface, const int rows, const int cols)
+{
+    const auto result = new Frames(surface->GetRect().width, surface->GetRect().height, rows, cols);
+    result->Blit(surface, {});
+    EndTextureModeSafe();
+    return result;
+}
+
+void rg::Frames::SetAtlas(const unsigned int frame_index)
+{
+    current_frame_index = frame_index % frames.size();
     atlas_rect = frames[current_frame_index];
 }
 
-rg::Frames rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const int cols)
+rg::Frames *
+rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
-        return {0, 0, 0, 0};
+        return nullptr;
     }
-    const int singleWidth = surfaces[0].GetRect().width;
-    const int singleHeight = surfaces[0].GetRect().height;
-    Frames result{singleWidth * cols, singleHeight * rows, rows, cols};
-    result.StartRender(true);
+    const int singleWidth = surfaces[0]->GetRect().width;
+    const int singleHeight = surfaces[0]->GetRect().height;
+    // ReSharper disable once CppDFAMemoryLeak
+    const auto result = Create(singleWidth * cols, singleHeight * rows, rows, cols);
+    result->Fill(rl::BLANK);
+
     for (int r = 0; r < rows; ++r)
     {
         for (int c = 0; c < cols; ++c)
         {
             const unsigned int s = r * cols + c;
-            result.Blit(surfaces[s], {(float) c * singleWidth, (float) r * singleHeight});
+            result->Blit(surfaces[s], {(float) c * singleWidth, (float) r * singleHeight});
         }
     }
-    result.EndRender(true);
+
+    EndTextureModeSafe();
     return result;
 }
 
@@ -759,8 +749,7 @@ void rg::draw::rect(
         const float radius, const bool topLeft, const bool topRight, const bool bottomLeft,
         const bool bottomRight)
 {
-    surface.StartRender();
-
+    surface.ToggleRender();
     if (lineThick > 0)
     {
         if (radius > 0)
@@ -808,15 +797,14 @@ void rg::draw::rect(
             DrawRectangleV(rect.pos.vector2, rect.size.vector2, color);
         }
     }
-
-    surface.EndRender();
+    EndTextureModeSafe();
 }
 
 void rg::draw::circle(
         Surface &surface, const rl::Color color, const math::Vector2 center, const float radius,
         const float lineThick)
 {
-    surface.StartRender();
+    surface.ToggleRender();
 
     if (lineThick > 0)
     {
@@ -826,8 +814,7 @@ void rg::draw::circle(
     {
         DrawCircleV(center.vector2, radius, color);
     }
-
-    surface.EndRender();
+    EndTextureModeSafe();
 }
 
 void rg::draw::bar(
@@ -848,30 +835,6 @@ void rg::draw::bar(
         draw::rect(surface, bg_color, rect, 0, radius);
         draw::rect(surface, color, progress_rect, 0, radius);
     }
-}
-
-std::vector<rg::Surface> rg::assets::ImportFolder(const char *path)
-{
-    std::vector<Surface> surfaces;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        surfaces.push_back(Surface::Load(entryPath.c_str()));
-    }
-    return surfaces;
-}
-
-std::map<std::string, rg::Surface> rg::assets::ImportFolderDict(const char *path)
-{
-    std::map<std::string, Surface> result;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        auto filename = dirEntry.path().stem().string();
-        result[filename] = Surface::Load(entryPath.c_str());
-    }
-    // ReSharper disable once CppDFAMemoryLeak
-    return result;
 }
 
 rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect)
@@ -921,37 +884,28 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
     return tiles;
 }
 
-void rg::tmx::GetTMXLayerSurface(
-        Surface &surface, const rl::tmx_map *map, const rl::tmx_layer *layer)
+rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
-    surface.SetColorKey(rl::BLACK);
+    const auto surface = Surface::Create(
+            (int) (map->width * map->tile_width), (int) (map->height * map->tile_height));
+    surface->Fill(rl::BLANK);
     // GetTMXTiles will return many Texture*, but we don't need to unload them here, only
     // at rg::UnloadTMX
     const std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
-    surface.StartRender(true);
     for (const auto &[position, texture, atlas_rect]: tiles)
     {
-        surface.Blit(*texture, position, atlas_rect);
+        surface->Blit(*texture, position, atlas_rect);
     }
-    surface.EndRender(true);
+    EndTextureModeSafe();
+    return surface;
 }
-
-rg::sprite::Group::~Group()
-{
-    for (const auto *sprite: Sprites())
-    {
-        delete sprite;
-    }
-};
 
 void rg::sprite::Group::Draw(Surface &surface)
 {
-    surface.StartRender(true);
     for (const auto *sprite: sprites)
     {
         surface.Blit(sprite->image, sprite->rect.pos);
     }
-    surface.EndRender(true);
 }
 
 void rg::sprite::Group::Update(const float deltaTime) const
@@ -997,7 +951,6 @@ void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
     }
 }
 
-
 void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
         Sprite *to_add_sprite)
 {
@@ -1025,28 +978,75 @@ bool rg::sprite::Group::has(const Sprite *check_sprite)
     return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
 }
 
-
 std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
 {
     return sprites;
 }
 
-rg::sprite::Sprite::Sprite(Group *to_add_group)
+rg::sprite::SpriteOwner::~SpriteOwner()
 {
+    for (const auto *sprite: sprites)
+    {
+        delete sprite;
+    }
+}
+
+void rg::sprite::SpriteOwner::add(Sprite *sprite)
+{
+    if (!has(sprite))
+    {
+        sprites.push_back(sprite);
+    }
+}
+
+void rg::sprite::SpriteOwner::remove(Sprite *sprite)
+{
+    if (!has(sprite))
+    {
+        throw;
+    }
+    // need to make the change in Sprite first.
+    // call sprite.ReplaceOwner
+    if (sprite->owner == this)
+    {
+        throw;
+    }
+
+    sprites.erase(std::remove(sprites.begin(), sprites.end(), sprite), sprites.end());
+}
+
+bool rg::sprite::SpriteOwner::has(const Sprite *check_sprite)
+{
+    return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
+};
+
+rg::sprite::Sprite::Sprite(Group *to_add_group, SpriteOwner *owner) : owner(owner)
+{
+    if (!owner)
+    {
+        throw;
+    }
+    owner->add(this);
     if (to_add_group)
     {
         add(to_add_group);
     }
 }
 
-rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups)
+rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups, SpriteOwner *owner) : owner(owner)
 {
+    if (!owner)
+    {
+        throw;
+    }
+    owner->add(this);
     add(groups);
 }
 
 rg::sprite::Sprite::~Sprite()
 {
     LeaveAllGroups();
+    delete image;
 }
 
 void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
@@ -1109,8 +1109,8 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
     }
 }
 
-void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recursion does not happen
-                                          // because we pass `false`
+void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recursion does not
+                                          // happen because we pass `false`
 {
     // leave all groups
     for (const auto group: Groups())
@@ -1121,22 +1121,24 @@ void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recurs
     groups.clear();
 }
 
-rg::sprite::Sprite *rg::sprite::Sprite::Kill(const bool deleteSprite)
+rg::sprite::Sprite *rg::sprite::Sprite::Kill()
 {
     // leave all groups
     LeaveAllGroups();
-
-    if (deleteSprite)
-    {
-        killedSprites.add(this);
-        return nullptr;
-    }
     return this;
 }
 
-void rg::sprite::Sprite::FlipH()
+void rg::sprite::Sprite::FlipH() const
 {
-    image.atlas_rect.width = -image.atlas_rect.width;
+    image->atlas_rect.width = -image->atlas_rect.width;
+}
+
+void rg::sprite::Sprite::ReplaceOwner(SpriteOwner *replace)
+{
+    // make the change in Sprite first
+    const auto oldOwner = owner;
+    owner = replace;
+    oldOwner->remove(this);
 }
 
 bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
@@ -1159,7 +1161,7 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
                 // just remove from group, don't delete
                 // it will be returned in the result
                 // if needed, delete it in the vector later
-                other_sprite->Kill(false);
+                other_sprite->Kill();
             }
         }
     }
@@ -1320,8 +1322,8 @@ rg::Surface *rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");
     SetExitKey(rl::KEY_NULL);
-    display_surface.SetDisplay(width, height);
-    return &display_surface;
+    display_surface = DisplaySurface::Create(width, height);
+    return display_surface;
 }
 
 void rg::display::SetCaption(const char *title)
@@ -1331,25 +1333,23 @@ void rg::display::SetCaption(const char *title)
 
 rg::Surface *rg::display::GetSurface()
 {
-    return &display_surface;
+    return display_surface;
 }
 
 void rg::display::Update()
 {
-    killedSprites.DoDelete();
     for (const auto *music: musics)
     {
         UpdateMusicStream(*(rl::Music *) music->audio);
     }
 
+    EndTextureModeSafe();
     // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
     // https://github.com/raysan5/raylib/issues/3803
     rl::BeginDrawing();
     DrawTextureRec(
-            display_surface.Texture(),
-            {0, 0, (float) display_surface.Texture().width,
-             (float) -display_surface.Texture().height},
-            {0, 0}, rl::WHITE);
+            display_surface->GetTexture(), display_surface->atlas_rect.rectangle, {0, 0},
+            rl::WHITE);
 #ifdef SHOW_FPS
     rl::DrawFPS(20, 20);
 #endif
@@ -1390,19 +1390,21 @@ rg::mask::Mask::~Mask()
     UnloadImage(image);
 }
 
-rg::Surface rg::mask::Mask::ToSurface() const
+rg::Surface *rg::mask::Mask::ToSurface() const
 {
-    Surface surface{image.width, image.height};
+    const auto surface = Surface::Create(image.width, image.height);
+    surface->Fill(rl::BLANK);
     const rl::Texture2D maskTexture = LoadTextureFromImage(image);
-    surface.Blit(maskTexture, {}, {});
+    surface->Blit(maskTexture, {}, atlas_rect);
+    EndTextureModeSafe();
     UnloadTexture(maskTexture);
     return surface;
 }
 
-rg::mask::Mask rg::mask::FromSurface(Surface &surface, const unsigned char threshold)
+rg::mask::Mask rg::mask::FromSurface(const Surface *surface, const unsigned char threshold)
 {
-    auto mask = Mask(surface.GetRect().width, surface.GetRect().height);
-    const rl::Image surfImage = LoadImageFromTexture(surface.Texture());
+    auto mask = Mask(surface->GetRect().width, surface->GetRect().height);
+    const rl::Image surfImage = LoadImageFromTexture(surface->GetTexture());
     const rl::Image alphaImage = ImageFromChannel(surfImage, 3);
     const auto alphaData = (unsigned char *) alphaImage.data;
     const auto maskData = (unsigned char *) mask.image.data;
@@ -1413,7 +1415,9 @@ rg::mask::Mask rg::mask::FromSurface(Surface &surface, const unsigned char thres
             maskData[i] = 255;
         }
     }
+    mask.atlas_rect = surface->atlas_rect;
 
+    EndTextureModeSafe();
     UnloadImage(alphaImage);
     UnloadImage(surfImage);
     return mask;
@@ -1436,19 +1440,22 @@ rg::font::Font::~Font()
     UnloadFont(font);
 }
 
-rg::Surface rg::font::Font::render(
+rg::Surface *rg::font::Font::render(
         const char *text, const rl::Color color, const float spacing, const rl::Color bg,
         const float padding_width, const float padding_height) const
 {
+    EndTextureModeSafe();
     const rl::Image imageText = ImageTextEx(font, text, font_size, spacing, color);
     const rl::Texture texture = LoadTextureFromImage(imageText);
 
     const int surfWidth = imageText.width + padding_width;
     const int surfHeight = imageText.height + padding_height;
 
-    Surface result{surfWidth, surfHeight};
-    result.Blit(texture, {padding_width / 2.0f, padding_height / 2.0f}, {});
+    const auto result = Surface::Create(surfWidth, surfHeight);
+    result->Fill(bg);
+    result->Blit(texture, {padding_width / 2.0f, padding_height / 2.0f});
 
+    EndTextureModeSafe();
     UnloadTexture(texture);
     UnloadImage(imageText);
     return result;

@@ -259,108 +259,119 @@ namespace rg
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
-    namespace sprite
-    {
-        class Sprite; // forward declaration
-    }
-
-    namespace tmx
-    {
-        struct TileInfo; // forward declaration
-    }
-
-    class Frames; // forward declaration
-
     class Surface
     {
     public:
 
-        // Surface cannot be allocated in Heap
-        void *operator new(size_t) = delete;
+        // Creates a black Surface* on the heap.
+        // Make sure to delete it
+        static Surface *Create(int width, int height);
+        // Creates a Surface* on the heap using. Reuses texture*, no new texture.
+        // Make sure to delete it
+        static Surface *Create(rl::Texture2D *texture, Rect atlas = {});
 
-        Surface() = default;
-
-        // Create a surface with a local texture. This texture will be Unloaded in ~Surface()
-        Surface(int width, int height);
-        // Crete a Surface from existing texture. This texture will not be Unloaded
-        // by this surface, Unload from the caller
-        Surface(const rl::Texture2D &texture, Rect atlas);
+        // Unloads render
         virtual ~Surface();
 
-        // Fill a Surface* with a color
+        // Fill this with a color
         void Fill(rl::Color color);
-        // All `color` inside Surface* will become BLANK
+        // Replace all `color` with BLANK
         void SetColorKey(rl::Color color);
-        // Blit incoming Surface into surface*. If you are calling Blit() inside a loop,
-        // consider using `Blits()` or call StartRender(true)/EndRender(true) before/after
-        // the loop
+        // Blit incoming Surface* into this.
         void
-        Blit(const Surface &incoming, math::Vector2 offset,
+        Blit(const Surface *incoming, math::Vector2 offset,
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
-        // Blit incoming Texture2D into surface*. If you are calling Blit() inside a loop,
-        // consider using `Blits()` or call StartRender(true)/EndRender(true) before/after
-        // the loop
+        // Blit incoming Texture2D into surface*.
         void
         Blit(const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
-        Blits(const std::vector<std::pair<Surface, math::Vector2>> &blit_sequence,
+        Blits(const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
               rl::BlendMode blend_mode = rl::BLEND_ALPHA);
-        // Creates a new Surface*
-        [[nodiscard]] Surface convert(rl::PixelFormat format) const;
-
-        void BeginRender();
-        void StartRender(bool start_manual = false);
-        virtual void RenderTexture() const;
-        void EndRender(bool end_manual = false);
-        virtual void ReplaceTextureWithRender();
-
+        // Creates a new Surface*.
+        // Make sure to delete it
+        [[nodiscard]] Surface *convert(rl::PixelFormat format) const;
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
-        virtual rl::Texture2D Texture();
 
-        // Load a file into a Surface*
-        // The caller must delete Surface*
-        static Surface Load(const char *path);
-        // Loads all files in a folder and returns a vector<>
-        // The caller must delete in all elements Surface*
-        static std::vector<Surface> LoadFolderList(const char *path);
-        // Loads all files in a folder and returns a map<> (dictionary)
-        // where the key is the filename
-        // The caller must delete in all elements Surface*
-        static std::map<std::string, Surface> LoadFolderDict(const char *path);
+        // Returns shared_texture if exists, render.texture otherwise.
+        [[nodiscard]] rl::Texture2D GetTexture() const;
 
+        // Ends current render, sets this render as current
+        void ToggleRender();
+
+        rl::RenderTexture2D render{};
         Rect atlas_rect{}; // atlas position
+        // used when a texture comes from a different object
+        rl::Texture2D *shared_texture = nullptr;
 
     protected:
 
-        rl::Texture texture{};
-        bool isTextureLocal{};
-        rl::RenderTexture2D render{};
-        bool isManualRendering{};
+        // we must create Surface on heap (use Surface::Create)
+
+        Surface(int width, int height);
+        Surface(rl::Texture2D *texture, Rect atlas);
     };
 
     class Frames : public Surface
     {
     public:
 
-        Frames() = default;
-        // Width/Height is the total size of the image
-        // Rows/Cols will create atlas of N=rows*cols, each N of
-        // size (Width/Cols, Height/Rows)
-        Frames(int width, int height, int rows, int cols);
-        // Set current atlas rect. If passed value is negative, set to current_frame_index.
-        // If greater or equal 0, module with frame length.
-        void SetAtlas(int frame_index = -1);
+        static Frames *Create(int width, int height, int rows, int cols);
+        static Frames *Create(const Surface *surface, int rows, int cols);
+
+        // Set current atlas rect. Default to first frame.
+        // Value is moduled with frame length in case it is greater than frames size.
+        void SetAtlas(unsigned int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames Merge(const std::vector<Surface> &surfaces, int rows, int cols);
+        static Frames *Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
 
         unsigned int current_frame_index{};
         std::vector<Rect> frames{};
+
+    protected:
+
+        // Width/Height is the total size of the image
+        // Rows/Cols will create atlas vector with N=rows*cols, each N of
+        // size (Width/Cols, Height/Rows)
+        Frames(int width, int height, int rows, int cols);
     };
+
+    namespace image
+    {
+        // Load a file into a new Surface*
+        // Make sure to delete it
+        Surface *Load(const char *path);
+        // Loads all files in a folder and returns a vector<> of new Surface*
+        // Make sure to delete them
+        std::vector<Surface *> LoadFolderList(const char *path);
+        // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
+        // where the key is the filename
+        // Make sure to delete them
+        std::map<std::string, Surface *> LoadFolderDict(const char *path);
+        // Walk a folder path and loads all images
+        // Returns a vector of Surface*
+        // The caller must delete Surface*
+        std::vector<Surface *> ImportFolder(const char *path);
+        // Walk a folder path and loads all images
+        // Returns a map where the key is filename and values are Surface*
+        // The caller must delete Surface*
+        std::map<std::string, Surface *> ImportFolderDict(const char *path);
+        // Delete all surfaces in vector
+        void DeleteAllVector(const std::vector<Surface *> &surfaces);
+        // Delete all surfaces in map
+        template<typename K>
+        void DeleteAllMap(const std::map<K, Surface *> &surfaces)
+        {
+            for (auto &[key, surf]: surfaces)
+            {
+                delete surf;
+            }
+        };
+    } // namespace image
 
     namespace draw
     {
@@ -376,18 +387,6 @@ namespace rg
             rl::Color bg_color, float radius = 0.0f);
     } // namespace draw
 
-    namespace assets
-    {
-        // Walk a folder path and loads all images
-        // Returns a vector of Surface*
-        // The caller must delete Surface*
-        std::vector<Surface> ImportFolder(const char *path);
-        // Walk a folder path and loads all images
-        // Returns a map where the key is filename and values are Surface*
-        // The caller must delete Surface*
-        std::map<std::string, Surface> ImportFolderDict(const char *path);
-    } // namespace assets
-
     namespace tmx
     {
         // World Position, Atlas image*, Atlas position
@@ -402,8 +401,7 @@ namespace rg
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        void
-        GetTMXLayerSurface(Surface &surface, const rl::tmx_map *map, const rl::tmx_layer *layer);
+        Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
     } // namespace tmx
 
     namespace sprite
@@ -418,7 +416,8 @@ namespace rg
             // Group cannot be allocated in Heap
             void *operator new(size_t) = delete;
 
-            virtual ~Group();
+            virtual ~Group() = default;
+
             // Draw all sprites into surface
             virtual void Draw(Surface &surface);
             // Updates all sprites
@@ -446,14 +445,28 @@ namespace rg
             std::vector<Sprite *> sprites{};
         };
 
+        class SpriteOwner
+        {
+        public:
+
+            SpriteOwner() = default;
+            ~SpriteOwner();
+
+            void add(Sprite *sprite);
+            void remove(Sprite *sprite);
+            bool has(const Sprite *check_sprite);
+
+        private:
+
+            std::vector<Sprite *> sprites;
+        };
+
         class Sprite
         {
         public:
 
-            // Pass group by reference because the sprite does not own the group
-            explicit Sprite(Group *to_add_group);
-            // Pass group by reference because the sprite does not own the group
-            explicit Sprite(const std::vector<Group *> &groups);
+            Sprite(Group *to_add_group, SpriteOwner *owner);
+            Sprite(const std::vector<Group *> &groups, SpriteOwner *owner);
             virtual ~Sprite();
 
             // add this sprite to passed group
@@ -471,14 +484,19 @@ namespace rg
             // removes sprite from group. If passed false, you must
             // capture the returned value and delete it later. If passed true,
             // it will mark for deletion and return `nullptr`
-            virtual Sprite *Kill(bool deleteSprite);
+            virtual Sprite *Kill();
             // Flip Horizontally (-width)
-            virtual void FlipH();
+            void FlipH() const;
+
+            void ReplaceOwner(SpriteOwner *replace);
+
 
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            Surface image{};
+            Surface *image = nullptr;
+
+            SpriteOwner *owner = nullptr;
 
         protected:
 
@@ -590,12 +608,13 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            [[nodiscard]] Surface ToSurface() const;
+            [[nodiscard]] Surface *ToSurface() const;
 
             rl::Image image{};
+            Rect atlas_rect{};
         };
 
-        Mask FromSurface(Surface &surface, unsigned char threshold = 127);
+        Mask FromSurface(const Surface *surface, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
@@ -614,7 +633,7 @@ namespace rg
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
             // (textsize + (width,height))
-            Surface
+            Surface *
             render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
