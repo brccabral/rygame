@@ -162,10 +162,7 @@ namespace rg
     {
         typedef union Vector2
         {
-            struct
-            {
-                rl::Vector2 vector2;
-            };
+            rl::Vector2 vector2;
             struct
             {
                 float x;
@@ -204,14 +201,11 @@ namespace rg
 
     typedef union Rect
     {
-        struct
-        {
-            math::Vector2 pos, size;
-        };
+        rl::Rectangle rectangle;
 
         struct
         {
-            rl::Rectangle rectangle;
+            math::Vector2 pos, size;
         };
 
         struct
@@ -485,10 +479,6 @@ namespace rg
             std::vector<Group *> Groups();
 
             virtual void Update(float deltaTime){};
-            // removes sprite from group. If passed false, you must
-            // capture the returned value and delete it later. If passed true,
-            // it will mark for deletion and return `nullptr`
-            virtual Sprite *Kill();
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
             [[nodiscard]] virtual Sprite *Kill();
@@ -579,8 +569,8 @@ namespace rg
 
     private:
 
-        bool repeat;
-        bool autostart;
+        bool repeat{};
+        bool autostart{};
         std::function<void()> func;
         double start_time{};
     };
@@ -664,6 +654,7 @@ namespace rg
             void Play() const;
             void Stop() const;
             void SetVolume(float value) const;
+            [[nodiscard]] const char *GetFilename() const;
 
             void *audio = nullptr;
 

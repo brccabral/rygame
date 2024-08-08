@@ -1206,7 +1206,7 @@ rg::Timer::Timer(
         const std::function<void()> &func)
     : duration(duration), repeat(repeat), autostart(autostart), func(func)
 {
-    if (autostart)
+    if (this->autostart)
     {
         Activate();
     }
@@ -1320,6 +1320,11 @@ void rg::mixer::Sound::SetVolume(const float value) const
     {
         SetSoundVolume(*(rl::Sound *) audio, value);
     }
+}
+
+const char *rg::mixer::Sound::GetFilename() const
+{
+    return file;
 }
 
 rg::Surface *rg::display::SetMode(const int width, const int height)
@@ -1472,12 +1477,12 @@ rg::math::Vector2 rg::font::Font::size(const char *text) const
 
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
 {
-    return rg::math::Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
+    return {lhs.x + rhs.x, lhs.y + rhs.y};
 }
 
 rg::math::Vector2 operator-(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
 {
-    return rg::math::Vector2{lhs.x - rhs.x, lhs.y - rhs.y};
+    return {lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
 rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
@@ -1496,7 +1501,7 @@ rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &r
 
 rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, const float scale)
 {
-    return rg::math::Vector2{lhs.x * scale, lhs.y * scale};
+    return {lhs.x * scale, lhs.y * scale};
 }
 
 rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, const float scale)
