@@ -257,12 +257,8 @@ namespace rg
     {
     public:
 
-        // Creates a black Surface* on the heap.
-        // Make sure to delete it
-        static Surface *Create(int width, int height);
-        // Creates a Surface* on the heap using. Reuses texture*, no new texture.
-        // Make sure to delete it
-        static Surface *Create(rl::Texture2D *texture, Rect atlas = {});
+        Surface(int width, int height);
+        explicit Surface(rl::Texture2D *texture, Rect atlas = {});
 
         // Unloads render
         virtual ~Surface();
@@ -273,7 +269,7 @@ namespace rg
         void SetColorKey(rl::Color color);
         // Blit incoming Surface* into this.
         void
-        Blit(const Surface *incoming, math::Vector2 offset,
+        Blit(const std::shared_ptr<Surface> &incoming, math::Vector2 offset,
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Texture2D into surface*.
         void
@@ -282,11 +278,11 @@ namespace rg
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
-        Blits(const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
+        Blits(const std::vector<std::pair<std::shared_ptr<Surface>, math::Vector2>> &blit_sequence,
               rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Creates a new Surface*.
         // Make sure to delete it
-        [[nodiscard]] Surface *convert(rl::PixelFormat format) const;
+        [[nodiscard]] std::shared_ptr<Surface> convert(rl::PixelFormat format) const;
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
 
@@ -300,75 +296,50 @@ namespace rg
         Rect atlas_rect{}; // atlas position
         // used when a texture comes from a different object
         rl::Texture2D *shared_texture = nullptr;
-
-    protected:
-
-        // we must create Surface on heap (use Surface::Create)
-
-        Surface(int width, int height);
-        Surface(rl::Texture2D *texture, Rect atlas);
-        Surface(const Surface &other) = delete;
-        Surface(Surface &&other) = delete;
-        Surface &operator=(const Surface &other) = delete;
-        Surface &operator=(Surface &&other) = delete;
     };
 
     class Frames : public Surface
     {
     public:
 
-        static Frames *Create(int width, int height, int rows, int cols);
-        static Frames *Create(const Surface *surface, int rows, int cols);
+        // Width/Height is the total size of the image
+        // Rows/Cols will create atlas vector with N=rows*cols, each N of
+        // size (Width/Cols, Height/Rows)
+        Frames(int width, int height, int rows, int cols);
+        Frames(const std::shared_ptr<Surface> &surface, int rows, int cols);
 
         // Set current atlas rect. Default to first frame.
         // Value is moduled with frame length in case it is greater than frames size.
         void SetAtlas(unsigned int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames *Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
+        static std::shared_ptr<Frames>
+        Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
 
         unsigned int current_frame_index{};
         std::vector<Rect> frames{};
-
-    protected:
-
-        // Width/Height is the total size of the image
-        // Rows/Cols will create atlas vector with N=rows*cols, each N of
-        // size (Width/Cols, Height/Rows)
-        Frames(int width, int height, int rows, int cols);
     };
 
     namespace image
     {
         // Load a file into a new Surface*
         // Make sure to delete it
-        Surface *Load(const char *path);
+        std::shared_ptr<Surface> Load(const char *path);
         // Loads all files in a folder and returns a vector<> of new Surface*
         // Make sure to delete them
-        std::vector<Surface *> LoadFolderList(const char *path);
+        std::vector<std::shared_ptr<Surface>> LoadFolderList(const char *path);
         // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
         // where the key is the filename
         // Make sure to delete them
-        std::map<std::string, Surface *> LoadFolderDict(const char *path);
+        std::map<std::string, std::shared_ptr<Surface>> LoadFolderDict(const char *path);
         // Walk a folder path and loads all images
         // Returns a vector of Surface*
         // The caller must delete Surface*
-        std::vector<Surface *> ImportFolder(const char *path);
+        std::vector<std::shared_ptr<Surface>> ImportFolder(const char *path);
         // Walk a folder path and loads all images
         // Returns a map where the key is filename and values are Surface*
         // The caller must delete Surface*
-        std::map<std::string, Surface *> ImportFolderDict(const char *path);
-        // Delete all surfaces in vector
-        void DeleteAllVector(const std::vector<Surface *> &surfaces);
-        // Delete all surfaces in map
-        template<typename K>
-        void DeleteAllMap(const std::map<K, Surface *> &surfaces)
-        {
-            for (auto &[key, surf]: surfaces)
-            {
-                delete surf;
-            }
-        };
+        std::map<std::string, std::shared_ptr<Surface>> ImportFolderDict(const char *path);
     } // namespace image
 
     namespace draw
@@ -399,7 +370,8 @@ namespace rg
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        Surface *GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        std::shared_ptr<Surface>
+        GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
     } // namespace tmx
 
     namespace sprite
@@ -417,55 +389,39 @@ namespace rg
             virtual ~Group() = default;
 
             // Draw all sprites into surface
-            virtual void Draw(Surface &surface);
+            virtual void Draw(const std::shared_ptr<Surface> &surface);
             // Updates all sprites
             void Update(float deltaTime) const;
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<Sprite *> &to_remove_sprites);
+            void remove(const std::vector<std::shared_ptr<Sprite>> &to_remove_sprites);
             // Removes a Sprite from this group if it is in this group
-            void remove(Sprite *to_remove_sprite);
+            void remove(const std::shared_ptr<Sprite> &to_remove_sprite);
             // Adds a list of sprites to this group
-            void add(const std::vector<Sprite *> &to_add_sprites);
+            void add(const std::vector<std::shared_ptr<Sprite>> &to_add_sprites);
             // Adds a Sprite to this group
-            void add(Sprite *to_add_sprite);
+            void add(const std::shared_ptr<Sprite> &to_add_sprite);
             // Check if all sprites are in group
-            bool has(const std::vector<Sprite *> &check_sprites);
+            bool has(const std::vector<std::shared_ptr<Sprite>> &check_sprites);
             // Check if sprite is in group
-            bool has(const Sprite *check_sprite);
+            bool has(const std::shared_ptr<Sprite> &check_sprite);
             // Returns a copy of vector sprites
-            [[nodiscard]] std::vector<Sprite *> Sprites() const;
+            [[nodiscard]] std::vector<std::shared_ptr<Sprite>> Sprites() const;
 
 
         protected:
 
-            std::vector<Sprite *> sprites{};
+            std::vector<std::shared_ptr<Sprite>> sprites{};
         };
 
-        class SpriteOwner
+        class Sprite : public std::enable_shared_from_this<Sprite>
         {
         public:
 
-            SpriteOwner() = default;
-            ~SpriteOwner();
+            Sprite();
 
-            void add(Sprite *sprite);
-            void remove(Sprite *sprite);
-            bool has(const Sprite *check_sprite);
-
-        private:
-
-            std::vector<Sprite *> sprites;
-        };
-
-        class Sprite
-        {
-        public:
-
-            Sprite(Group *to_add_group, SpriteOwner *owner);
-            Sprite(const std::vector<Group *> &groups, SpriteOwner *owner);
-            virtual ~Sprite();
+            virtual ~Sprite() = default;
 
             // add this sprite to passed group
             void add(Group *to_add_group);
@@ -481,20 +437,21 @@ namespace rg
             virtual void Update(float deltaTime){};
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
-            [[nodiscard]] virtual Sprite *Kill();
+            [[nodiscard]] virtual std::shared_ptr<Sprite> Kill();
             // Flip Horizontally (-width)
             void FlipH() const;
-
-            void ReplaceOwner(SpriteOwner *replace);
 
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            Surface *image = nullptr;
-
-            SpriteOwner *owner = nullptr;
+            std::shared_ptr<Surface> image;
 
         protected:
+
+            // !!!!! Can't have these constructors because it can't call "shared_from_this()" before
+            // object has actually been created
+            // explicit Sprite(Group *to_add_group);
+            // explicit Sprite(const std::vector<Group *> &groups);
 
             std::vector<Group *> groups{}; // groups that this sprite is in
         private:
@@ -506,7 +463,8 @@ namespace rg
             void LeaveAllGroups();
         };
 
-        bool collide_rect(const Sprite *left, const Sprite *right);
+        bool
+        collide_rect(const std::shared_ptr<Sprite> &left, const std::shared_ptr<Sprite> &right);
 
         class CollideCallable
         {
@@ -514,7 +472,8 @@ namespace rg
 
             CollideCallable() = default;
 
-            virtual bool operator()(const Sprite *left, const Sprite *right) const = 0;
+            virtual bool
+            operator()(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right) const = 0;
 
         protected:
 
@@ -526,7 +485,8 @@ namespace rg
         public:
 
             explicit collide_rect_ratio(float ratio);
-            bool operator()(const Sprite *left, const Sprite *right) const override;
+            bool
+            operator()(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right) const override;
 
         private:
 
@@ -536,15 +496,19 @@ namespace rg
 
         // Returns a list of all sprites in the group that collides with the sprite
         // If dokill is true, all collided sprites are removed from group
-        std::vector<Sprite *> spritecollide(
-                Sprite *sprite, const Group *group, bool dokill,
-                const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
+        std::vector<std::shared_ptr<Sprite>> spritecollide(
+                const std::shared_ptr<Sprite> &sprite, const Group *group, bool dokill,
+                const std::function<bool(
+                        std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)> &collided =
+                        collide_rect);
 
         // Tests if Sprite collides with any sprite in group, returns the first sprite in
         // group that collides
-        Sprite *spritecollideany(
-                Sprite *sprite, const Group *group,
-                const std::function<bool(Sprite *left, Sprite *right)> &collided = collide_rect);
+        std::shared_ptr<Sprite> spritecollideany(
+                const std::shared_ptr<Sprite> &sprite, const Group *group,
+                const std::function<bool(
+                        std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)> &collided =
+                        collide_rect);
     } // namespace sprite
 
     // Remains active for certain duration, can repeat once it is done, can autostart
@@ -577,9 +541,10 @@ namespace rg
 
     namespace display
     {
-        Surface *SetMode(int width, int height);
+        static std::shared_ptr<Surface> display_surface;
+        std::shared_ptr<Surface> SetMode(int width, int height);
         void SetCaption(const char *title);
-        Surface *GetSurface();
+        std::shared_ptr<Surface> GetSurface();
         void Update();
     } // namespace display
 
@@ -604,13 +569,13 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            [[nodiscard]] Surface *ToSurface() const;
+            [[nodiscard]] std::shared_ptr<Surface> ToSurface() const;
 
             rl::Image image{};
             Rect atlas_rect{};
         };
 
-        Mask FromSurface(const Surface *surface, unsigned char threshold = 127);
+        Mask FromSurface(const std::shared_ptr<Surface> &surface, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
@@ -629,7 +594,7 @@ namespace rg
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
             // (textsize + (width,height))
-            Surface *
+            std::shared_ptr<Surface>
             render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;

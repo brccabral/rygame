@@ -11,32 +11,6 @@ static int current_render = 0; // TODO make it stack<> ?
 std::random_device rd{};
 std::mt19937 gen(rd());
 
-// Private class used only for show on screen
-class DisplaySurface : public rg::Surface
-{
-public:
-
-    static DisplaySurface *Create(int width, int height);
-
-    ~DisplaySurface() override = default;
-
-protected:
-
-    DisplaySurface(int width, int height);
-};
-
-DisplaySurface::DisplaySurface(const int width, const int height) : Surface(width, height)
-{}
-
-DisplaySurface *DisplaySurface::Create(const int width, const int height)
-{
-    const auto result = new DisplaySurface(width, height);
-    return result;
-}
-
-
-DisplaySurface *display_surface = nullptr;
-
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
 {
@@ -48,7 +22,7 @@ void rg::Init(
 
 void rg::Quit()
 {
-    delete display_surface;
+    display::display_surface.reset();
     if (isSoundInit)
     {
         rl::CloseAudioDevice();
@@ -441,29 +415,16 @@ rg::Surface::Surface(const int width, const int height)
 }
 
 rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
+    : atlas_rect(atlas), shared_texture(texture)
 {
-    shared_texture = texture;
-    atlas_rect = atlas;
-}
-
-rg::Surface *rg::Surface::Create(const int width, const int height)
-{
-    const auto result = new Surface(width, height);
-    return result;
-}
-
-rg::Surface *rg::Surface::Create(rl::Texture2D *texture, Rect atlas)
-{
-    if (!atlas.width)
+    if (!atlas_rect.width)
     {
-        atlas.width = texture->width;
+        atlas_rect.width = texture->width;
     }
-    if (!atlas.height)
+    if (!atlas_rect.height)
     {
-        atlas.height = -texture->height;
+        atlas_rect.height = -texture->height;
     }
-    const auto result = new Surface(texture, atlas);
-    return result;
 }
 
 rg::Surface::~Surface()
@@ -483,13 +444,14 @@ void rg::Surface::Fill(const rl::Color color)
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const math::Vector2 offset, const rl::BlendMode blend_mode)
+        const std::shared_ptr<Surface> &incoming, const math::Vector2 offset,
+        const rl::BlendMode blend_mode)
 {
     this->Blit(incoming->GetTexture(), offset, incoming->atlas_rect, blend_mode);
 }
 
 void rg::Surface::Blits(
-        const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
+        const std::vector<std::pair<std::shared_ptr<Surface>, math::Vector2>> &blit_sequence,
         const rl::BlendMode blend_mode)
 {
     if (blit_sequence.empty())
@@ -590,9 +552,9 @@ void rg::Surface::SetColorKey(const rl::Color color)
     UnloadTexture(color_texture);
 }
 
-rg::Surface *rg::Surface::convert(const rl::PixelFormat format) const
+std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) const
 {
-    const auto result = new Surface(GetTexture().width, GetTexture().height);
+    const auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
 
     rl::Image toConvert = LoadImageFromTexture(GetTexture());
     ImageFormat(&toConvert, format);
@@ -606,11 +568,11 @@ rg::Surface *rg::Surface::convert(const rl::PixelFormat format) const
     return result;
 }
 
-rg::Surface *rg::image::Load(const char *path)
+std::shared_ptr<rg::Surface> rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     const rl::Texture2D loaded_texture = rl::LoadTexture(path);
-    const auto surface = Surface::Create(loaded_texture.width, loaded_texture.height);
+    const auto surface = std::make_shared<Surface>(loaded_texture.width, loaded_texture.height);
     surface->Fill(rl::BLANK);
     surface->Blit(loaded_texture, {});
     EndTextureModeSafe();
@@ -618,9 +580,9 @@ rg::Surface *rg::image::Load(const char *path)
     return surface;
 }
 
-std::vector<rg::Surface *> rg::image::LoadFolderList(const char *path)
+std::vector<std::shared_ptr<rg::Surface>> rg::image::LoadFolderList(const char *path)
 {
-    std::vector<Surface *> surfaces;
+    std::vector<std::shared_ptr<Surface>> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
@@ -629,47 +591,39 @@ std::vector<rg::Surface *> rg::image::LoadFolderList(const char *path)
     return surfaces;
 }
 
-std::map<std::string, rg::Surface *> rg::image::LoadFolderDict(const char *path)
+std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::LoadFolderDict(const char *path)
 {
-    std::map<std::string, Surface *> surfaces;
+    std::map<std::string, std::shared_ptr<Surface>> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto filename = dirEntry.path().stem().string();
         auto entryPath = dirEntry.path().string();
+        // ReSharper disable once CppDFAMemoryLeak
         surfaces[filename] = Load(entryPath.c_str());
     }
     return surfaces;
 }
 
-void rg::image::DeleteAllVector(const std::vector<Surface *> &surfaces)
+std::vector<std::shared_ptr<rg::Surface>> rg::image::ImportFolder(const char *path)
 {
-    for (const auto *surf: surfaces)
-    {
-        delete surf;
-    }
-}
-
-std::vector<rg::Surface *> rg::image::ImportFolder(const char *path)
-{
-    std::vector<Surface *> surfaces;
+    std::vector<std::shared_ptr<Surface>> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
-        surfaces.push_back(image::Load(entryPath.c_str()));
+        surfaces.push_back(Load(entryPath.c_str()));
     }
     return surfaces;
 }
 
-std::map<std::string, rg::Surface *> rg::image::ImportFolderDict(const char *path)
+std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::ImportFolderDict(const char *path)
 {
-    std::map<std::string, Surface *> result;
+    std::map<std::string, std::shared_ptr<Surface>> result;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
         auto filename = dirEntry.path().stem().string();
-        result[filename] = image::Load(entryPath.c_str());
+        result[filename] = Load(entryPath.c_str());
     }
-    // ReSharper disable once CppDFAMemoryLeak
     return result;
 }
 
@@ -698,19 +652,12 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surf
     atlas_rect = frames[current_frame_index];
 }
 
-rg::Frames *rg::Frames::Create(const int width, const int height, const int rows, const int cols)
-{
-    // ReSharper disable once CppDFAMemoryLeak
-    const auto result = new Frames(width, height, rows, cols);
-    return result;
-}
 
-rg::Frames *rg::Frames::Create(const Surface *surface, const int rows, const int cols)
+rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, const int cols)
+    : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
-    const auto result = new Frames(surface->GetRect().width, surface->GetRect().height, rows, cols);
-    result->Blit(surface, {});
+    Blit(surface, {});
     EndTextureModeSafe();
-    return result;
 }
 
 void rg::Frames::SetAtlas(const unsigned int frame_index)
@@ -719,8 +666,8 @@ void rg::Frames::SetAtlas(const unsigned int frame_index)
     atlas_rect = frames[current_frame_index];
 }
 
-rg::Frames *
-rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const int cols)
+std::shared_ptr<rg::Frames> rg::Frames::Merge(
+        const std::vector<std::shared_ptr<Surface>> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
@@ -728,8 +675,8 @@ rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const 
     }
     const int singleWidth = surfaces[0]->GetRect().width;
     const int singleHeight = surfaces[0]->GetRect().height;
-    // ReSharper disable once CppDFAMemoryLeak
-    const auto result = Create(singleWidth * cols, singleHeight * rows, rows, cols);
+    const auto result =
+            std::make_shared<Frames>(singleWidth * cols, singleHeight * rows, rows, cols);
     result->Fill(rl::BLANK);
 
     for (int r = 0; r < rows; ++r)
@@ -869,8 +816,8 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
     {
         for (unsigned int x = 0; x < map->width; x++)
         {
-            const unsigned int baseGid = layer->content.gids[(y * map->width) + x];
-            const unsigned int gid = (baseGid) &TMX_FLIP_BITS_REMOVAL;
+            const unsigned int baseGid = layer->content.gids[y * map->width + x];
+            const unsigned int gid = baseGid & TMX_FLIP_BITS_REMOVAL;
             if (map->tiles[gid])
             {
                 const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
@@ -885,9 +832,10 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
     return tiles;
 }
 
-rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
+std::shared_ptr<rg::Surface>
+rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
-    const auto surface = Surface::Create(
+    const auto surface = std::make_shared<Surface>(
             (int) (map->width * map->tile_width), (int) (map->height * map->tile_height));
     surface->Fill(rl::BLANK);
     // GetTMXTiles will return many Texture*, but we don't need to unload them here, only
@@ -901,17 +849,17 @@ rg::Surface *rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_l
     return surface;
 }
 
-void rg::sprite::Group::Draw(Surface &surface)
+void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)
 {
-    for (const auto *sprite: sprites)
+    for (const auto &sprite: sprites)
     {
-        surface.Blit(sprite->image, sprite->rect.pos);
+        surface->Blit(sprite->image, sprite->rect.pos);
     }
 }
 
 void rg::sprite::Group::Update(const float deltaTime) const
 {
-    for (auto *sprite: Sprites())
+    for (const auto &sprite: Sprites())
     {
         sprite->Update(deltaTime);
     }
@@ -919,23 +867,23 @@ void rg::sprite::Group::Update(const float deltaTime) const
 
 void rg::sprite::Group::empty()
 {
-    for (auto *sprite: Sprites())
+    for (const auto &sprite: Sprites())
     {
         sprite->remove(this);
     }
     sprites.clear();
 }
 
-void rg::sprite::Group::remove(const std::vector<Sprite *> &to_remove_sprites)
+void rg::sprite::Group::remove(const std::vector<std::shared_ptr<Sprite>> &to_remove_sprites)
 {
-    for (auto *sprite: to_remove_sprites)
+    for (const auto &sprite: to_remove_sprites)
     {
         remove(sprite);
     }
 }
 
 void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        Sprite *to_remove_sprite)
+        const std::shared_ptr<Sprite> &to_remove_sprite)
 {
     if (has(to_remove_sprite))
     {
@@ -944,16 +892,16 @@ void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is bro
     }
 }
 
-void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
+void rg::sprite::Group::add(const std::vector<std::shared_ptr<Sprite>> &to_add_sprites)
 {
-    for (auto *sprite: to_add_sprites)
+    for (const auto &sprite: to_add_sprites)
     {
         add(sprite);
     }
 }
 
 void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        Sprite *to_add_sprite)
+        const std::shared_ptr<Sprite> &to_add_sprite)
 {
     if (!has(to_add_sprite))
     {
@@ -962,9 +910,9 @@ void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken
     }
 }
 
-bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
+bool rg::sprite::Group::has(const std::vector<std::shared_ptr<Sprite>> &check_sprites)
 {
-    for (const auto *sprite: check_sprites)
+    for (const auto &sprite: check_sprites)
     {
         if (!has(sprite))
         {
@@ -974,81 +922,32 @@ bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
     return true;
 }
 
-bool rg::sprite::Group::has(const Sprite *check_sprite)
+bool rg::sprite::Group::has(const std::shared_ptr<Sprite> &check_sprite)
 {
     return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
 }
 
-std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
+std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::Group::Sprites() const
 {
     return sprites;
 }
 
-rg::sprite::SpriteOwner::~SpriteOwner()
-{
-    for (const auto *sprite: sprites)
-    {
-        delete sprite;
-    }
-}
+rg::sprite::Sprite::Sprite() = default;
 
-void rg::sprite::SpriteOwner::add(Sprite *sprite)
-{
-    if (!has(sprite))
-    {
-        sprites.push_back(sprite);
-    }
-}
-
-void rg::sprite::SpriteOwner::remove(Sprite *sprite)
-{
-    if (!has(sprite))
-    {
-        throw;
-    }
-    // need to make the change in Sprite first.
-    // call sprite.ReplaceOwner
-    if (sprite->owner == this)
-    {
-        throw;
-    }
-
-    sprites.erase(std::remove(sprites.begin(), sprites.end(), sprite), sprites.end());
-}
-
-bool rg::sprite::SpriteOwner::has(const Sprite *check_sprite)
-{
-    return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
-};
-
-rg::sprite::Sprite::Sprite(Group *to_add_group, SpriteOwner *owner) : owner(owner)
-{
-    if (!owner)
-    {
-        throw;
-    }
-    owner->add(this);
-    if (to_add_group)
-    {
-        add(to_add_group);
-    }
-}
-
-rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups, SpriteOwner *owner) : owner(owner)
-{
-    if (!owner)
-    {
-        throw;
-    }
-    owner->add(this);
-    add(groups);
-}
-
-rg::sprite::Sprite::~Sprite()
-{
-    LeaveAllGroups();
-    delete image;
-}
+// !!!!! Can't have these constructors because it can't call "shared_from_this()" before
+// object has actually been created
+// rg::sprite::Sprite::Sprite(Group *to_add_group)
+// {
+//     if (to_add_group)
+//     {
+//         add(to_add_group);
+//     }
+// }
+//
+// rg::sprite::Sprite::Sprite(const std::vector<Group *> &groups)
+// {
+//     add(groups);
+// }
 
 void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
         Group *to_add_group)
@@ -1058,7 +957,8 @@ void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broke
         if (!has(to_add_group))
         {
             groups.push_back(to_add_group);
-            to_add_group->add(this);
+            // to_add_group->add(this);
+            to_add_group->add(shared_from_this());
         }
     }
 }
@@ -1077,7 +977,7 @@ void rg::sprite::Sprite::remove( // NOLINT(*-no-recursion) - the recursion is br
     if (has(to_remove_group))
     {
         groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
-        to_remove_group->remove(this);
+        to_remove_group->remove(shared_from_this());
     }
 }
 
@@ -1105,7 +1005,7 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
     {
         if (group != not_leave_group)
         {
-            group->remove(this);
+            group->remove(shared_from_this());
         }
     }
 }
@@ -1116,20 +1016,17 @@ void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recurs
     // leave all groups
     for (const auto group: Groups())
     {
-        group->remove(this);
+        group->remove(shared_from_this());
     }
     // it doesn't belong to any group
     groups.clear();
 }
 
-rg::sprite::Sprite *rg::sprite::Sprite::Kill()
+std::shared_ptr<rg::sprite::Sprite> rg::sprite::Sprite::Kill()
 {
     // leave all groups
     LeaveAllGroups();
-    const auto oldOwner = owner;
-    owner = nullptr;
-    oldOwner->remove(this);
-    return this;
+    return shared_from_this();
 }
 
 void rg::sprite::Sprite::FlipH() const
@@ -1137,25 +1034,19 @@ void rg::sprite::Sprite::FlipH() const
     image->atlas_rect.width = -image->atlas_rect.width;
 }
 
-void rg::sprite::Sprite::ReplaceOwner(SpriteOwner *replace)
-{
-    // make the change in Sprite first
-    const auto oldOwner = owner;
-    owner = replace;
-    oldOwner->remove(this);
-}
-
-bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
+bool rg::sprite::collide_rect(
+        const std::shared_ptr<Sprite> &left, const std::shared_ptr<Sprite> &right)
 {
     return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
 }
 
-std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
-        Sprite *sprite, const Group *group, const bool dokill,
-        const std::function<bool(Sprite *left, Sprite *right)> &collided)
+std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::spritecollide(
+        const std::shared_ptr<Sprite> &sprite, const Group *group, const bool dokill,
+        const std::function<bool(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)>
+                &collided)
 {
-    std::vector<Sprite *> result;
-    for (auto *other_sprite: group->Sprites())
+    std::vector<std::shared_ptr<Sprite>> result;
+    for (const auto &other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {
@@ -1172,11 +1063,12 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
     return result;
 }
 
-rg::sprite::Sprite *rg::sprite::spritecollideany(
-        Sprite *sprite, const Group *group,
-        const std::function<bool(Sprite *left, Sprite *right)> &collided)
+std::shared_ptr<rg::sprite::Sprite> rg::sprite::spritecollideany(
+        const std::shared_ptr<Sprite> &sprite, const Group *group,
+        const std::function<bool(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)>
+                &collided)
 {
-    for (auto *other_sprite: group->Sprites())
+    for (auto other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {
@@ -1189,7 +1081,8 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
 rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
 {}
 
-bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
+bool rg::sprite::collide_rect_ratio::operator()(
+        const std::shared_ptr<Sprite> left, const std::shared_ptr<Sprite> right) const
 {
     Rect leftrect = left->rect;
     Rect rightrect = right->rect;
@@ -1255,13 +1148,13 @@ rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic)
     if (isMusic)
     {
         audio = new rl::Music;
-        (*(rl::Music *) audio) = rl::LoadMusicStream(file);
+        *(rl::Music *) audio = rl::LoadMusicStream(file);
         musics.push_back(this);
     }
     else
     {
         audio = new rl::Sound;
-        (*(rl::Sound *) audio) = rl::LoadSound(file);
+        *(rl::Sound *) audio = rl::LoadSound(file);
     }
 }
 
@@ -1327,11 +1220,11 @@ const char *rg::mixer::Sound::GetFilename() const
     return file;
 }
 
-rg::Surface *rg::display::SetMode(const int width, const int height)
+std::shared_ptr<rg::Surface> rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");
     SetExitKey(rl::KEY_NULL);
-    display_surface = DisplaySurface::Create(width, height);
+    display_surface = std::make_shared<Surface>(width, height);
     return display_surface;
 }
 
@@ -1340,7 +1233,7 @@ void rg::display::SetCaption(const char *title)
     rl::SetWindowTitle(title);
 }
 
-rg::Surface *rg::display::GetSurface()
+std::shared_ptr<rg::Surface> rg::display::GetSurface()
 {
     return display_surface;
 }
@@ -1399,9 +1292,9 @@ rg::mask::Mask::~Mask()
     UnloadImage(image);
 }
 
-rg::Surface *rg::mask::Mask::ToSurface() const
+std::shared_ptr<rg::Surface> rg::mask::Mask::ToSurface() const
 {
-    const auto surface = Surface::Create(image.width, image.height);
+    const auto surface = std::make_shared<Surface>(image.width, image.height);
     surface->Fill(rl::BLANK);
     const rl::Texture2D maskTexture = LoadTextureFromImage(image);
     surface->Blit(maskTexture, {}, atlas_rect);
@@ -1410,7 +1303,8 @@ rg::Surface *rg::mask::Mask::ToSurface() const
     return surface;
 }
 
-rg::mask::Mask rg::mask::FromSurface(const Surface *surface, const unsigned char threshold)
+rg::mask::Mask
+rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned char threshold)
 {
     auto mask = Mask(surface->GetRect().width, surface->GetRect().height);
     const rl::Image surfImage = LoadImageFromTexture(surface->GetTexture());
@@ -1449,7 +1343,7 @@ rg::font::Font::~Font()
     UnloadFont(font);
 }
 
-rg::Surface *rg::font::Font::render(
+std::shared_ptr<rg::Surface> rg::font::Font::render(
         const char *text, const rl::Color color, const float spacing, const rl::Color bg,
         const float padding_width, const float padding_height) const
 {
@@ -1460,7 +1354,7 @@ rg::Surface *rg::font::Font::render(
     const int surfWidth = imageText.width + padding_width;
     const int surfHeight = imageText.height + padding_height;
 
-    const auto result = Surface::Create(surfWidth, surfHeight);
+    const auto result = std::make_shared<Surface>(surfWidth, surfHeight);
     result->Fill(bg);
     result->Blit(texture, {padding_width / 2.0f, padding_height / 2.0f});
 
