@@ -1057,7 +1057,7 @@ std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::spritecollide(
                 // just remove from group, don't delete
                 // it will be returned in the result
                 // if needed, delete it in the vector later
-                static_cast<void>(other_sprite->Kill());
+                other_sprite->Kill();
             }
         }
     }

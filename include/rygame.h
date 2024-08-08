@@ -437,7 +437,7 @@ namespace rg
             virtual void Update(float deltaTime){};
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
-            [[nodiscard]] virtual std::shared_ptr<Sprite> Kill();
+            virtual std::shared_ptr<Sprite> Kill();
             // Flip Horizontally (-width)
             void FlipH() const;
 
