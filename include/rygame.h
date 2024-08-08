@@ -489,11 +489,13 @@ namespace rg
             // capture the returned value and delete it later. If passed true,
             // it will mark for deletion and return `nullptr`
             virtual Sprite *Kill();
+            // removes sprite from group. Returns current Sprite*
+            // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
+            [[nodiscard]] virtual Sprite *Kill();
             // Flip Horizontally (-width)
             void FlipH() const;
 
             void ReplaceOwner(SpriteOwner *replace);
-
 
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 

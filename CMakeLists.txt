@@ -4,6 +4,8 @@ project(rygame VERSION 0.0.1)
 include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(raylib REQUIRED)
 find_package(raylib-tmx REQUIRED)
@@ -11,6 +13,13 @@ find_package(raylib-tmx REQUIRED)
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 
 add_library(${PROJECT_NAME} STATIC src/rygame.cpp)
+
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
+else ()
+    set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
+    target_compile_options(${PROJECT_NAME} PRIVATE "-Werror")
+endif ()
 
 if (SHOW_FPS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "SHOW_FPS")
