@@ -5,6 +5,7 @@ namespace rl
 #include <raymath.h>
 }
 
+static bool isSoundInit = false;
 static int current_render = 0; // TODO make it stack<> ?
 
 std::random_device rd{};
