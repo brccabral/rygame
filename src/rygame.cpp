@@ -1126,6 +1126,9 @@ rg::sprite::Sprite *rg::sprite::Sprite::Kill()
 {
     // leave all groups
     LeaveAllGroups();
+    const auto oldOwner = owner;
+    owner = nullptr;
+    oldOwner->remove(this);
     return this;
 }
 
