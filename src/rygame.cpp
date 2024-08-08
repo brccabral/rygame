@@ -107,6 +107,7 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
 std::uniform_real_distribution<float>
 rg::math::random_uniform_dist(const float min, const float max)
 {
+    // ReSharper disable once CppTemplateArgumentsCanBeDeduced - it deduces to double, not float
     const std::uniform_real_distribution<float> dist(min, max);
     return dist;
 }
