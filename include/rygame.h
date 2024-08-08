@@ -313,6 +313,10 @@ namespace rg
 
         Surface(int width, int height);
         Surface(rl::Texture2D *texture, Rect atlas);
+        Surface(const Surface &other) = delete;
+        Surface(Surface &&other) = delete;
+        Surface &operator=(const Surface &other) = delete;
+        Surface &operator=(Surface &&other) = delete;
     };
 
     class Frames : public Surface
