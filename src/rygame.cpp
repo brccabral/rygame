@@ -436,7 +436,7 @@ rg::Surface::Surface(const int width, const int height)
     }
 
     // RenderTexture draws textures upside-down
-    atlas_rect = {0, 0, (float) width, (float) -height};
+    atlas_rect = {0, 0, (float) width, (float) height};
 
     Fill(rl::BLACK);
 }
@@ -450,7 +450,7 @@ rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
     }
     if (!atlas_rect.height)
     {
-        atlas_rect.height = -texture->height;
+        atlas_rect.height = texture->height;
     }
 }
 
@@ -535,11 +535,16 @@ void rg::Surface::Blit(
     }
     if (area.height && area.width)
     {
-        DrawTextureRec(incoming_texture, area.rectangle, offset.vector2, rl::WHITE);
+        DrawTextureRec(
+                incoming_texture, {area.x, area.y, area.width, -area.height}, offset.vector2,
+                rl::WHITE);
     }
     else
     {
-        DrawTextureV(incoming_texture, offset.vector2, rl::WHITE);
+        DrawTextureRec(
+                incoming_texture,
+                {0, 0, (float) incoming_texture.width, (float) -incoming_texture.height},
+                offset.vector2, rl::WHITE);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -615,7 +620,9 @@ std::shared_ptr<rg::Surface> rg::image::Load(const char *path)
     const rl::Texture2D loaded_texture = LoadTextureSafe(path);
     const auto surface = std::make_shared<Surface>(loaded_texture.width, loaded_texture.height);
     surface->Fill(rl::BLANK);
-    surface->Blit(loaded_texture, {});
+    surface->Blit(
+            loaded_texture, {},
+            {0, 0, (float) loaded_texture.width, -(float) loaded_texture.height});
     UnloadTextureSafe(loaded_texture);
     return surface;
 }
@@ -846,7 +853,7 @@ rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_
     atlas_rect->x = tile->ul_x;
     atlas_rect->y = tile->ul_y;
     atlas_rect->width = tile->width;
-    atlas_rect->height = tile->height;
+    atlas_rect->height = -(float) tile->height;
 
     if (im && im->resource_image)
     {
@@ -1305,7 +1312,8 @@ void rg::display::Update()
     TraceLog(rl::LOG_TRACE, rl::TextFormat("display::Update"));
     rl::BeginDrawing();
     DrawTextureRec(
-            display_surface->GetTexture(), display_surface->atlas_rect.rectangle, {0, 0},
+            display_surface->GetTexture(),
+            {0, 0, display_surface->atlas_rect.width, -display_surface->atlas_rect.height}, {0, 0},
             rl::WHITE);
 #ifdef SHOW_FPS
     rl::DrawFPS(20, 20);
@@ -1410,7 +1418,9 @@ std::shared_ptr<rg::Surface> rg::font::Font::render(
 
     const auto result = std::make_shared<Surface>(surfWidth, surfHeight);
     result->Fill(bg);
-    result->Blit(texture, {padding_width / 2.0f, padding_height / 2.0f});
+    result->Blit(
+            texture, {padding_width / 2.0f, padding_height / 2.0f},
+            {0, 0, (float) texture.width, -(float) texture.height});
 
     UnloadTextureSafe(texture);
     UnloadImage(imageText);
