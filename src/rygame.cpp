@@ -48,6 +48,7 @@ void rg::EndTextureModeSafe()
 {
     if (current_render)
     {
+        TraceLog(rl::LOG_DEBUG, rl::TextFormat("End render %d", current_render));
         rl::EndTextureMode();
     }
     current_render = 0;
@@ -439,6 +440,9 @@ rg::Surface::~Surface()
 
 void rg::Surface::Fill(const rl::Color color)
 {
+    TraceLog(
+            rl::LOG_TRACE,
+            rl::TextFormat("Fill render %d texture %d", render.id, render.texture.id));
     ToggleRender();
     ClearBackground(color);
     EndTextureModeSafe();
@@ -448,6 +452,10 @@ void rg::Surface::Blit(
         const std::shared_ptr<Surface> &incoming, const math::Vector2 offset,
         const rl::BlendMode blend_mode)
 {
+    TraceLog(
+            rl::LOG_TRACE, "Blit render %d texture %d Texture() %d into render %d texture %d",
+            incoming->render.id, incoming->render.texture.id, incoming->GetTexture().id, render.id,
+            render.texture.id);
     this->Blit(incoming->GetTexture(), offset, incoming->atlas_rect, blend_mode);
 }
 
@@ -459,6 +467,7 @@ void rg::Surface::Blits(
     {
         return;
     }
+    TraceLog(rl::LOG_DEBUG, rl::TextFormat("Blits %d sequences", blit_sequence.size()));
 
     ToggleRender();
 
@@ -488,6 +497,9 @@ void rg::Surface::Blit(
     {
         return;
     }
+    TraceLog(
+            rl::LOG_TRACE, "Blit texture %d into render %d texture %d", incoming_texture.id,
+            render.id, render.texture.id);
 
     ToggleRender();
 
@@ -531,6 +543,9 @@ void rg::Surface::ToggleRender()
     if (current_render != render.id)
     {
         EndTextureModeSafe();
+        TraceLog(
+                rl::LOG_TRACE,
+                rl::TextFormat("Begin render %d texture %d", render.id, render.texture.id));
         BeginTextureModeSafe(render);
         shared_texture = nullptr;
     }
@@ -538,6 +553,9 @@ void rg::Surface::ToggleRender()
 
 void rg::Surface::SetColorKey(const rl::Color color)
 {
+    TraceLog(
+            rl::LOG_TRACE,
+            rl::TextFormat("SetColorKey render %d texture %d", render.id, render.texture.id));
     EndTextureModeSafe();
     rl::Image current = LoadImageFromTexture(GetTexture());
     ImageColorReplace(&current, color, rl::BLANK);
@@ -698,7 +716,11 @@ void rg::draw::rect(
         const float lineThick, const float radius, const bool topLeft, const bool topRight,
         const bool bottomLeft, const bool bottomRight)
 {
-    surface.ToggleRender();
+    TraceLog(
+            rl::LOG_TRACE, rl::TextFormat(
+                                   "draw::rect render %d texture %d", surface->render.id,
+                                   surface->render.texture.id));
+    surface->ToggleRender();
     if (lineThick > 0)
     {
         if (radius > 0)
@@ -753,7 +775,11 @@ void rg::draw::circle(
         const std::shared_ptr<Surface> &surface, const rl::Color color, const math::Vector2 center,
         const float radius, const float lineThick)
 {
-    surface.ToggleRender();
+    TraceLog(
+            rl::LOG_TRACE, rl::TextFormat(
+                                   "draw::circle render %d texture %d", surface->render.id,
+                                   surface->render.texture.id));
+    surface->ToggleRender();
 
     if (lineThick > 0)
     {
@@ -770,6 +796,10 @@ void rg::draw::bar(
         const std::shared_ptr<Surface> &surface, const Rect rect, const float value,
         const float max_value, const rl::Color color, const rl::Color bg_color, const float radius)
 {
+    TraceLog(
+            rl::LOG_TRACE, rl::TextFormat(
+                                   "draw::bar render %d texture %d", surface->render.id,
+                                   surface->render.texture.id));
     const float ratio = rect.width / max_value;
     const Rect progress_rect = {
             rect.x, rect.y, math::clamp(value * ratio, 0, rect.width), rect.height};
@@ -1251,6 +1281,7 @@ void rg::display::Update()
     EndTextureModeSafe();
     // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
     // https://github.com/raysan5/raylib/issues/3803
+    TraceLog(rl::LOG_TRACE, rl::TextFormat("display::Update"));
     rl::BeginDrawing();
     DrawTextureRec(
             display_surface->GetTexture(), display_surface->atlas_rect.rectangle, {0, 0},
@@ -1350,6 +1381,7 @@ std::shared_ptr<rg::Surface> rg::font::Font::render(
         const char *text, const rl::Color color, const float spacing, const rl::Color bg,
         const float padding_width, const float padding_height) const
 {
+    TraceLog(rl::LOG_TRACE, rl::TextFormat("Font::render %s", text));
     EndTextureModeSafe();
     const rl::Image imageText = ImageTextEx(font, text, font_size, spacing, color);
     const rl::Texture texture = LoadTextureFromImage(imageText);
