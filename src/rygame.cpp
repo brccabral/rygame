@@ -433,6 +433,7 @@ rg::Surface::~Surface()
 {
     if (render.id)
     {
+        EndTextureModeSafe();
         UnloadRenderTexture(render);
         render.id = 0;
     }
