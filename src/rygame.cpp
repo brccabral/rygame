@@ -54,6 +54,36 @@ void rg::EndTextureModeSafe()
     current_render = 0;
 }
 
+rl::Texture2D rg::LoadTextureSafe(const char *file)
+{
+    EndTextureModeSafe();
+    return rl::LoadTexture(file);
+}
+
+rl::Texture2D rg::LoadTextureFromImageSafe(const rl::Image &image)
+{
+    EndTextureModeSafe();
+    return LoadTextureFromImage(image);
+}
+
+void rg::UnloadTextureSafe(const rl::Texture2D &texture)
+{
+    EndTextureModeSafe();
+    UnloadTexture(texture);
+}
+
+rl::RenderTexture2D rg::LoadRenderTextureSafe(const int width, const int height)
+{
+    EndTextureModeSafe();
+    return rl::LoadRenderTexture(width, height);
+}
+
+void rg::UnloadRenderTextureSafe(const rl::RenderTexture2D &render)
+{
+    EndTextureModeSafe();
+    UnloadRenderTexture(render);
+}
+
 void rg::BeginTextureModeC(const rl::RenderTexture2D &render, const rl::Color color)
 {
     BeginTextureModeSafe(render);
@@ -402,14 +432,9 @@ rg::Surface::Surface(const int width, const int height)
 {
     if (!render.id)
     {
-        EndTextureModeSafe();
-        render = rl::LoadRenderTexture(width, height);
+        render = LoadRenderTextureSafe(width, height);
     }
-    else
-    {
-        TraceLog(rl::LOG_ERROR, "Surface already has a render, CreateSurface has been called.");
-        throw;
-    }
+
     // RenderTexture draws textures upside-down
     atlas_rect = {0, 0, (float) width, (float) -height};
 
@@ -433,8 +458,7 @@ rg::Surface::~Surface()
 {
     if (render.id)
     {
-        EndTextureModeSafe();
-        UnloadRenderTexture(render);
+        UnloadRenderTextureSafe(render);
         render.id = 0;
     }
 }
@@ -557,19 +581,17 @@ void rg::Surface::SetColorKey(const rl::Color color)
     TraceLog(
             rl::LOG_TRACE,
             rl::TextFormat("SetColorKey render %d texture %d", render.id, render.texture.id));
-    EndTextureModeSafe();
     rl::Image current = LoadImageFromTexture(GetTexture());
     ImageColorReplace(&current, color, rl::BLANK);
-    const rl::Texture color_texture = LoadTextureFromImage(current);
+    const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
     Fill(rl::BLANK);
     Blit(color_texture, {}, atlas_rect);
 
     // clean up
-    EndTextureModeSafe();
+    UnloadTextureSafe(color_texture);
     UnloadImage(current);
-    UnloadTexture(color_texture);
 }
 
 std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) const
@@ -579,11 +601,10 @@ std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) 
     rl::Image toConvert = LoadImageFromTexture(GetTexture());
     ImageFormat(&toConvert, format);
 
-    const rl::Texture2D converted = LoadTextureFromImage(toConvert);
+    const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
     result->Blit(converted, {}, {});
 
-    EndTextureModeSafe();
-    UnloadTexture(converted);
+    UnloadTextureSafe(converted);
     UnloadImage(toConvert);
     return result;
 }
@@ -591,12 +612,11 @@ std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) 
 std::shared_ptr<rg::Surface> rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
-    const rl::Texture2D loaded_texture = rl::LoadTexture(path);
+    const rl::Texture2D loaded_texture = LoadTextureSafe(path);
     const auto surface = std::make_shared<Surface>(loaded_texture.width, loaded_texture.height);
     surface->Fill(rl::BLANK);
     surface->Blit(loaded_texture, {});
-    EndTextureModeSafe();
-    UnloadTexture(loaded_texture);
+    UnloadTextureSafe(loaded_texture);
     return surface;
 }
 
@@ -1331,10 +1351,9 @@ std::shared_ptr<rg::Surface> rg::mask::Mask::ToSurface() const
 {
     const auto surface = std::make_shared<Surface>(image.width, image.height);
     surface->Fill(rl::BLANK);
-    const rl::Texture2D maskTexture = LoadTextureFromImage(image);
+    const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     surface->Blit(maskTexture, {}, atlas_rect);
-    EndTextureModeSafe();
-    UnloadTexture(maskTexture);
+    UnloadTextureSafe(maskTexture);
     return surface;
 }
 
@@ -1383,9 +1402,8 @@ std::shared_ptr<rg::Surface> rg::font::Font::render(
         const float padding_width, const float padding_height) const
 {
     TraceLog(rl::LOG_TRACE, rl::TextFormat("Font::render %s", text));
-    EndTextureModeSafe();
     const rl::Image imageText = ImageTextEx(font, text, font_size, spacing, color);
-    const rl::Texture texture = LoadTextureFromImage(imageText);
+    const rl::Texture texture = LoadTextureFromImageSafe(imageText);
 
     const int surfWidth = imageText.width + padding_width;
     const int surfHeight = imageText.height + padding_height;
@@ -1394,8 +1412,7 @@ std::shared_ptr<rg::Surface> rg::font::Font::render(
     result->Fill(bg);
     result->Blit(texture, {padding_width / 2.0f, padding_height / 2.0f});
 
-    EndTextureModeSafe();
-    UnloadTexture(texture);
+    UnloadTextureSafe(texture);
     UnloadImage(imageText);
     return result;
 }

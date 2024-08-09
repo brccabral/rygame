@@ -36,6 +36,11 @@ namespace rg
     // Warns if there is a render already active
     void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
     void EndTextureModeSafe();
+    rl::Texture2D LoadTextureSafe(const char *file);
+    rl::Texture2D LoadTextureFromImageSafe(const rl::Image &image);
+    void UnloadTextureSafe(const rl::Texture2D &texture);
+    rl::RenderTexture2D LoadRenderTextureSafe(int width, int height);
+    void UnloadRenderTextureSafe(const rl::RenderTexture2D &render);
     // Starts a render with a Clear color
     void BeginTextureModeC(const rl::RenderTexture2D &render, rl::Color color);
     // Starts drawing with a Clear color
