@@ -1401,7 +1401,7 @@ rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned ch
     return mask;
 }
 
-rg::font::Font::Font() : font(rl::GetFontDefault()), font_size(1)
+rg::font::Font::Font(const float font_size) : font(rl::GetFontDefault()), font_size(font_size)
 {}
 
 rg::font::Font::Font(const char *file, const float font_size)

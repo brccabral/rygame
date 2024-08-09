@@ -597,7 +597,7 @@ namespace rg
         public:
 
             // Default Font, size 1
-            Font();
+            explicit Font(float font_size = 1);
             // Load font from file
             Font(const char *file, float font_size);
             // Raylib Font
