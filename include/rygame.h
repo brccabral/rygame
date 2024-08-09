@@ -347,15 +347,15 @@ namespace rg
     namespace draw
     {
         void
-        rect(Surface &surface, rl::Color color, Rect rect, float lineThick = 0.0f,
-             float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
-             bool bottomRight = true);
+        rect(const std::shared_ptr<Surface> &surface, rl::Color color, Rect rect,
+             float lineThick = 0.0f, float radius = 0.0f, bool topLeft = true, bool topRight = true,
+             bool bottomLeft = true, bool bottomRight = true);
         void
-        circle(Surface &surface, rl::Color color, math::Vector2 center, float radius,
-               float lineThick = 0.0f);
+        circle(const std::shared_ptr<Surface> &surface, rl::Color color, math::Vector2 center,
+               float radius, float lineThick = 0.0f);
         void
-        bar(Surface &surface, Rect rect, float value, float max_value, rl::Color color,
-            rl::Color bg_color, float radius = 0.0f);
+        bar(const std::shared_ptr<Surface> &surface, Rect rect, float value, float max_value,
+            rl::Color color, rl::Color bg_color, float radius = 0.0f);
     } // namespace draw
 
 #ifdef WITH_TMX

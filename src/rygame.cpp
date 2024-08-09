@@ -694,9 +694,9 @@ std::shared_ptr<rg::Frames> rg::Frames::Merge(
 }
 
 void rg::draw::rect(
-        Surface &surface, const rl::Color color, const Rect rect, const float lineThick,
-        const float radius, const bool topLeft, const bool topRight, const bool bottomLeft,
-        const bool bottomRight)
+        const std::shared_ptr<Surface> &surface, const rl::Color color, const Rect rect,
+        const float lineThick, const float radius, const bool topLeft, const bool topRight,
+        const bool bottomLeft, const bool bottomRight)
 {
     surface.ToggleRender();
     if (lineThick > 0)
@@ -750,8 +750,8 @@ void rg::draw::rect(
 }
 
 void rg::draw::circle(
-        Surface &surface, const rl::Color color, const math::Vector2 center, const float radius,
-        const float lineThick)
+        const std::shared_ptr<Surface> &surface, const rl::Color color, const math::Vector2 center,
+        const float radius, const float lineThick)
 {
     surface.ToggleRender();
 
@@ -767,8 +767,8 @@ void rg::draw::circle(
 }
 
 void rg::draw::bar(
-        Surface &surface, const Rect rect, const float value, const float max_value,
-        const rl::Color color, const rl::Color bg_color, const float radius)
+        const std::shared_ptr<Surface> &surface, const Rect rect, const float value,
+        const float max_value, const rl::Color color, const rl::Color bg_color, const float radius)
 {
     const float ratio = rect.width / max_value;
     const Rect progress_rect = {
