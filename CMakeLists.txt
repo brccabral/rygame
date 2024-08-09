@@ -18,7 +18,7 @@ if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
 else ()
     set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
-    target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Werror" "-Wno-missing-braces")
+    target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Werror" "-Wpedantic" "-Wno-missing-braces" "-Wno-gnu-anonymous-struct" "-Wno-nested-anon-types")
 endif ()
 
 if (SHOW_FPS)
