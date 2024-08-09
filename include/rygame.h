@@ -322,6 +322,8 @@ namespace rg
         // Caller must delete returned Frame*
         static std::shared_ptr<Frames>
         Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
+        // Load a image and create frames for it
+        static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
 
         unsigned int current_frame_index{};
         int current_frame_index{};

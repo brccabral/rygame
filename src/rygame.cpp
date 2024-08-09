@@ -736,6 +736,26 @@ std::shared_ptr<rg::Frames> rg::Frames::Merge(
     return result;
 }
 
+std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int cols)
+{
+    auto texture = LoadTextureSafe(file);
+
+    auto result = std::make_shared<Frames>(texture.width, texture.height, rows, cols);
+    result->Fill(rl::BLANK);
+
+    BeginTextureModeSafe(result->render);
+    DrawTextureRec(
+            texture, //
+            {0, -(float) texture.height / rows, (float) texture.width, (float) texture.height}, //
+            {0, 0}, rl::WHITE);
+
+    UnloadTextureSafe(texture);
+    return result;
+}
+
+    return result;
+}
+
 void rg::draw::rect(
         const std::shared_ptr<Surface> &surface, const rl::Color color, const Rect rect,
         const float lineThick, const float radius, const bool topLeft, const bool topRight,
