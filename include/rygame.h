@@ -260,7 +260,7 @@ namespace rg
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
     } Rect;
 
-    class Surface
+    class Surface : public std::enable_shared_from_this<Surface>
     {
     public:
 
@@ -293,6 +293,12 @@ namespace rg
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
 
+        // Returns a different shared_ptr<Surface>, but it shares same image
+        // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
+        virtual std::shared_ptr<Surface> SubSurface(Rect rect);
+        std::shared_ptr<Surface> GetParent();
+        std::shared_ptr<Surface> GetAbsParent();
+
         // Returns shared_texture if exists, render.texture otherwise.
         [[nodiscard]] rl::Texture2D GetTexture() const;
 
@@ -303,6 +309,11 @@ namespace rg
         Rect atlas_rect{}; // atlas position
         // used when a texture comes from a different object
         rl::Texture2D *shared_texture = nullptr;
+
+    protected:
+
+        std::shared_ptr<Surface> parent = nullptr;
+        math::Vector2 offset{};
     };
 
     class Frames : public Surface
@@ -325,9 +336,21 @@ namespace rg
         // Load a image and create frames for it
         static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
 
-        unsigned int current_frame_index{};
+        std::shared_ptr<Surface> SubSurface(Rect rect) override
+        {
+            throw;
+        };
+        // Returns a different shared_ptr<Frames>, but it shares same image
+        // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
+        // SubSurface will have its frames updated.
+        std::shared_ptr<Frames> SubSurface(Rect rect, int rows, int cols);
+
         int current_frame_index{};
         std::vector<Rect> frames{};
+
+    private:
+
+        void CreateFrames(int width, int height, int rows, int cols);
     };
 
     namespace image

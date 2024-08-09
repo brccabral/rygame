@@ -457,7 +457,7 @@ rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
 
 rg::Surface::~Surface()
 {
-    if (render.id)
+    if (render.id && !parent)
     {
         UnloadRenderTextureSafe(render);
         render.id = 0;
@@ -555,6 +555,33 @@ rg::Rect rg::Surface::GetRect() const
     const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
     const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
     return {0, 0, absWidth, absHeight};
+}
+
+std::shared_ptr<rg::Surface> rg::Surface::SubSurface(const Rect rect)
+{
+    auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
+    UnloadRenderTextureSafe(result->render);
+    result->render = render;
+    result->shared_texture = shared_texture;
+    result->atlas_rect = rect;
+    result->parent = shared_from_this();
+    result->offset = rect.pos + offset;
+    return result;
+}
+
+std::shared_ptr<rg::Surface> rg::Surface::GetParent()
+{
+    return parent;
+}
+
+std::shared_ptr<rg::Surface> rg::Surface::GetAbsParent()
+{
+    std::shared_ptr<Surface> result = shared_from_this();
+    while (result->parent)
+    {
+        result = result->parent;
+    }
+    return result;
 }
 
 rl::Texture2D rg::Surface::GetTexture() const
@@ -674,6 +701,19 @@ std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::ImportFolderDict(
 
 rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surface(width, height)
 {
+    CreateFrames(width, height, rows, cols);
+    atlas_rect = frames[current_frame_index];
+}
+
+
+rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, const int cols)
+    : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
+{
+    Blit(surface, {});
+}
+
+void rg::Frames::CreateFrames(const int width, const int height, int rows, int cols)
+{
     if (rows <= 0)
     {
         rows = 1;
@@ -687,22 +727,13 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surf
 
     for (int r = 0; r < rows; ++r)
     {
-        const float y = r * h;
+        const float y = r * h + offset.y;
         for (int c = 0; c < cols; ++c)
         {
-            const float x = c * w;
-            frames.push_back({x, y, w, -h});
+            const float x = c * w + offset.x;
+            frames.push_back({x, y, w, h});
         }
     }
-    atlas_rect = frames[current_frame_index];
-}
-
-
-rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, const int cols)
-    : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
-{
-    Blit(surface, {});
-    EndTextureModeSafe();
 }
 
 void rg::Frames::SetAtlas(const int frame_index)
@@ -753,6 +784,11 @@ std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int col
     return result;
 }
 
+std::shared_ptr<rg::Frames> rg::Frames::SubSurface(const Rect rect, const int rows, const int cols)
+{
+    auto result = std::dynamic_pointer_cast<Frames>(Surface::SubSurface(rect));
+    result->CreateFrames(rect.width, rect.height, rows, cols);
+    result->SetAtlas();
     return result;
 }
 
