@@ -317,13 +317,14 @@ namespace rg
 
         // Set current atlas rect. Default to first frame.
         // Value is moduled with frame length in case it is greater than frames size.
-        void SetAtlas(unsigned int frame_index = 0);
+        void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
         static std::shared_ptr<Frames>
         Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
 
         unsigned int current_frame_index{};
+        int current_frame_index{};
         std::vector<Rect> frames{};
     };
 

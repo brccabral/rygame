@@ -700,9 +700,9 @@ rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, cons
     EndTextureModeSafe();
 }
 
-void rg::Frames::SetAtlas(const unsigned int frame_index)
+void rg::Frames::SetAtlas(const int frame_index)
 {
-    current_frame_index = frame_index % frames.size();
+    current_frame_index = (frame_index % (int) frames.size() + frames.size()) % frames.size();
     atlas_rect = frames[current_frame_index];
 }
 
