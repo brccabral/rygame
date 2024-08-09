@@ -15,7 +15,9 @@
 namespace rl
 {
 #include <raylib.h>
+#ifdef WITH_TMX
 #include <raylib-tmx.h>
+#endif // WITH_TMX
 } // namespace rl
 
 namespace rg
@@ -356,6 +358,7 @@ namespace rg
             rl::Color bg_color, float radius = 0.0f);
     } // namespace draw
 
+#ifdef WITH_TMX
     namespace tmx
     {
         // World Position, Atlas image*, Atlas position
@@ -373,6 +376,7 @@ namespace rg
         std::shared_ptr<Surface>
         GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
     } // namespace tmx
+#endif // WITH_TMX
 
     namespace sprite
     {

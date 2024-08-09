@@ -7,18 +7,31 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(WITH_TMX "use TMX features" OFF)
+
 find_package(raylib REQUIRED)
-find_package(raylib-tmx REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 
 add_library(${PROJECT_NAME} STATIC src/rygame.cpp)
+target_link_libraries(${PROJECT_NAME} INTERFACE raylib)
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/WX" "/NODEFAULTLIB:libcmt")
+    target_link_libraries(${PROJECT_NAME} INTERFACE gdi32 winmm)
 else ()
     set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
     target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Werror" "-Wpedantic" "-Wno-missing-braces" "-Wno-gnu-anonymous-struct" "-Wno-nested-anon-types")
+    target_link_libraries(${PROJECT_NAME} INTERFACE m)
+endif ()
+
+message("WITH_TMX ${WITH_TMX}")
+if (WITH_TMX)
+    find_package(LibXml2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(raylib-tmx REQUIRED)
+    target_compile_options(${PROJECT_NAME} PUBLIC "-DWITH_TMX")
+    target_link_libraries(${PROJECT_NAME} INTERFACE raylib-tmx tmx LibXml2::LibXml2 ZLIB::ZLIB)
 endif ()
 
 if (SHOW_FPS)

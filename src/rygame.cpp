@@ -786,6 +786,7 @@ void rg::draw::bar(
     }
 }
 
+#ifdef WITH_TMX
 rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect)
 {
     const rl::tmx_image *im = tile->image;
@@ -849,6 +850,7 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     EndTextureModeSafe();
     return surface;
 }
+#endif // WITH_TMX
 
 void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)
 {
