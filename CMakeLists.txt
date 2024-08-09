@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(WITH_TMX "use TMX features" OFF)
+option(SHOW_FPS "show FPS on top left of screen" OFF)
 
 find_package(raylib REQUIRED)
 
