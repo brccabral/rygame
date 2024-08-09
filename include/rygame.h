@@ -314,6 +314,7 @@ namespace rg
 
         std::shared_ptr<Surface> parent = nullptr;
         math::Vector2 offset{};
+        float flip_atlas_height = 1; // 1 or -1 (Frames)
     };
 
     class Frames : public Surface

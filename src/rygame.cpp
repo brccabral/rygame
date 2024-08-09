@@ -481,7 +481,11 @@ void rg::Surface::Blit(
             rl::LOG_TRACE, "Blit render %d texture %d Texture() %d into render %d texture %d",
             incoming->render.id, incoming->render.texture.id, incoming->GetTexture().id, render.id,
             render.texture.id);
-    this->Blit(incoming->GetTexture(), offset, incoming->atlas_rect, blend_mode);
+    this->Blit(
+            incoming->GetTexture(), offset,
+            {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
+             incoming->atlas_rect.height * incoming->flip_atlas_height},
+            blend_mode);
 }
 
 void rg::Surface::Blits(
@@ -504,7 +508,10 @@ void rg::Surface::Blits(
     for (auto &[surface, offset]: blit_sequence)
     {
         DrawTextureRec(
-                surface->GetTexture(), surface->atlas_rect.rectangle, offset.vector2, rl::WHITE);
+                surface->GetTexture(),
+                {surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
+                 -surface->atlas_rect.height * surface->flip_atlas_height},
+                offset.vector2, rl::WHITE);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -703,6 +710,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surf
 {
     CreateFrames(width, height, rows, cols);
     atlas_rect = frames[current_frame_index];
+    flip_atlas_height = -1;
 }
 
 
@@ -710,6 +718,7 @@ rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, cons
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
     Blit(surface, {});
+    flip_atlas_height = -1;
 }
 
 void rg::Frames::CreateFrames(const int width, const int height, int rows, int cols)
@@ -777,7 +786,7 @@ std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int col
     BeginTextureModeSafe(result->render);
     DrawTextureRec(
             texture, //
-            {0, -(float) texture.height / rows, (float) texture.width, (float) texture.height}, //
+            {0, 0, (float) texture.width, -(float) texture.height}, //
             {0, 0}, rl::WHITE);
 
     UnloadTextureSafe(texture);
