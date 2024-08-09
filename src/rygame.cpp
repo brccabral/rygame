@@ -39,6 +39,7 @@ void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
                 text, "Double call to BeginTextureMode(), previous id %i new id %i", current_render,
                 render.id);
         TraceLog(rl::LOG_WARNING, text);
+        EndTextureModeSafe();
     }
     current_render = render.id;
     BeginTextureMode(render);
@@ -470,7 +471,6 @@ void rg::Surface::Fill(const rl::Color color)
             rl::TextFormat("Fill render %d texture %d", render.id, render.texture.id));
     ToggleRender();
     ClearBackground(color);
-    EndTextureModeSafe();
 }
 
 void rg::Surface::Blit(
@@ -510,8 +510,6 @@ void rg::Surface::Blits(
     {
         rl::EndBlendMode();
     }
-
-    EndTextureModeSafe();
 }
 
 void rg::Surface::Blit(
@@ -735,7 +733,6 @@ std::shared_ptr<rg::Frames> rg::Frames::Merge(
         }
     }
 
-    EndTextureModeSafe();
     return result;
 }
 
@@ -796,7 +793,6 @@ void rg::draw::rect(
             DrawRectangleV(rect.pos.vector2, rect.size.vector2, color);
         }
     }
-    EndTextureModeSafe();
 }
 
 void rg::draw::circle(
@@ -817,7 +813,6 @@ void rg::draw::circle(
     {
         DrawCircleV(center.vector2, radius, color);
     }
-    EndTextureModeSafe();
 }
 
 void rg::draw::bar(
@@ -905,7 +900,6 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     {
         surface->Blit(*texture, position, atlas_rect);
     }
-    EndTextureModeSafe();
     return surface;
 }
 #endif // WITH_TMX
@@ -1382,7 +1376,6 @@ rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned ch
     }
     mask.atlas_rect = surface->atlas_rect;
 
-    EndTextureModeSafe();
     UnloadImage(alphaImage);
     UnloadImage(surfImage);
     return mask;
