@@ -258,6 +258,7 @@ namespace rg
         [[nodiscard]] bool collidepoint(math::Vector2 point) const;
         [[nodiscard]] bool collideline(
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
+        [[nodiscard]] bool colliderect(const Rect &other) const;
     } Rect;
 
     class Surface : public std::enable_shared_from_this<Surface>

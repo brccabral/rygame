@@ -417,6 +417,11 @@ bool rg::Rect::collideline(
     return hasCollision;
 }
 
+bool rg::Rect::colliderect(const Rect &other) const
+{
+    return CheckCollisionRecs(rectangle, other.rectangle);
+}
+
 bool rg::Line::collidepoint(const math::Vector2 point, const float threshold) const
 {
     return CheckCollisionPointLine(point.vector2, start.vector2, end.vector2, threshold);
