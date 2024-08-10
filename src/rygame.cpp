@@ -32,7 +32,11 @@ void rg::Quit()
 
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
-    if (current_render > 0)
+    if (current_render == render.id)
+    {
+        return;
+    }
+    if (current_render)
     {
         char text[MAX_TEXT_BUFFER_LENGTH];
         TextFormatSafe(
