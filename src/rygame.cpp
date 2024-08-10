@@ -577,7 +577,7 @@ std::shared_ptr<rg::Surface> rg::Surface::SubSurface(const Rect rect)
     result->shared_texture = shared_texture;
     result->atlas_rect = rect;
     result->parent = shared_from_this();
-    result->offset = rect.pos + offset;
+    result->offset = rect.pos;
     return result;
 }
 
@@ -798,11 +798,29 @@ std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int col
     return result;
 }
 
-std::shared_ptr<rg::Frames> rg::Frames::SubSurface(const Rect rect, const int rows, const int cols)
+std::shared_ptr<rg::Frames> rg::Frames::SubFrames(const Rect rect)
 {
-    auto result = std::dynamic_pointer_cast<Frames>(Surface::SubSurface(rect));
-    result->CreateFrames(rect.width, rect.height, rows, cols);
-    result->SetAtlas();
+    const float frame_width = frames[0].width;
+    const float frame_height = frames[0].height;
+    int rows = rect.height / frame_height;
+    int cols = rect.width / frame_width;
+
+    auto result = std::make_shared<Frames>(GetTexture().width, GetTexture().height, rows, cols);
+    UnloadRenderTextureSafe(result->render);
+    result->render = render;
+    result->shared_texture = shared_texture;
+    result->parent = shared_from_this();
+    result->offset = rect.pos;
+
+    result->frames.clear();
+    for (const auto &frame: frames)
+    {
+        if (frame.colliderect(rect))
+        {
+            result->frames.push_back(frame);
+        }
+    }
+
     return result;
 }
 

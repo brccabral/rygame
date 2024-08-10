@@ -345,7 +345,7 @@ namespace rg
         // Returns a different shared_ptr<Frames>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         // SubSurface will have its frames updated.
-        std::shared_ptr<Frames> SubSurface(Rect rect, int rows, int cols);
+        std::shared_ptr<Frames> SubFrames(Rect rect);
 
         int current_frame_index{};
         std::vector<Rect> frames{};
