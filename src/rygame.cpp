@@ -994,6 +994,31 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     }
     return surface;
 }
+
+rg::math::Vector2 rg::tmx::GetTMXObjPosition(const rl::tmx_object *object)
+{
+    float x = 0, y = 0;
+    switch (object->obj_type)
+    {
+        case rl::OT_NONE:
+        case rl::OT_POLYGON:
+        case rl::OT_POLYLINE:
+        case rl::OT_ELLIPSE:
+        case rl::OT_TEXT:
+            break;
+        case rl::OT_SQUARE:
+        case rl::OT_POINT:
+            x = object->x;
+            y = object->y;
+            break;
+        case rl::OT_TILE:
+            x = object->x;
+            y = object->y - object->height;
+            break;
+    }
+    return math::Vector2{x, y};
+}
+
 #endif // WITH_TMX
 
 void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)

@@ -408,6 +408,7 @@ namespace rg
         // merges all tiles into one single surface image
         std::shared_ptr<Surface>
         GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
     } // namespace tmx
 #endif // WITH_TMX
 
