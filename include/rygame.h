@@ -404,6 +404,9 @@ namespace rg
         void
         bar(const std::shared_ptr<Surface> &surface, Rect rect, float value, float max_value,
             rl::Color color, rl::Color bg_color, float radius = 0.0f);
+        void
+        line(const std::shared_ptr<Surface> &surface, rl::Color color, math::Vector2 start,
+             math::Vector2 end, float width = 1.0f);
     } // namespace draw
 
 #ifdef WITH_TMX

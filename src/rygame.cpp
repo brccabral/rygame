@@ -1148,6 +1148,27 @@ void rg::draw::bar(
     }
 }
 
+void rg::draw::line(
+        const std::shared_ptr<Surface> &surface, const rl::Color color, const math::Vector2 start,
+        const math::Vector2 end, const float width)
+{
+    TraceLog(
+            rl::LOG_TRACE, rl::TextFormat(
+                                   "draw::line render %d texture %d", surface->render.id,
+                                   surface->render.texture.id));
+    surface->ToggleRender();
+
+    if (width > 1)
+    {
+        DrawLineEx(start.vector2, end.vector2, width, color);
+    }
+    else if (width == 1)
+    {
+        DrawLineV(start.vector2, end.vector2, color);
+    }
+}
+
+
 #ifdef WITH_TMX
 rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect)
 {
