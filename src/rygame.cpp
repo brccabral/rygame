@@ -631,7 +631,7 @@ rg::Line::operator bool() const
     return x1 != x2 || y1 != y2;
 }
 
-rg::Surface::Surface(const int width, const int height)
+void rg::Surface::Setup(const int width, const int height)
 {
     if (!render.id)
     {
@@ -642,6 +642,16 @@ rg::Surface::Surface(const int width, const int height)
     atlas_rect = {0, 0, (float) width, (float) height};
 
     Fill(rl::BLACK);
+}
+
+rg::Surface::Surface(const int width, const int height)
+{
+    Setup(width, height);
+}
+
+rg::Surface::Surface(const math::Vector2 size)
+{
+    Setup(size.x, size.y);
 }
 
 rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)

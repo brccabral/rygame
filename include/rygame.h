@@ -272,6 +272,7 @@ namespace rg
     public:
 
         Surface(int width, int height);
+        explicit Surface(math::Vector2 size);
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
 
         // Unloads render
@@ -318,6 +319,8 @@ namespace rg
         rl::Texture2D *shared_texture = nullptr;
 
     protected:
+
+        void Setup(int width, int height);
 
         std::shared_ptr<Surface> parent = nullptr;
         math::Vector2 offset{};
