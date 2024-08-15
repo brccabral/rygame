@@ -179,6 +179,7 @@ namespace rg
             [[nodiscard]] float magnitude() const;
             [[nodiscard]] Vector2 normalize() const;
             void normalize_ip();
+            [[nodiscard]] float distance_to(Vector2 target) const;
             float operator[](const unsigned int &i) const;
         } Vector2;
 

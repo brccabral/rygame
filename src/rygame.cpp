@@ -1593,6 +1593,11 @@ void rg::math::Vector2::normalize_ip()
     vector2 = Vector2Normalize(vector2);
 }
 
+float rg::math::Vector2::distance_to(const Vector2 target) const
+{
+    return Vector2Distance(vector2, target.vector2);
+}
+
 float rg::math::Vector2::operator[](const unsigned int &i) const
 {
     if (i == 0)
