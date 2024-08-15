@@ -407,6 +407,9 @@ namespace rg
         void
         line(const std::shared_ptr<Surface> &surface, rl::Color color, math::Vector2 start,
              math::Vector2 end, float width = 1.0f);
+        void
+        lines(const std::shared_ptr<Surface> &surface, rl::Color color, bool closed,
+              std::vector<math::Vector2> points, float width = 1.0f);
     } // namespace draw
 
 #ifdef WITH_TMX

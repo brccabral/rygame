@@ -1,7 +1,6 @@
 #include "rygame.h"
 #include <cassert>
 
-
 static bool isSoundInit = false;
 static int current_render = 0; // TODO make it stack<> ?
 
@@ -1168,6 +1167,36 @@ void rg::draw::line(
     }
 }
 
+void rg::draw::lines(
+        const std::shared_ptr<Surface> &surface, rl::Color color, bool closed,
+        std::vector<math::Vector2> points, float width)
+{
+    TraceLog(
+            rl::LOG_TRACE, rl::TextFormat(
+                                   "draw::lines render %d texture %d", surface->render.id,
+                                   surface->render.texture.id));
+    surface->ToggleRender();
+
+    int pointCount = points.size();
+    if (closed)
+    {
+        pointCount += 1;
+    }
+
+    auto *pts = new rl::Vector2[pointCount];
+    for (int i = 0; i < points.size(); ++i)
+    {
+        pts[i] = points[i].vector2;
+    }
+    if (closed)
+    {
+        pts[pointCount - 1] = points[0].vector2;
+    }
+
+    DrawSplineLinear(pts, pointCount, width, color);
+
+    delete[] pts;
+}
 
 #ifdef WITH_TMX
 rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect)
