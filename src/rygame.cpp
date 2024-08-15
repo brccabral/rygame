@@ -1055,9 +1055,11 @@ void rg::draw::rect(
     {
         if (radius > 0)
         {
-            const int segments =
-                    (rect.width > rect.height ? rect.width : rect.height) * radius * 0.5f;
-            DrawRectangleRoundedLinesEx(rect.rectangle, 0.5f, segments, lineThick, color);
+            const float greater_dim = (rect.width < rect.height ? rect.width : rect.height) * 0.5f;
+            const float r = (radius > greater_dim) ? greater_dim : radius;
+            const float roundness = r / greater_dim;
+            const int segments = roundness * 90;
+            DrawRectangleRoundedLinesEx(rect.rectangle, roundness, segments, lineThick, color);
         }
         else
         {
@@ -1068,9 +1070,11 @@ void rg::draw::rect(
     {
         if (radius > 0)
         {
-            const int segments =
-                    (rect.width < rect.height ? rect.width : rect.height) * radius * 0.5f;
-            DrawRectangleRounded(rect.rectangle, 0.5f, segments, color);
+            const float greater_dim = (rect.width < rect.height ? rect.width : rect.height) * 0.5f;
+            const float r = (radius > greater_dim) ? greater_dim : radius;
+            const float roundness = r / greater_dim;
+            const int segments = roundness * 90;
+            DrawRectangleRounded(rect.rectangle, roundness, segments, color);
             Rect corner = {0, 0, radius, radius};
             if (!topLeft)
             {
