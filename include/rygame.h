@@ -38,6 +38,7 @@ namespace rg
     void EndTextureModeSafe();
     rl::Texture2D LoadTextureSafe(const char *file);
     rl::Texture2D LoadTextureFromImageSafe(const rl::Image &image);
+    rl::Image LoadImageFromTextureSafe(const rl::Texture &texture);
     void UnloadTextureSafe(const rl::Texture2D &texture);
     rl::RenderTexture2D LoadRenderTextureSafe(int width, int height);
     void UnloadRenderTextureSafe(const rl::RenderTexture2D &render);

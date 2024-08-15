@@ -72,6 +72,12 @@ rl::Texture2D rg::LoadTextureFromImageSafe(const rl::Image &image)
     return LoadTextureFromImage(image);
 }
 
+rl::Image rg::LoadImageFromTextureSafe(const rl::Texture &texture)
+{
+    EndTextureModeSafe();
+    return LoadImageFromTexture(texture);
+}
+
 void rg::UnloadTextureSafe(const rl::Texture2D &texture)
 {
     EndTextureModeSafe();
