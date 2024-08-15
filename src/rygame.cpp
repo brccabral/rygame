@@ -1036,6 +1036,7 @@ std::shared_ptr<rg::Frames> rg::Frames::SubFrames(const Rect rect)
             result->frames.push_back(frame);
         }
     }
+    result->SetAtlas();
 
     return result;
 }
