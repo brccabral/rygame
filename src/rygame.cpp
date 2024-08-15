@@ -1803,3 +1803,8 @@ float rg::math::Vector2::operator[](const unsigned int &i) const
     }
     throw;
 }
+
+rg::math::Vector2::operator bool() const
+{
+    return x || y;
+}

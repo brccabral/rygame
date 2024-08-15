@@ -181,6 +181,7 @@ namespace rg
             void normalize_ip();
             [[nodiscard]] float distance_to(Vector2 target) const;
             float operator[](const unsigned int &i) const;
+            explicit operator bool() const;
         } Vector2;
 
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
