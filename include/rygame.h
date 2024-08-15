@@ -15,6 +15,7 @@
 namespace rl
 {
 #include <raylib.h>
+#include <raymath.h>
 #ifdef WITH_TMX
 #include <raylib-tmx.h>
 #endif // WITH_TMX
@@ -283,6 +284,8 @@ namespace rg
         void Fill(rl::Color color);
         // Replace all `color` with BLANK
         void SetColorKey(rl::Color color);
+        // Set Alpha (0.0f to 255.0f) - Changes tint color
+        void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
         Blit(const std::shared_ptr<Surface> &incoming, math::Vector2 offset,
@@ -290,7 +293,7 @@ namespace rg
         // Blit incoming Texture2D into surface*.
         void
         Blit(const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
@@ -326,6 +329,8 @@ namespace rg
         std::shared_ptr<Surface> parent = nullptr;
         math::Vector2 offset{};
         float flip_atlas_height = 1; // 1 or -1 (Frames)
+
+        rl::Color tint{255, 255, 255, 255};
     };
 
     class Frames : public Surface

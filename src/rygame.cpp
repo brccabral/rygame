@@ -1,10 +1,6 @@
 #include "rygame.h"
 #include <cassert>
 
-namespace rl
-{
-#include <raymath.h>
-}
 
 static bool isSoundInit = false;
 static int current_render = 0; // TODO make it stack<> ?
@@ -487,7 +483,8 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
     if (x1 >= rectx1 && x1 <= rectx2 && x2 >= rectx1 && x2 <= rectx2 && y1 >= recty1 &&
         y1 <= recty2 && y2 >= recty1 && y2 <= recty2)
     {
-        return result = {x1, y1, x2, y2};
+        result = {x1, y1, x2, y2};
+        return result;
     }
 
     /* Check to see if entire line is to one side of rect */
@@ -703,7 +700,7 @@ void rg::Surface::Blit(
             incoming->GetTexture(), offset,
             {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
              incoming->atlas_rect.height * incoming->flip_atlas_height},
-            blend_mode);
+            blend_mode, incoming->tint);
 }
 
 void rg::Surface::Blits(
@@ -729,7 +726,7 @@ void rg::Surface::Blits(
                 surface->GetTexture(),
                 {surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
                  -surface->atlas_rect.height * surface->flip_atlas_height},
-                offset.vector2, rl::WHITE);
+                offset.vector2, surface->tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -739,7 +736,7 @@ void rg::Surface::Blits(
 
 void rg::Surface::Blit(
         const rl::Texture2D &incoming_texture, const math::Vector2 offset, const Rect area,
-        const rl::BlendMode blend_mode)
+        const rl::BlendMode blend_mode, const rl::Color tint)
 {
     if (!incoming_texture.id)
     {
@@ -759,15 +756,14 @@ void rg::Surface::Blit(
     if (area.height && area.width)
     {
         DrawTextureRec(
-                incoming_texture, {area.x, area.y, area.width, -area.height}, offset.vector2,
-                rl::WHITE);
+                incoming_texture, {area.x, area.y, area.width, -area.height}, offset.vector2, tint);
     }
     else
     {
         DrawTextureRec(
                 incoming_texture,
                 {0, 0, (float) incoming_texture.width, (float) -incoming_texture.height},
-                offset.vector2, rl::WHITE);
+                offset.vector2, tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -847,6 +843,14 @@ void rg::Surface::SetColorKey(const rl::Color color)
     // clean up
     UnloadTextureSafe(color_texture);
     UnloadImage(current);
+}
+
+void rg::Surface::SetAlpha(const float alpha)
+{
+    tint.r = alpha;
+    tint.g = alpha;
+    tint.b = alpha;
+    tint.a = alpha;
 }
 
 std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) const
