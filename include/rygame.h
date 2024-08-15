@@ -213,12 +213,12 @@ namespace rg
 
     typedef union Rect
     {
-        rl::Rectangle rectangle;
-
         struct
         {
             math::Vector2 pos, size;
         };
+
+        rl::Rectangle rectangle;
 
         struct
         {
