@@ -205,6 +205,7 @@ namespace rg
 
         [[nodiscard]] bool collidepoint(math::Vector2 point, float threshold = 0.0f) const;
         [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
+        explicit operator bool() const;
     } Line;
 
     typedef union Rect
@@ -260,6 +261,9 @@ namespace rg
         [[nodiscard]] bool collideline(
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
         [[nodiscard]] bool colliderect(const Rect &other) const;
+        Line clipline(Line line);
+        Line clipline(math::Vector2 start, math::Vector2 end);
+        Line clipline(float x1, float y1, float x2, float y2);
     } Rect;
 
     class Surface : public std::enable_shared_from_this<Surface>
