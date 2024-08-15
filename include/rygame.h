@@ -350,7 +350,7 @@ namespace rg
         // Caller must delete returned Frame*
         static std::shared_ptr<Frames>
         Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
-        // Load a image and create frames for it
+        // Load an image and create frames for it
         static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
 
         std::shared_ptr<Surface> SubSurface(Rect rect) override
@@ -424,6 +424,8 @@ namespace rg
         std::shared_ptr<Surface>
         GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
+        // Load all tmx in a folder
+        std::map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
     } // namespace tmx
 #endif // WITH_TMX
 

@@ -1232,6 +1232,18 @@ rg::math::Vector2 rg::tmx::GetTMXObjPosition(const rl::tmx_object *object)
     return math::Vector2{x, y};
 }
 
+std::map<std::string, rl::tmx_map *> rg::tmx::LoadTMXMaps(const char *path)
+{
+    std::map<std::string, rl::tmx_map *> result;
+    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    {
+        auto filename = dirEntry.path().stem().string();
+        auto entryPath = dirEntry.path().string();
+        result[filename] = rl::LoadTMX(entryPath.c_str());
+    }
+    return result;
+}
+
 #endif // WITH_TMX
 
 void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)
