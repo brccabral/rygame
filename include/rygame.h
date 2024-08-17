@@ -225,48 +225,114 @@ namespace rg
             float x, y, width, height;
         };
 
+        // Returns the X value on the right side (x+width)
         [[nodiscard]] float right() const;
+        // Moves the rect so that the right side goes to the passed position
+        // and returns a copy
         Rect right(float v);
+        // Returns the X value on the leftside (x)
         [[nodiscard]] float left() const;
+        // Moves the rect so that the left side goes to the passed position
+        // and returns a copy
         Rect left(float v);
+        // Returns the X value of the center
         [[nodiscard]] float centerx() const;
+        // Moves the rect so that the center X goes to the passed position
+        // and returns a copy
         Rect centerx(float v);
+        // Returns the Y value of the center
         [[nodiscard]] float centery() const;
+        // Moves the rect so that the center Y goes to the passed position
+        // and returns a copy
         Rect centery(float v);
+        // Returns the x,y at the center
         [[nodiscard]] math::Vector2 center() const;
+        // Moves the rect so that the center goes to the passed position
+        // and returns a copy
         Rect center(math::Vector2 pos);
+        // Returns the Y value of the top
         [[nodiscard]] float top() const;
+        // Moves the rect so that the top Y goes to the passed position
+        // and returns a copy
         Rect top(float v);
+        // Returns the Y value of the bottom
         [[nodiscard]] float bottom() const;
+        // Moves the rect so that the bottom Y goes to the passed position
+        // and returns a copy
         Rect bottom(float v);
+        // Returns the x,y at the top left
         [[nodiscard]] math::Vector2 topleft() const;
+        // Moves the rect so that the top left goes to the passed position
+        // and returns a copy
         Rect topleft(math::Vector2 pos);
+        // Returns the x,y at the bottom left
         [[nodiscard]] math::Vector2 bottomleft() const;
+        // Moves the rect so that the bottom left goes to the passed position
+        // and returns a copy
         Rect bottomleft(math::Vector2 pos);
+        // Returns the x,y at the top right
         [[nodiscard]] math::Vector2 topright() const;
+        // Moves the rect so that the top right goes to the passed position
+        // and returns a copy
         Rect topright(math::Vector2 pos);
+        // Returns the x,y at the bottom right
         [[nodiscard]] math::Vector2 bottomright() const;
+        // Moves the rect so that the bottom right goes to the passed position
+        // and returns a copy
         Rect bottomright(math::Vector2 pos);
+        // Returns the x,y at the mid bottom
         [[nodiscard]] math::Vector2 midbottom() const;
+        // Moves the rect so that the mid bottom goes to the passed position
+        // and returns a copy
         Rect midbottom(math::Vector2 pos);
+        // Returns the x,y at the mid top
         [[nodiscard]] math::Vector2 midtop() const;
+        // Moves the rect so that the mid top goes to the passed position
+        // and returns a copy
         Rect midtop(math::Vector2 pos);
+        // Returns the x,y at the mid left
         [[nodiscard]] math::Vector2 midleft() const;
+        // Moves the rect so that the mid left goes to the passed position
+        // and returns a copy
         Rect midleft(math::Vector2 pos);
+        // Returns the x,y at the mid right
         [[nodiscard]] math::Vector2 midright() const;
+        // Moves the rect so that the mid right goes to the passed position
+        // and returns a copy
         Rect midright(math::Vector2 pos);
-        Rect move(math::Vector2 pos);
+        // Moves the rect by delta pixels
+        // and returns a copy
+        Rect move(math::Vector2 delta);
+        // Returns a modified rect with increased/decreased sizes, but same center
+        // This rect is not modified. Use `inflate_ip` for in-place
         [[nodiscard]] Rect inflate(float width, float height) const;
+        // Returns a modified rect with increased/decreased sizes, but same center
+        // This rect is not modified. Use `scale_by_ip` for in-place
         [[nodiscard]] Rect scale_by(float ratio) const;
+        // Modifies this rect with increased/decreased sizes, keeping the center position
+        // This is an in-place change. Use `inflate` to keep original size
         void inflate_ip(float width, float height);
+        // Modifies this rect with increased/decreased sizes, keeping the center position
+        // This is an in-place change. Use `scale_by` to keep original size
         void scale_by_ip(float ratio);
+        // Returns a copy
         [[nodiscard]] Rect copy() const;
+        // Returns true if point is inside rect
         [[nodiscard]] bool collidepoint(math::Vector2 point) const;
+        // Returns true if line crosses rect (or is entirely inside it)
+        // It also updates collision points on the intersections
         [[nodiscard]] bool collideline(
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
+        // Returns true if other rect overlaps this one
         [[nodiscard]] bool colliderect(const Rect &other) const;
+        // If passed line crosses the rect, returns a new line that is just inside the rect
+        // If passed line is outside, returns an empty line {}
         Line clipline(Line line);
+        // If passed line (from start to end) crosses the rect, returns a new line that is just inside the rect
+        // If passed line is outside, returns an empty line {}
         Line clipline(math::Vector2 start, math::Vector2 end);
+        // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just inside the rect
+        // If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2);
     } Rect;
 

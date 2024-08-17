@@ -334,10 +334,10 @@ rg::Rect rg::Rect::midright(const math::Vector2 pos)
     return copy();
 }
 
-rg::Rect rg::Rect::move(const math::Vector2 pos)
+rg::Rect rg::Rect::move(const math::Vector2 delta)
 {
-    x += pos.x;
-    y += pos.y;
+    x += delta.x;
+    y += delta.y;
     return copy();
 }
 
