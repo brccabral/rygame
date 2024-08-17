@@ -255,6 +255,7 @@ namespace rg
         Rect midleft(math::Vector2 pos);
         [[nodiscard]] math::Vector2 midright() const;
         Rect midright(math::Vector2 pos);
+        Rect move(math::Vector2 pos);
         [[nodiscard]] Rect inflate(float width, float height) const;
         [[nodiscard]] Rect scale_by(float ratio) const;
         void inflate_ip(float width, float height);

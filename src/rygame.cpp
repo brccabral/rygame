@@ -334,6 +334,13 @@ rg::Rect rg::Rect::midright(const math::Vector2 pos)
     return copy();
 }
 
+rg::Rect rg::Rect::move(const math::Vector2 pos)
+{
+    x += pos.x;
+    y += pos.y;
+    return copy();
+}
+
 rg::Rect rg::Rect::inflate(const float width, const float height) const
 {
     Rect result{x, y, this->width, this->height};
