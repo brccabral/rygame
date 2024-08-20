@@ -328,11 +328,11 @@ namespace rg
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
         Line clipline(Line line);
-        // If passed line (from start to end) crosses the rect, returns a new line that is just inside the rect
-        // If passed line is outside, returns an empty line {}
+        // If passed line (from start to end) crosses the rect, returns a new line that is just
+        // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(math::Vector2 start, math::Vector2 end);
-        // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just inside the rect
-        // If passed line is outside, returns an empty line {}
+        // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just
+        // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2);
     } Rect;
 
@@ -726,8 +726,6 @@ namespace rg
             render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
-
-        private:
 
             rl::Font font;
             float font_size;
