@@ -1,4 +1,4 @@
-#include "rygame.h"
+#include "rygame.hpp"
 #include <cassert>
 
 static bool isSoundInit = false;
