@@ -186,8 +186,11 @@ namespace rg
             explicit operator bool() const;
         } Vector2;
 
+        inline std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
+
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
         float random_uniform(std::uniform_real_distribution<float> dist);
+        float get_random_uniform(float min, float max);
         float clamp(float value, float min, float max);
     } // namespace math
 
