@@ -431,6 +431,8 @@ namespace rg
 
         int current_frame_index{};
         std::vector<Rect> frames{};
+        int rows{};
+        int cols{};
 
     private:
 
@@ -566,8 +568,6 @@ namespace rg
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
             virtual std::shared_ptr<Sprite> Kill();
-            // Flip Horizontally (-width)
-            void FlipH() const;
 
             unsigned int z = 0; // in 2D games, used to sort the drawing order
 
@@ -757,6 +757,15 @@ namespace rg
     } // namespace mixer
 
     static std::vector<mixer::Sound *> musics;
+
+    namespace transform
+    {
+        std::shared_ptr<Surface>
+        Flip(const std::shared_ptr<Surface> &surface, bool flip_x, bool flip_y);
+        std::shared_ptr<Frames>
+        Flip(const std::shared_ptr<Frames> &frames, bool flip_x, bool flip_y);
+    } // namespace transform
+
 } // namespace rg
 
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);

@@ -934,7 +934,8 @@ std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::ImportFolderDict(
     return result;
 }
 
-rg::Frames::Frames(const int width, const int height, int rows, int cols) : Surface(width, height)
+rg::Frames::Frames(const int width, const int height, int rows, int cols)
+    : Surface(width, height), rows(rows), cols(cols)
 {
     CreateFrames(width, height, rows, cols);
     atlas_rect = frames[current_frame_index];
@@ -1488,11 +1489,6 @@ std::shared_ptr<rg::sprite::Sprite> rg::sprite::Sprite::Kill()
     return shared_from_this();
 }
 
-void rg::sprite::Sprite::FlipH() const
-{
-    image->atlas_rect.width = -image->atlas_rect.width;
-}
-
 bool rg::sprite::collide_rect(
         const std::shared_ptr<Sprite> &left, const std::shared_ptr<Sprite> &right)
 {
@@ -1827,6 +1823,53 @@ std::shared_ptr<rg::Surface> rg::font::Font::render(
 rg::math::Vector2 rg::font::Font::size(const char *text) const
 {
     return {MeasureTextEx(font, text, font_size, 1)};
+}
+
+std::shared_ptr<rg::Surface>
+rg::transform::Flip(const std::shared_ptr<Surface> &surface, const bool flip_x, const bool flip_y)
+{
+    const auto result =
+            std::make_shared<Surface>(surface->GetRect().width, surface->GetRect().height);
+    result->Fill(rl::BLANK);
+    result->Blit(surface->GetTexture(), {});
+    if (flip_x)
+    {
+        result->atlas_rect.width = -result->atlas_rect.width;
+    }
+    if (flip_y)
+    {
+        result->atlas_rect.height = -result->atlas_rect.height;
+    }
+
+    return result;
+}
+
+std::shared_ptr<rg::Frames>
+rg::transform::Flip(const std::shared_ptr<Frames> &frames, const bool flip_x, const bool flip_y)
+{
+    const auto result = std::make_shared<Frames>(
+            (float) frames->render.texture.width, (float) frames->render.texture.height,
+            frames->rows, frames->cols);
+    result->frames = frames->frames;
+    result->Fill(rl::BLANK);
+    result->Blit(frames->render.texture, {});
+    if (flip_x)
+    {
+        for (auto &frame: result->frames)
+        {
+            frame.width = -frame.width;
+        }
+    }
+    if (flip_y)
+    {
+        for (auto &frame: result->frames)
+        {
+            frame.height = -frame.height;
+        }
+    }
+    result->SetAtlas();
+
+    return result;
 }
 
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
