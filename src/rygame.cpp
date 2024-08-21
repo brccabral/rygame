@@ -14,7 +14,7 @@ void rg::Init(
 
 void rg::Quit()
 {
-    display::display_surface.reset();
+    display_surface.reset();
     if (isSoundInit)
     {
         rl::CloseAudioDevice();

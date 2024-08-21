@@ -423,6 +423,8 @@ namespace rg
         rl::Color tint{255, 255, 255, 255};
     };
 
+    inline std::shared_ptr<Surface> display_surface;
+
     class Frames : public Surface
     {
     public:
@@ -693,7 +695,6 @@ namespace rg
 
     namespace display
     {
-        static std::shared_ptr<Surface> display_surface;
         std::shared_ptr<Surface> SetMode(int width, int height);
         void SetCaption(const char *title);
         std::shared_ptr<Surface> GetSurface();
