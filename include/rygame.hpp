@@ -388,6 +388,7 @@ namespace rg
         // Creates a new Surface*.
         // Make sure to delete it
         [[nodiscard]] std::shared_ptr<Surface> convert(rl::PixelFormat format) const;
+        [[nodiscard]] std::shared_ptr<Surface> copy() const;
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
 
@@ -786,6 +787,7 @@ namespace rg
         Flip(const std::shared_ptr<Surface> &surface, bool flip_x, bool flip_y);
         std::shared_ptr<Frames>
         Flip(const std::shared_ptr<Frames> &frames, bool flip_x, bool flip_y);
+        std::shared_ptr<Surface> GrayScale(const std::shared_ptr<Surface> &surface);
     } // namespace transform
 
 } // namespace rg

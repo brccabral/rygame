@@ -1,5 +1,7 @@
 #include "rygame.hpp"
 #include <cassert>
+#include <raylib.h>
+#include <raylib.h>
 
 static bool isSoundInit = false;
 static unsigned int current_render = 0; // TODO make it stack<> ?
@@ -891,6 +893,19 @@ std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) 
 
     UnloadTextureSafe(converted);
     UnloadImage(toConvert);
+    return result;
+}
+
+std::shared_ptr<rg::Surface> rg::Surface::copy() const
+{
+    rl::Texture2D texture = GetTexture();
+    auto result = std::make_shared<Surface>(texture.width, texture.height);
+    const rl::Image toCopy = LoadImageFromTextureSafe(texture);
+    const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
+    result->Blit(copyTexture, {}, {});
+    UnloadTextureSafe(texture);
+    UnloadImage(toCopy);
+
     return result;
 }
 
@@ -1942,6 +1957,21 @@ rg::transform::Flip(const std::shared_ptr<Frames> &frames, const bool flip_x, co
         }
     }
     result->SetAtlas();
+
+    return result;
+}
+
+std::shared_ptr<rg::Surface> rg::transform::GrayScale(const std::shared_ptr<Surface> &surface)
+{
+    auto texture = surface->GetTexture();
+    rl::Image toGray = LoadImageFromTextureSafe(texture);
+    ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
+    rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
+    auto result = std::make_shared<Surface>(texture.width, texture.height);
+    result->Fill(rl::BLANK);
+    result->Blit(texGray, {}, {});
+    UnloadTextureSafe(texGray);
+    UnloadImage(toGray);
 
     return result;
 }
