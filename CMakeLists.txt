@@ -21,7 +21,7 @@ if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE "/WX" "/NODEFAULTLIB:libcmt")
     target_link_libraries(${PROJECT_NAME} INTERFACE gdi32 winmm)
 else ()
-    set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
+    #    set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
     target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Werror" "-Wpedantic" "-Wno-missing-braces" "-Wno-gnu-anonymous-struct" "-Wno-nested-anon-types")
     target_link_libraries(${PROJECT_NAME} INTERFACE m)
 endif ()

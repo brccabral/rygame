@@ -169,6 +169,9 @@ namespace rg
 
     namespace math
     {
+        // GCC warns about Anonymous Struct
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
         typedef union Vector2
         {
             rl::Vector2 vector2;
@@ -185,6 +188,7 @@ namespace rg
             float operator[](const unsigned int &i) const;
             explicit operator bool() const;
         } Vector2;
+#pragma GCC diagnostic pop
 
         inline std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
 
@@ -194,6 +198,9 @@ namespace rg
         float clamp(float value, float min, float max);
     } // namespace math
 
+    // GCC warns about Anonymous Struct
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
     typedef union Line
     {
         struct
@@ -213,7 +220,11 @@ namespace rg
         [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
         explicit operator bool() const;
     } Line;
+#pragma GCC diagnostic pop
 
+    // GCC warns about Anonymous Struct
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
     typedef union Rect
     {
         struct
@@ -338,6 +349,7 @@ namespace rg
         // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2);
     } Rect;
+#pragma GCC diagnostic pop
 
     class Surface : public std::enable_shared_from_this<Surface>
     {
@@ -573,7 +585,7 @@ namespace rg
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
             virtual std::shared_ptr<Sprite> Kill();
 
-            unsigned int z = 0; // in 2D games, used to sort the drawing order
+            int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
             std::shared_ptr<Surface> image;

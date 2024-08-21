@@ -2,7 +2,7 @@
 #include <cassert>
 
 static bool isSoundInit = false;
-static int current_render = 0; // TODO make it stack<> ?
+static unsigned int current_render = 0; // TODO make it stack<> ?
 
 std::random_device rd{};
 std::mt19937 gen(rd());
@@ -1226,7 +1226,7 @@ void rg::draw::lines(
     }
 
     auto *pts = new rl::Vector2[pointCount];
-    for (int i = 0; i < points.size(); ++i)
+    for (unsigned int i = 0; i < points.size(); ++i)
     {
         pts[i] = points[i].vector2;
     }
