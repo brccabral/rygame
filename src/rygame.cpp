@@ -852,7 +852,7 @@ void rg::Surface::SetColorKey(const rl::Color color)
     TraceLog(
             rl::LOG_TRACE,
             rl::TextFormat("SetColorKey render %d texture %d", render.id, render.texture.id));
-    rl::Image current = LoadImageFromTexture(GetTexture());
+    rl::Image current = LoadImageFromTextureSafe(GetTexture());
     ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
@@ -877,7 +877,7 @@ std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) 
 {
     const auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
 
-    rl::Image toConvert = LoadImageFromTexture(GetTexture());
+    rl::Image toConvert = LoadImageFromTextureSafe(GetTexture());
     ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
@@ -1765,8 +1765,13 @@ rg::mask::Mask::~Mask()
 
 std::shared_ptr<rg::Surface> rg::mask::Mask::ToSurface() const
 {
+    const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     const auto surface = std::make_shared<Surface>(image.width, image.height);
     surface->Fill(rl::BLANK);
+    surface->Blit(maskTexture, {}, atlas_rect);
+    UnloadTextureSafe(maskTexture);
+    return surface;
+}
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     surface->Blit(maskTexture, {}, atlas_rect);
     UnloadTextureSafe(maskTexture);
@@ -1777,7 +1782,7 @@ rg::mask::Mask
 rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned char threshold)
 {
     auto mask = Mask(surface->GetRect().width, surface->GetRect().height);
-    const rl::Image surfImage = LoadImageFromTexture(surface->GetTexture());
+    const rl::Image surfImage = LoadImageFromTextureSafe(surface->GetTexture());
     const rl::Image alphaImage = ImageFromChannel(surfImage, 3);
     const auto alphaData = (unsigned char *) alphaImage.data;
     const auto maskData = (unsigned char *) mask.image.data;
