@@ -873,6 +873,12 @@ void rg::Surface::SetAlpha(const float alpha)
     tint.a = alpha;
 }
 
+void rg::Surface::Blit(
+        const std::shared_ptr<Surface> &incoming, Rect offset, rl::BlendMode blend_mode)
+{
+    Blit(incoming, offset.pos, blend_mode);
+}
+
 std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) const
 {
     const auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
@@ -960,7 +966,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols)
 rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, const int cols)
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
-    Blit(surface, {});
+    Blit(surface, math::Vector2{});
     flip_atlas_height = -1;
 }
 
@@ -1012,7 +1018,8 @@ std::shared_ptr<rg::Frames> rg::Frames::Merge(
         for (int c = 0; c < cols; ++c)
         {
             const unsigned int s = r * cols + c;
-            result->Blit(surfaces[s], {(float) c * singleWidth, (float) r * singleHeight});
+            result->Blit(
+                    surfaces[s], math::Vector2{(float) c * singleWidth, (float) r * singleHeight});
         }
     }
 
@@ -1346,7 +1353,7 @@ void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)
 {
     for (const auto &sprite: sprites)
     {
-        surface->Blit(sprite->image, sprite->rect.pos);
+        surface->Blit(sprite->image, sprite->rect);
     }
 }
 

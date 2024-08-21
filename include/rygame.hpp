@@ -370,6 +370,10 @@ namespace rg
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
+        Blit(const std::shared_ptr<Surface> &incoming, Rect offset,
+             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        // Blit incoming Surface* into this.
+        void
         Blit(const std::shared_ptr<Surface> &incoming, math::Vector2 offset,
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Texture2D into surface*.
