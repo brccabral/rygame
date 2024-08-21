@@ -353,7 +353,7 @@ namespace rg
         // Fill this with a color
         void Fill(rl::Color color);
         // Replace all `color` with BLANK
-        void SetColorKey(rl::Color color);
+        virtual void SetColorKey(rl::Color color);
         // Set Alpha (0.0f to 255.0f) - Changes tint color
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
@@ -422,6 +422,7 @@ namespace rg
         Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
         // Load an image and create frames for it
         static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
+        void SetColorKey(rl::Color color) override;
 
         std::shared_ptr<Surface> SubSurface(Rect rect) override
         {

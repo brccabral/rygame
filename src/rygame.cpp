@@ -1036,6 +1036,25 @@ std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int col
     return result;
 }
 
+void rg::Frames::SetColorKey(const rl::Color color)
+{
+    TraceLog(
+            rl::LOG_TRACE,
+            rl::TextFormat(
+                    "Frames::SetColorKey render %d texture %d", render.id, render.texture.id));
+    rl::Image current = LoadImageFromTextureSafe(render.texture);
+    ImageColorReplace(&current, color, rl::BLANK);
+    const rl::Texture color_texture = LoadTextureFromImageSafe(current);
+
+    // replace
+    Fill(rl::BLANK);
+    Blit(color_texture, {}, {0, 0, (float) render.texture.width, (float) render.texture.height});
+
+    // clean up
+    UnloadTextureSafe(color_texture);
+    UnloadImage(current);
+}
+
 std::shared_ptr<rg::Frames> rg::Frames::SubFrames(const Rect rect)
 {
     const float frame_width = frames[0].width;
