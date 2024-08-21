@@ -1791,8 +1791,14 @@ std::shared_ptr<rg::Surface> rg::mask::Mask::ToSurface() const
     UnloadTextureSafe(maskTexture);
     return surface;
 }
+
+std::shared_ptr<rg::Frames> rg::mask::Mask::ToFrames(int rows, int cols) const
+{
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
+    const auto surface = std::make_shared<Frames>(image.width, image.height, rows, cols);
+    surface->Fill(rl::BLANK);
     surface->Blit(maskTexture, {}, atlas_rect);
+    surface->SetAtlas();
     UnloadTextureSafe(maskTexture);
     return surface;
 }
@@ -1813,6 +1819,29 @@ rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned ch
         }
     }
     mask.atlas_rect = surface->atlas_rect;
+
+    UnloadImage(alphaImage);
+    UnloadImage(surfImage);
+    return mask;
+}
+
+rg::mask::Mask
+rg::mask::FromSurface(const std::shared_ptr<Frames> &frames, const unsigned char threshold)
+{
+    auto mask = Mask(frames->render.texture.width, frames->render.texture.height);
+    const rl::Image surfImage = LoadImageFromTextureSafe(frames->render.texture);
+    const rl::Image alphaImage = ImageFromChannel(surfImage, 3);
+    const auto alphaData = (unsigned char *) alphaImage.data;
+    const auto maskData = (unsigned char *) mask.image.data;
+    for (int i = 0; i < mask.image.width * mask.image.height; i++)
+    {
+        if (alphaData[i] > threshold)
+        {
+            maskData[i] = 255;
+        }
+    }
+    mask.atlas_rect =
+            Rect{0, 0, (float) frames->render.texture.width, (float) frames->render.texture.height};
 
     UnloadImage(alphaImage);
     UnloadImage(surfImage);

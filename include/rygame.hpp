@@ -702,12 +702,14 @@ namespace rg
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
             [[nodiscard]] std::shared_ptr<Surface> ToSurface() const;
+            [[nodiscard]] std::shared_ptr<Frames> ToFrames(int rows, int cols) const;
 
             rl::Image image{};
             Rect atlas_rect{};
         };
 
         Mask FromSurface(const std::shared_ptr<Surface> &surface, unsigned char threshold = 127);
+        Mask FromSurface(const std::shared_ptr<Frames> &frames, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
