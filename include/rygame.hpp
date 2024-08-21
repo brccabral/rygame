@@ -23,6 +23,9 @@ namespace rl
 
 namespace rg
 {
+    inline bool isSoundInit;
+    inline unsigned int current_render; // TODO make it stack<> ?
+
     enum Axis
     {
         HORIZONTAL = 0,
@@ -294,12 +297,12 @@ namespace rg
         // Moves the rect so that the bottom right goes to the passed position
         // and returns a copy
         Rect bottomright(math::Vector2 pos);
-        // Returns the x,y at the mid bottom
+        // Returns the x,y at the midbottom
         [[nodiscard]] math::Vector2 midbottom() const;
         // Moves the rect so that the mid bottom goes to the passed position
         // and returns a copy
         Rect midbottom(math::Vector2 pos);
-        // Returns the x,y at the mid top
+        // Returns the x,y at the midtop
         [[nodiscard]] math::Vector2 midtop() const;
         // Moves the rect so that the mid top goes to the passed position
         // and returns a copy

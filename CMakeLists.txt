@@ -14,7 +14,27 @@ find_package(raylib REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 
-add_library(${PROJECT_NAME} STATIC src/rygame.cpp)
+add_library(${PROJECT_NAME} STATIC src/rygame.cpp
+        src/rygame_ns_math.cpp
+        src/rygame_cl_Rect.cpp
+        src/rygame_cl_Line.cpp
+        src/rygame_cl_Surface.cpp
+        src/rygame_ns_image.cpp
+        src/rygame_cl_Frames.cpp
+        src/rygame_ns_draw.cpp
+        src/rygame_ns_tmx.cpp
+        src/rygame_cl_Group.cpp
+        src/rygame_cl_Sprite.cpp
+        src/rygame_ns_sprite.cpp
+        src/rygame_cl_Timer.cpp
+        src/rygame_cl_Sound.cpp
+        src/rygame_ns_display.cpp
+        src/rygame_cl_Clock.cpp
+        src/rygame_cl_Mask.cpp
+        src/rygame_ns_mask.cpp
+        src/rygame_cl_Font.cpp
+        src/rygame_ns_transform.cpp
+        src/rygame_cl_Vector2.cpp)
 target_link_libraries(${PROJECT_NAME} INTERFACE raylib)
 
 if (MSVC)
