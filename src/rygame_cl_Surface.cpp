@@ -1,6 +1,8 @@
 #include "rygame.hpp"
 
 
+extern unsigned int current_render;
+
 rg::Surface::Surface(const int width, const int height)
 {
     Setup(width, height);

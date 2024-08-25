@@ -1,6 +1,8 @@
 #include "rygame.hpp"
 
 
+extern std::shared_ptr<rg::Surface> display_surface;
+
 std::shared_ptr<rg::Surface> rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");

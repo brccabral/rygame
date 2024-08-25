@@ -2,6 +2,7 @@
 
 bool isSoundInit = false;
 unsigned int current_render = 0;
+std::shared_ptr<rg::Surface> display_surface;
 
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)

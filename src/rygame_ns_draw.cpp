@@ -129,8 +129,8 @@ void rg::draw::line(
 }
 
 void rg::draw::lines(
-        const std::shared_ptr<Surface> &surface, rl::Color color, bool closed,
-        std::vector<math::Vector2> points, float width)
+        const std::shared_ptr<Surface> &surface, const rl::Color color, const bool closed,
+        const std::vector<math::Vector2> &points, const float width)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(

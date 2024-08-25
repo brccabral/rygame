@@ -23,9 +23,6 @@ namespace rl
 
 namespace rg
 {
-    inline bool isSoundInit;
-    inline unsigned int current_render; // TODO make it stack<> ?
-
     enum Axis
     {
         HORIZONTAL = 0,
@@ -192,8 +189,6 @@ namespace rg
             explicit operator bool() const;
         } Vector2;
 #pragma GCC diagnostic pop
-
-        inline std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
 
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
         float random_uniform(std::uniform_real_distribution<float> dist);
@@ -423,8 +418,6 @@ namespace rg
         rl::Color tint{255, 255, 255, 255};
     };
 
-    inline std::shared_ptr<Surface> display_surface;
-
     class Frames : public Surface
     {
     public:
@@ -504,7 +497,7 @@ namespace rg
              math::Vector2 end, float width = 1.0f);
         void
         lines(const std::shared_ptr<Surface> &surface, rl::Color color, bool closed,
-              std::vector<math::Vector2> points, float width = 1.0f);
+              const std::vector<math::Vector2> &points, float width = 1.0f);
     } // namespace draw
 
 #ifdef WITH_TMX

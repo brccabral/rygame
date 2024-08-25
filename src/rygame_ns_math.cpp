@@ -3,6 +3,7 @@
 
 std::random_device rd{};
 std::mt19937 gen(rd());
+std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
 
 std::uniform_real_distribution<float>
 rg::math::random_uniform_dist(const float min, const float max)

@@ -1,6 +1,8 @@
 #include "rygame.hpp"
 
 
+extern bool isSoundInit;
+
 rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic), file(file)
 {
     if (!isSoundInit)
