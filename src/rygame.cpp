@@ -143,3 +143,17 @@ void rg::TextFormatSafe(char *buffer, const char *format, ...)
         sprintf(truncBuffer, "...");
     }
 }
+
+std::vector<std::string> rg::Split(const std::string &s, const char delim)
+{
+    std::vector<std::string> result;
+    std::stringstream ss(s);
+    std::string item;
+
+    while (getline(ss, item, delim))
+    {
+        result.push_back(item);
+    }
+
+    return result;
+}

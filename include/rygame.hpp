@@ -60,6 +60,9 @@ namespace rg
     // is defined by MAX_TEXT_BUFFER_LENGTH
     void TextFormatSafe(char *buffer, const char *format, ...);
 
+    // Split string in a vector<string>
+    std::vector<std::string> Split(const std::string &s, char delim);
+
     template<typename K, typename C>
     std::vector<K> getKeys(C &map)
     {
