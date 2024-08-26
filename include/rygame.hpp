@@ -353,6 +353,9 @@ namespace rg
     {
     public:
 
+        // Surface cannot be allocated in Heap
+        void *operator new(size_t) = delete;
+
         Surface(int width, int height);
         explicit Surface(math::Vector2 size);
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
@@ -567,6 +570,9 @@ namespace rg
         class Sprite : public std::enable_shared_from_this<Sprite>
         {
         public:
+
+            // Sprite cannot be allocated in Heap
+            void *operator new(size_t) = delete;
 
             Sprite();
 
