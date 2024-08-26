@@ -1,14 +1,15 @@
 #include "rygame.hpp"
+#include "rygame_cl_Rygame.hpp"
 
 
-extern std::shared_ptr<rg::Surface> display_surface;
+extern Rygame rygame;
 
 std::shared_ptr<rg::Surface> rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");
     SetExitKey(rl::KEY_NULL);
-    display_surface = std::make_shared<Surface>(width, height);
-    return display_surface;
+    rygame.display_surface = std::make_shared<Surface>(width, height);
+    return rygame.display_surface;
 }
 
 void rg::display::SetCaption(const char *title)
@@ -18,7 +19,7 @@ void rg::display::SetCaption(const char *title)
 
 std::shared_ptr<rg::Surface> rg::display::GetSurface()
 {
-    return display_surface;
+    return rygame.display_surface;
 }
 
 void rg::display::Update()
@@ -34,9 +35,10 @@ void rg::display::Update()
     TraceLog(rl::LOG_TRACE, rl::TextFormat("display::Update"));
     rl::BeginDrawing();
     DrawTextureRec(
-            display_surface->GetTexture(),
-            {0, 0, display_surface->atlas_rect.width, -display_surface->atlas_rect.height}, {0, 0},
-            rl::WHITE);
+            rygame.display_surface->GetTexture(),
+            {0, 0, rygame.display_surface->atlas_rect.width,
+             -rygame.display_surface->atlas_rect.height},
+            {0, 0}, rl::WHITE);
 #ifdef SHOW_FPS
     rl::DrawFPS(20, 20);
 #endif
