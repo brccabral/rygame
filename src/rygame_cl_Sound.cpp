@@ -1,14 +1,15 @@
 #include "rygame.hpp"
+#include "rygame_cl_Rygame.hpp"
 
 
-extern bool isSoundInit;
+extern Rygame rygame;
 
 rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic), file(file)
 {
-    if (!isSoundInit)
+    if (!rygame.isSoundInit)
     {
         rl::InitAudioDevice();
-        isSoundInit = rl::IsAudioDeviceReady();
+        rygame.isSoundInit = rl::IsAudioDeviceReady();
     }
     if (isMusic)
     {

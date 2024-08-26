@@ -2,10 +2,6 @@
 #include "rygame_cl_Rygame.hpp"
 
 
-bool isSoundInit = false;
-unsigned int current_render = 0;
-bool shouldQuit = false;
-
 Rygame rygame{};
 
 void rg::Init(
@@ -21,42 +17,42 @@ void rg::Quit()
 {
     if (!rl::WindowShouldClose())
     {
-        shouldQuit = true;
+        rygame.shouldQuit = true;
     }
 }
 
 bool rg::WindowCloseOrQuit()
 {
-    return rl::WindowShouldClose() || shouldQuit;
+    return rl::WindowShouldClose() || rygame.shouldQuit;
 }
 
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
 {
-    if (current_render == render.id)
+    if (rygame.current_render == render.id)
     {
         return;
     }
-    if (current_render)
+    if (rygame.current_render)
     {
         char text[MAX_TEXT_BUFFER_LENGTH];
         TextFormatSafe(
-                text, "Double call to BeginTextureMode(), previous id %i new id %i", current_render,
-                render.id);
+                text, "Double call to BeginTextureMode(), previous id %i new id %i",
+                rygame.current_render, render.id);
         TraceLog(rl::LOG_WARNING, text);
         EndTextureModeSafe();
     }
-    current_render = render.id;
+    rygame.current_render = render.id;
     BeginTextureMode(render);
 }
 
 void rg::EndTextureModeSafe()
 {
-    if (current_render)
+    if (rygame.current_render)
     {
-        TraceLog(rl::LOG_DEBUG, rl::TextFormat("End render %d", current_render));
+        TraceLog(rl::LOG_DEBUG, rl::TextFormat("End render %d", rygame.current_render));
         rl::EndTextureMode();
     }
-    current_render = 0;
+    rygame.current_render = 0;
 }
 
 rl::Texture2D rg::LoadTextureSafe(const char *file)

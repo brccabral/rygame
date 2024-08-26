@@ -1,7 +1,6 @@
 #pragma once
 #include "rygame.hpp"
 
-extern bool isSoundInit;
 
 class Rygame
 {
@@ -22,4 +21,7 @@ public:
     };
 
     std::shared_ptr<rg::Surface> display_surface = nullptr;
+    unsigned int current_render = 0;
+    bool isSoundInit = false;
+    bool shouldQuit = false;
 };

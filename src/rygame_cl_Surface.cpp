@@ -1,7 +1,8 @@
 #include "rygame.hpp"
+#include "rygame_cl_Rygame.hpp"
 
 
-extern unsigned int current_render;
+extern Rygame rygame;
 
 rg::Surface::Surface(const int width, const int height)
 {
@@ -232,7 +233,7 @@ rl::Texture2D rg::Surface::GetTexture() const
 
 void rg::Surface::ToggleRender()
 {
-    if (current_render != render.id)
+    if (rygame.current_render != render.id)
     {
         EndTextureModeSafe();
         TraceLog(
