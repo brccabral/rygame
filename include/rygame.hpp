@@ -90,6 +90,19 @@ namespace rg
 
         return values;
     }
+    template<typename K, typename V, typename C>
+    std::vector<std::pair<K, V>> getItems(C &map)
+    {
+        std::vector<std::pair<K, V>> items;
+        items.reserve(map.size());
+
+        for (const auto &pair: map)
+        {
+            items.push_back(pair);
+        }
+
+        return items;
+    }
 
     // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
     template<typename K, typename V>
