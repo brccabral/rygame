@@ -15,6 +15,11 @@ void rg::Init(
 
 void rg::Quit()
 {
+    if (!rl::WindowShouldClose())
+    {
+        rl::SetWindowShouldClose(true);
+        return;
+    }
     display_surface.reset();
     if (isSoundInit)
     {
