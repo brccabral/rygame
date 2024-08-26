@@ -13,6 +13,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols)
 rg::Frames::Frames(const std::shared_ptr<Surface> &surface, const int rows, const int cols)
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
+    Fill(rl::BLANK);
     Blit(surface, math::Vector2{});
     flip_atlas_height = -1;
 }

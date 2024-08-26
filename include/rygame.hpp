@@ -794,6 +794,8 @@ namespace rg
         std::shared_ptr<Frames>
         Flip(const std::shared_ptr<Frames> &frames, bool flip_x, bool flip_y);
         std::shared_ptr<Surface> GrayScale(const std::shared_ptr<Surface> &surface);
+        std::shared_ptr<Surface> Scale(const std::shared_ptr<Surface> &surface, math::Vector2 size);
+        std::shared_ptr<Surface> Scale2x(const std::shared_ptr<Surface> &surface);
     } // namespace transform
 
 } // namespace rg

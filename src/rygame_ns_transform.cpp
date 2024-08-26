@@ -62,3 +62,26 @@ std::shared_ptr<rg::Surface> rg::transform::GrayScale(const std::shared_ptr<Surf
 
     return result;
 }
+
+std::shared_ptr<rg::Surface>
+rg::transform::Scale(const std::shared_ptr<Surface> &surface, math::Vector2 size)
+{
+    const auto texture = surface->GetTexture();
+    rl::Image toScale = LoadImageFromTextureSafe(texture);
+    ImageResize(&toScale, size.x, size.y);
+    const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
+
+    auto result = std::make_shared<Surface>(size.x, size.y);
+    result->Fill(rl::BLANK);
+    result->Blit(texScale, {}, {});
+    UnloadTextureSafe(texScale);
+    UnloadImage(toScale);
+
+    return result;
+}
+
+std::shared_ptr<rg::Surface> rg::transform::Scale2x(const std::shared_ptr<Surface> &surface)
+{
+    return Scale(
+            surface, {surface->GetTexture().width * 2.0f, surface->GetTexture().height * 2.0f});
+}
