@@ -3,6 +3,7 @@
 bool isSoundInit = false;
 unsigned int current_render = 0;
 std::shared_ptr<rg::Surface> display_surface;
+bool shouldQuit = false;
 
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
@@ -17,7 +18,7 @@ void rg::Quit()
 {
     if (!rl::WindowShouldClose())
     {
-        rl::SetWindowShouldClose(true);
+        shouldQuit = true;
         return;
     }
     display_surface.reset();
@@ -26,6 +27,11 @@ void rg::Quit()
         rl::CloseAudioDevice();
     }
     rl::CloseWindow();
+}
+
+bool rg::WindowCloseOrQuit()
+{
+    return rl::WindowShouldClose() || shouldQuit;
 }
 
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)

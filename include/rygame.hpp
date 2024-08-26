@@ -33,6 +33,7 @@ namespace rg
     Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
          rl::TraceLogCallback callback = nullptr);
     void Quit();
+    bool WindowCloseOrQuit();
 
     // Warns if there is a render already active
     void BeginTextureModeSafe(const rl::RenderTexture2D &render); // Resets active render
