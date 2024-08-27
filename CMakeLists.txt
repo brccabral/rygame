@@ -13,6 +13,7 @@ option(SHOW_FPS "show FPS on top left of screen" OFF)
 find_package(raylib REQUIRED)
 
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
+set(PROJECT_TARGETS "${PROJECT_NAME}Targets")
 
 add_library(${PROJECT_NAME} STATIC src/rygame.cpp
         src/rygame_ns_math.cpp
@@ -50,9 +51,10 @@ message("WITH_TMX ${WITH_TMX}")
 if (WITH_TMX)
     find_package(LibXml2 REQUIRED)
     find_package(ZLIB REQUIRED)
+    find_package(tmx REQUIRED)
     find_package(raylib-tmx REQUIRED)
-    target_compile_options(${PROJECT_NAME} PUBLIC "-DWITH_TMX")
-    target_link_libraries(${PROJECT_NAME} INTERFACE raylib-tmx tmx LibXml2::LibXml2 ZLIB::ZLIB)
+    add_compile_definitions("WITH_TMX")
+    target_link_libraries(${PROJECT_NAME} PRIVATE raylib-tmx tmx LibXml2::LibXml2 ZLIB::ZLIB)
 endif ()
 
 if (SHOW_FPS)
@@ -66,7 +68,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 # Install rules
 install(TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_CONFIG}
+        EXPORT ${PROJECT_TARGETS}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
@@ -74,10 +76,25 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/ DESTINATION include)
 
 # Export the library for use with find_package
-export(EXPORT ${PROJECT_CONFIG}
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
+install(EXPORT ${PROJECT_TARGETS}
+        FILE ${PROJECT_TARGETS}.cmake
+        DESTINATION lib/cmake/${PROJECT_NAME}
 )
-install(EXPORT ${PROJECT_CONFIG}
-        FILE ${PROJECT_CONFIG}.cmake
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
+        COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG}.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
+        INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
+)
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME}
 )

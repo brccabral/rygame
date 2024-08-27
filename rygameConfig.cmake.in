@@ -1,0 +1,29 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(raylib REQUIRED)
+if (WITH_TMX)
+    find_dependency(LibXml2 REQUIRED)
+    find_dependency(ZLIB REQUIRED)
+    find_dependency(tmx REQUIRED)
+    find_dependency(raylib-tmx REQUIRED)
+    add_compile_definitions("WITH_TMX")
+endif ()
+
+# Import the targets
+include("${CMAKE_CURRENT_LIST_DIR}/rygameTargets.cmake")
+
+# Override INTERFACE_LINK_LIBRARIES
+if(NOT WITH_TMX)
+    if (MSVC)
+        set_target_properties(rygame PROPERTIES
+            INTERFACE_LINK_LIBRARIES "raylib;gdi32;winmm"
+        )
+    else ()
+        set_target_properties(rygame PROPERTIES
+            INTERFACE_LINK_LIBRARIES "raylib;m"
+        )
+    endif ()
+endif()
