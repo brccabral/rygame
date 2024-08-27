@@ -24,4 +24,5 @@ public:
     unsigned int current_render = 0;
     bool isSoundInit = false;
     bool shouldQuit = false;
+    std::vector<rg::mixer::Sound *> musics;
 };

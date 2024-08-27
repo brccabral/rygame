@@ -13,14 +13,12 @@ rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic)
     }
     if (isMusic)
     {
-        audio = new rl::Music;
-        *(rl::Music *) audio = rl::LoadMusicStream(file);
-        musics.push_back(this);
+        audio = std::make_shared<rl::Music>(rl::LoadMusicStream(file));
+        rygame.musics.push_back(this);
     }
     else
     {
-        audio = new rl::Sound;
-        *(rl::Sound *) audio = rl::LoadSound(file);
+        audio = std::make_shared<rl::Sound>(rl::LoadSound(file));
     }
 }
 
@@ -28,26 +26,26 @@ rg::mixer::Sound::~Sound()
 {
     if (isMusic)
     {
-        musics.erase(std::remove(musics.begin(), musics.end(), this), musics.end());
-        UnloadMusicStream(*(rl::Music *) audio);
-        delete (rl::Music *) audio;
+        rygame.musics.erase(
+                std::remove(rygame.musics.begin(), rygame.musics.end(), this), rygame.musics.end());
+        UnloadMusicStream(*(rl::Music *) audio.get());
     }
     else
     {
-        UnloadSound(*(rl::Sound *) audio);
-        delete (rl::Sound *) audio;
+        UnloadSound(*(rl::Sound *) audio.get());
     }
 }
 
+// TODO - param to allow repetitions
 void rg::mixer::Sound::Play() const
 {
     if (isMusic)
     {
-        PlayMusicStream(*(rl::Music *) audio);
+        PlayMusicStream(*(rl::Music *) audio.get());
     }
     else
     {
-        PlaySound(*(rl::Sound *) audio);
+        PlaySound(*(rl::Sound *) audio.get());
     }
 }
 
@@ -55,16 +53,17 @@ void rg::mixer::Sound::Stop() const
 {
     if (isMusic)
     {
-        if (IsMusicStreamPlaying(*(rl::Music *) audio))
+        if (IsMusicStreamPlaying(*(rl::Music *) audio.get()))
         {
-            StopMusicStream(*(rl::Music *) audio);
+            StopMusicStream(*(rl::Music *) audio.get());
         }
     }
     else
     {
-        if (IsSoundPlaying(*(rl::Sound *) audio))
+
+        if (IsSoundPlaying(*(rl::Sound *) audio.get()))
         {
-            StopSound(*(rl::Sound *) audio);
+            StopSound(*(rl::Sound *) audio.get());
         }
     }
 }
@@ -73,11 +72,11 @@ void rg::mixer::Sound::SetVolume(const float value) const
 {
     if (isMusic)
     {
-        SetMusicVolume(*(rl::Music *) audio, value);
+        SetMusicVolume(*(rl::Music *) audio.get(), value);
     }
     else
     {
-        SetSoundVolume(*(rl::Sound *) audio, value);
+        SetSoundVolume(*(rl::Sound *) audio.get(), value);
     }
 }
 

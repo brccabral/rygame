@@ -687,6 +687,9 @@ namespace rg
     {
     public:
 
+        // Timer cannot be allocated in Heap
+        void *operator new(size_t) = delete;
+
         // Default constructor
         Timer() : duration(0.0f), repeat(false), autostart(false), func(nullptr)
         {}
@@ -736,6 +739,9 @@ namespace rg
         {
         public:
 
+            // Mask cannot be allocated in Heap
+            void *operator new(size_t) = delete;
+
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
             [[nodiscard]] std::shared_ptr<Surface> ToSurface() const;
@@ -754,6 +760,9 @@ namespace rg
         class Font
         {
         public:
+
+            // Font cannot be allocated in Heap
+            void *operator new(size_t) = delete;
 
             // Default Font, size 1
             explicit Font(float font_size = 1);
@@ -777,9 +786,12 @@ namespace rg
 
     namespace mixer
     {
-        class Sound
+        class Sound : public std::enable_shared_from_this<Sound>
         {
         public:
+
+            // Sound cannot be allocated in Heap
+            void *operator new(size_t) = delete;
 
             Sound() = default;
             explicit Sound(const char *file, bool isMusic = false);
@@ -790,7 +802,7 @@ namespace rg
             void SetVolume(float value) const;
             [[nodiscard]] const char *GetFilename() const;
 
-            void *audio = nullptr;
+            std::shared_ptr<void> audio = nullptr;
 
         private:
 
@@ -798,8 +810,6 @@ namespace rg
             const char *file = nullptr;
         };
     } // namespace mixer
-
-    static std::vector<mixer::Sound *> musics;
 
     namespace transform
     {

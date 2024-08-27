@@ -24,9 +24,9 @@ std::shared_ptr<rg::Surface> rg::display::GetSurface()
 
 void rg::display::Update()
 {
-    for (const auto *music: musics)
+    for (const auto &music: rygame.musics)
     {
-        UpdateMusicStream(*(rl::Music *) music->audio);
+        UpdateMusicStream(*(rl::Music *) music->audio.get());
     }
 
     EndTextureModeSafe();
