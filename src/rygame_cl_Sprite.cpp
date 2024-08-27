@@ -63,7 +63,7 @@ std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
     return groups;
 }
 
-std::shared_ptr<rg::sprite::Sprite> rg::sprite::Sprite::Kill()
+rg::sprite::Sprite_Ptr rg::sprite::Sprite::Kill()
 {
     // leave all groups
     LeaveAllGroups();

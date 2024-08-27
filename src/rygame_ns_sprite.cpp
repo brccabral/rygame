@@ -1,8 +1,7 @@
 #include "rygame.hpp"
 
 
-bool rg::sprite::collide_rect(
-        const std::shared_ptr<Sprite> &left, const std::shared_ptr<Sprite> &right)
+bool rg::sprite::collide_rect(const Sprite_Ptr &left, const Sprite_Ptr &right)
 {
     return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
 }
@@ -10,8 +9,7 @@ bool rg::sprite::collide_rect(
 rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
 {}
 
-bool rg::sprite::collide_rect_ratio::operator()(
-        const std::shared_ptr<Sprite> left, const std::shared_ptr<Sprite> right) const
+bool rg::sprite::collide_rect_ratio::operator()(const Sprite_Ptr left, const Sprite_Ptr right) const
 {
     Rect leftrect = left->rect;
     Rect rightrect = right->rect;
@@ -22,12 +20,11 @@ bool rg::sprite::collide_rect_ratio::operator()(
     return collide_rect(left, right);
 }
 
-std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::spritecollide(
-        const std::shared_ptr<Sprite> &sprite, const Group *group, const bool dokill,
-        const std::function<bool(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)>
-                &collided)
+std::vector<rg::sprite::Sprite_Ptr> rg::sprite::spritecollide(
+        const Sprite_Ptr &sprite, const Group *group, const bool dokill,
+        const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided)
 {
-    std::vector<std::shared_ptr<Sprite>> result;
+    std::vector<Sprite_Ptr> result;
     for (const auto &other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
@@ -45,10 +42,9 @@ std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::spritecollide(
     return result;
 }
 
-std::shared_ptr<rg::sprite::Sprite> rg::sprite::spritecollideany(
-        const std::shared_ptr<Sprite> &sprite, const Group *group,
-        const std::function<bool(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)>
-                &collided)
+rg::sprite::Sprite_Ptr rg::sprite::spritecollideany(
+        const Sprite_Ptr &sprite, const Group *group,
+        const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided)
 {
     for (auto other_sprite: group->Sprites())
     {

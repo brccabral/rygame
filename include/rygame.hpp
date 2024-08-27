@@ -552,6 +552,7 @@ namespace rg
     namespace sprite
     {
         class Sprite; // forward declaration
+        using Sprite_Ptr = std::shared_ptr<Sprite>;
 
         // Manages multiple sprites at once
         class Group
@@ -570,24 +571,24 @@ namespace rg
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<std::shared_ptr<Sprite>> &to_remove_sprites);
+            void remove(const std::vector<Sprite_Ptr> &to_remove_sprites);
             // Removes a Sprite from this group if it is in this group
-            void remove(const std::shared_ptr<Sprite> &to_remove_sprite);
+            void remove(const Sprite_Ptr &to_remove_sprite);
             // Adds a list of sprites to this group
-            void add(const std::vector<std::shared_ptr<Sprite>> &to_add_sprites);
+            void add(const std::vector<Sprite_Ptr> &to_add_sprites);
             // Adds a Sprite to this group
-            void add(const std::shared_ptr<Sprite> &to_add_sprite);
+            void add(const Sprite_Ptr &to_add_sprite);
             // Check if all sprites are in group
-            bool has(const std::vector<std::shared_ptr<Sprite>> &check_sprites);
+            bool has(const std::vector<Sprite_Ptr> &check_sprites);
             // Check if sprite is in group
-            bool has(const std::shared_ptr<Sprite> &check_sprite);
+            bool has(const Sprite_Ptr &check_sprite);
             // Returns a copy of vector sprites
-            [[nodiscard]] std::vector<std::shared_ptr<Sprite>> Sprites() const;
+            [[nodiscard]] std::vector<Sprite_Ptr> Sprites() const;
 
 
         protected:
 
-            std::vector<std::shared_ptr<Sprite>> sprites{};
+            std::vector<Sprite_Ptr> sprites{};
         };
 
         class Sprite : public std::enable_shared_from_this<Sprite>
@@ -615,7 +616,7 @@ namespace rg
             virtual void Update(float deltaTime){};
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
-            virtual std::shared_ptr<Sprite> Kill();
+            virtual Sprite_Ptr Kill();
 
             int z = 0; // in 2D games, used to sort the drawing order
 
@@ -639,8 +640,7 @@ namespace rg
             void LeaveAllGroups();
         };
 
-        bool
-        collide_rect(const std::shared_ptr<Sprite> &left, const std::shared_ptr<Sprite> &right);
+        bool collide_rect(const Sprite_Ptr &left, const Sprite_Ptr &right);
 
         class CollideCallable
         {
@@ -648,8 +648,7 @@ namespace rg
 
             CollideCallable() = default;
 
-            virtual bool
-            operator()(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right) const = 0;
+            virtual bool operator()(Sprite_Ptr left, Sprite_Ptr right) const = 0;
 
         protected:
 
@@ -661,8 +660,7 @@ namespace rg
         public:
 
             explicit collide_rect_ratio(float ratio);
-            bool
-            operator()(std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right) const override;
+            bool operator()(Sprite_Ptr left, Sprite_Ptr right) const override;
 
         private:
 
@@ -672,18 +670,16 @@ namespace rg
 
         // Returns a list of all sprites in the group that collides with the sprite
         // If dokill is true, all collided sprites are removed from group
-        std::vector<std::shared_ptr<Sprite>> spritecollide(
-                const std::shared_ptr<Sprite> &sprite, const Group *group, bool dokill,
-                const std::function<bool(
-                        std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)> &collided =
+        std::vector<Sprite_Ptr> spritecollide(
+                const Sprite_Ptr &sprite, const Group *group, bool dokill,
+                const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided =
                         collide_rect);
 
         // Tests if Sprite collides with any sprite in group, returns the first sprite in
         // group that collides
-        std::shared_ptr<Sprite> spritecollideany(
-                const std::shared_ptr<Sprite> &sprite, const Group *group,
-                const std::function<bool(
-                        std::shared_ptr<Sprite> left, std::shared_ptr<Sprite> right)> &collided =
+        Sprite_Ptr spritecollideany(
+                const Sprite_Ptr &sprite, const Group *group,
+                const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided =
                         collide_rect);
     } // namespace sprite
 

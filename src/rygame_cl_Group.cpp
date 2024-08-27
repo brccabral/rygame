@@ -26,7 +26,7 @@ void rg::sprite::Group::empty()
     sprites.clear();
 }
 
-void rg::sprite::Group::remove(const std::vector<std::shared_ptr<Sprite>> &to_remove_sprites)
+void rg::sprite::Group::remove(const std::vector<Sprite_Ptr> &to_remove_sprites)
 {
     for (const auto &sprite: to_remove_sprites)
     {
@@ -35,7 +35,7 @@ void rg::sprite::Group::remove(const std::vector<std::shared_ptr<Sprite>> &to_re
 }
 
 void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        const std::shared_ptr<Sprite> &to_remove_sprite)
+        const Sprite_Ptr &to_remove_sprite)
 {
     if (has(to_remove_sprite))
     {
@@ -44,7 +44,7 @@ void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is bro
     }
 }
 
-void rg::sprite::Group::add(const std::vector<std::shared_ptr<Sprite>> &to_add_sprites)
+void rg::sprite::Group::add(const std::vector<Sprite_Ptr> &to_add_sprites)
 {
     for (const auto &sprite: to_add_sprites)
     {
@@ -53,7 +53,7 @@ void rg::sprite::Group::add(const std::vector<std::shared_ptr<Sprite>> &to_add_s
 }
 
 void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        const std::shared_ptr<Sprite> &to_add_sprite)
+        const Sprite_Ptr &to_add_sprite)
 {
     if (!has(to_add_sprite))
     {
@@ -62,7 +62,7 @@ void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken
     }
 }
 
-bool rg::sprite::Group::has(const std::vector<std::shared_ptr<Sprite>> &check_sprites)
+bool rg::sprite::Group::has(const std::vector<Sprite_Ptr> &check_sprites)
 {
     for (const auto &sprite: check_sprites)
     {
@@ -74,12 +74,12 @@ bool rg::sprite::Group::has(const std::vector<std::shared_ptr<Sprite>> &check_sp
     return true;
 }
 
-bool rg::sprite::Group::has(const std::shared_ptr<Sprite> &check_sprite)
+bool rg::sprite::Group::has(const Sprite_Ptr &check_sprite)
 {
     return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
 }
 
-std::vector<std::shared_ptr<rg::sprite::Sprite>> rg::sprite::Group::Sprites() const
+std::vector<rg::sprite::Sprite_Ptr> rg::sprite::Group::Sprites() const
 {
     return sprites;
 }
