@@ -36,7 +36,7 @@ rg::Surface_Ptr rg::mask::Mask::ToSurface() const
     return surface;
 }
 
-std::shared_ptr<rg::Frames> rg::mask::Mask::ToFrames(int rows, int cols) const
+rg::Frames_Ptr rg::mask::Mask::ToFrames(int rows, int cols) const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     const auto surface = std::make_shared<Frames>(image.width, image.height, rows, cols);

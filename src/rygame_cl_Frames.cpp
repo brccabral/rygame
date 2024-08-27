@@ -24,8 +24,8 @@ void rg::Frames::SetAtlas(const int frame_index)
     atlas_rect = frames[current_frame_index];
 }
 
-std::shared_ptr<rg::Frames> rg::Frames::Merge(
-        const std::vector<Surface_Ptr> &surfaces, const int rows, const int cols)
+rg::Frames_Ptr
+rg::Frames::Merge(const std::vector<Surface_Ptr> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
@@ -50,7 +50,7 @@ std::shared_ptr<rg::Frames> rg::Frames::Merge(
     return result;
 }
 
-std::shared_ptr<rg::Frames> rg::Frames::Load(const char *file, int rows, int cols)
+rg::Frames_Ptr rg::Frames::Load(const char *file, int rows, int cols)
 {
     auto texture = LoadTextureSafe(file);
 
@@ -86,7 +86,7 @@ void rg::Frames::SetColorKey(const rl::Color color)
     UnloadImage(current);
 }
 
-std::shared_ptr<rg::Frames> rg::Frames::SubFrames(const Rect rect)
+rg::Frames_Ptr rg::Frames::SubFrames(const Rect rect)
 {
     const float frame_width = frames[0].width;
     const float frame_height = frames[0].height;

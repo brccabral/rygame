@@ -20,8 +20,7 @@ rg::transform::Flip(const Surface_Ptr &surface, const bool flip_x, const bool fl
     return result;
 }
 
-std::shared_ptr<rg::Frames>
-rg::transform::Flip(const std::shared_ptr<Frames> &frames, const bool flip_x, const bool flip_y)
+rg::Frames_Ptr rg::transform::Flip(const Frames_Ptr &frames, const bool flip_x, const bool flip_y)
 {
     const auto result = std::make_shared<Frames>(
             (float) frames->render.texture.width, (float) frames->render.texture.height,

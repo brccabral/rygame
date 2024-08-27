@@ -391,8 +391,7 @@ namespace rg
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
-        Blit(const Surface_Ptr &incoming, Rect offset,
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        Blit(const Surface_Ptr &incoming, Rect offset, rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Surface* into this.
         void
         Blit(const Surface_Ptr &incoming, math::Vector2 offset,
@@ -441,9 +440,15 @@ namespace rg
         rl::Color tint{255, 255, 255, 255};
     };
 
+    class Frames;
+    using Frames_Ptr = std::shared_ptr<Frames>;
+
     class Frames : public Surface
     {
     public:
+
+        // Frames cannot be allocated in Heap
+        void *operator new(size_t) = delete;
 
         // Width/Height is the total size of the image
         // Rows/Cols will create atlas vector with N=rows*cols, each N of
@@ -456,10 +461,9 @@ namespace rg
         void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static std::shared_ptr<Frames>
-        Merge(const std::vector<Surface_Ptr> &surfaces, int rows, int cols);
+        static Frames_Ptr Merge(const std::vector<Surface_Ptr> &surfaces, int rows, int cols);
         // Load an image and create frames for it
-        static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
+        static Frames_Ptr Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;
 
         Surface_Ptr SubSurface(Rect rect) override
@@ -469,7 +473,7 @@ namespace rg
         // Returns a different shared_ptr<Frames>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         // SubSurface will have its frames updated.
-        std::shared_ptr<Frames> SubFrames(Rect rect);
+        Frames_Ptr SubFrames(Rect rect);
 
         int current_frame_index{};
         std::vector<Rect> frames{};
@@ -506,18 +510,18 @@ namespace rg
     namespace draw
     {
         void
-        rect(const Surface_Ptr &surface, rl::Color color, Rect rect,
-             float lineThick = 0.0f, float radius = 0.0f, bool topLeft = true, bool topRight = true,
-             bool bottomLeft = true, bool bottomRight = true);
+        rect(const Surface_Ptr &surface, rl::Color color, Rect rect, float lineThick = 0.0f,
+             float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
+             bool bottomRight = true);
         void
-        circle(const Surface_Ptr &surface, rl::Color color, math::Vector2 center,
-               float radius, float lineThick = 0.0f);
+        circle(const Surface_Ptr &surface, rl::Color color, math::Vector2 center, float radius,
+               float lineThick = 0.0f);
         void
-        bar(const Surface_Ptr &surface, Rect rect, float value, float max_value,
-            rl::Color color, rl::Color bg_color, float radius = 0.0f);
+        bar(const Surface_Ptr &surface, Rect rect, float value, float max_value, rl::Color color,
+            rl::Color bg_color, float radius = 0.0f);
         void
-        line(const Surface_Ptr &surface, rl::Color color, math::Vector2 start,
-             math::Vector2 end, float width = 1.0f);
+        line(const Surface_Ptr &surface, rl::Color color, math::Vector2 start, math::Vector2 end,
+             float width = 1.0f);
         void
         lines(const Surface_Ptr &surface, rl::Color color, bool closed,
               const std::vector<math::Vector2> &points, float width = 1.0f);
@@ -538,8 +542,7 @@ namespace rg
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        Surface_Ptr
-        GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        Surface_Ptr GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
         std::map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
@@ -748,14 +751,14 @@ namespace rg
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
             [[nodiscard]] Surface_Ptr ToSurface() const;
-            [[nodiscard]] std::shared_ptr<Frames> ToFrames(int rows, int cols) const;
+            [[nodiscard]] Frames_Ptr ToFrames(int rows, int cols) const;
 
             rl::Image image{};
             Rect atlas_rect{};
         };
 
         Mask FromSurface(const Surface_Ptr &surface, unsigned char threshold = 127);
-        Mask FromSurface(const std::shared_ptr<Frames> &frames, unsigned char threshold = 127);
+        Mask FromSurface(const Frames_Ptr &frames, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
@@ -816,10 +819,8 @@ namespace rg
 
     namespace transform
     {
-        Surface_Ptr
-        Flip(const Surface_Ptr &surface, bool flip_x, bool flip_y);
-        std::shared_ptr<Frames>
-        Flip(const std::shared_ptr<Frames> &frames, bool flip_x, bool flip_y);
+        Surface_Ptr Flip(const Surface_Ptr &surface, bool flip_x, bool flip_y);
+        Frames_Ptr Flip(const Frames_Ptr &frames, bool flip_x, bool flip_y);
         Surface_Ptr GrayScale(const Surface_Ptr &surface);
         Surface_Ptr Scale(const Surface_Ptr &surface, math::Vector2 size);
         Surface_Ptr Scale2x(const Surface_Ptr &surface);
