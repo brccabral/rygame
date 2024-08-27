@@ -18,7 +18,7 @@ rg::font::Font::~Font()
     UnloadFont(font);
 }
 
-std::shared_ptr<rg::Surface> rg::font::Font::render(
+rg::Surface_Ptr rg::font::Font::render(
         const char *text, const rl::Color color, const float spacing, const rl::Color bg,
         const float padding_width, const float padding_height) const
 {

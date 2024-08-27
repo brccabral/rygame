@@ -2,7 +2,7 @@
 
 
 void rg::draw::rect(
-        const std::shared_ptr<Surface> &surface, const rl::Color color, const Rect rect,
+        const Surface_Ptr &surface, const rl::Color color, const Rect rect,
         const float lineThick, const float radius, const bool topLeft, const bool topRight,
         const bool bottomLeft, const bool bottomRight)
 {
@@ -65,7 +65,7 @@ void rg::draw::rect(
 }
 
 void rg::draw::circle(
-        const std::shared_ptr<Surface> &surface, const rl::Color color, const math::Vector2 center,
+        const Surface_Ptr &surface, const rl::Color color, const math::Vector2 center,
         const float radius, const float lineThick)
 {
     TraceLog(
@@ -85,7 +85,7 @@ void rg::draw::circle(
 }
 
 void rg::draw::bar(
-        const std::shared_ptr<Surface> &surface, const Rect rect, const float value,
+        const Surface_Ptr &surface, const Rect rect, const float value,
         const float max_value, const rl::Color color, const rl::Color bg_color, const float radius)
 {
     TraceLog(
@@ -109,7 +109,7 @@ void rg::draw::bar(
 }
 
 void rg::draw::line(
-        const std::shared_ptr<Surface> &surface, const rl::Color color, const math::Vector2 start,
+        const Surface_Ptr &surface, const rl::Color color, const math::Vector2 start,
         const math::Vector2 end, const float width)
 {
     TraceLog(
@@ -129,7 +129,7 @@ void rg::draw::line(
 }
 
 void rg::draw::lines(
-        const std::shared_ptr<Surface> &surface, const rl::Color color, const bool closed,
+        const Surface_Ptr &surface, const rl::Color color, const bool closed,
         const std::vector<math::Vector2> &points, const float width)
 {
     TraceLog(

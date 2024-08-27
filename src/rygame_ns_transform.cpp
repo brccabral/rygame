@@ -1,8 +1,8 @@
 #include "rygame.hpp"
 
 
-std::shared_ptr<rg::Surface>
-rg::transform::Flip(const std::shared_ptr<Surface> &surface, const bool flip_x, const bool flip_y)
+rg::Surface_Ptr
+rg::transform::Flip(const Surface_Ptr &surface, const bool flip_x, const bool flip_y)
 {
     const auto result =
             std::make_shared<Surface>(surface->GetRect().width, surface->GetRect().height);
@@ -48,7 +48,7 @@ rg::transform::Flip(const std::shared_ptr<Frames> &frames, const bool flip_x, co
     return result;
 }
 
-std::shared_ptr<rg::Surface> rg::transform::GrayScale(const std::shared_ptr<Surface> &surface)
+rg::Surface_Ptr rg::transform::GrayScale(const Surface_Ptr &surface)
 {
     auto texture = surface->GetTexture();
     rl::Image toGray = LoadImageFromTextureSafe(texture);
@@ -63,8 +63,7 @@ std::shared_ptr<rg::Surface> rg::transform::GrayScale(const std::shared_ptr<Surf
     return result;
 }
 
-std::shared_ptr<rg::Surface>
-rg::transform::Scale(const std::shared_ptr<Surface> &surface, math::Vector2 size)
+rg::Surface_Ptr rg::transform::Scale(const Surface_Ptr &surface, math::Vector2 size)
 {
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
@@ -80,7 +79,7 @@ rg::transform::Scale(const std::shared_ptr<Surface> &surface, math::Vector2 size
     return result;
 }
 
-std::shared_ptr<rg::Surface> rg::transform::Scale2x(const std::shared_ptr<Surface> &surface)
+rg::Surface_Ptr rg::transform::Scale2x(const Surface_Ptr &surface)
 {
     return Scale(
             surface, {surface->GetTexture().width * 2.0f, surface->GetTexture().height * 2.0f});

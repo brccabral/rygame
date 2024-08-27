@@ -49,7 +49,7 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
     return tiles;
 }
 
-std::shared_ptr<rg::Surface>
+rg::Surface_Ptr
 rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     const auto surface = std::make_shared<Surface>(

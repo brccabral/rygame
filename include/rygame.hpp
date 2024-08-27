@@ -366,6 +366,9 @@ namespace rg
     } Rect;
 #pragma GCC diagnostic pop
 
+    class Surface;
+    using Surface_Ptr = std::shared_ptr<Surface>;
+
     class Surface : public std::enable_shared_from_this<Surface>
     {
     public:
@@ -388,11 +391,11 @@ namespace rg
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
-        Blit(const std::shared_ptr<Surface> &incoming, Rect offset,
+        Blit(const Surface_Ptr &incoming, Rect offset,
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Surface* into this.
         void
-        Blit(const std::shared_ptr<Surface> &incoming, math::Vector2 offset,
+        Blit(const Surface_Ptr &incoming, math::Vector2 offset,
              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Texture2D into surface*.
         void
@@ -401,20 +404,20 @@ namespace rg
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
-        Blits(const std::vector<std::pair<std::shared_ptr<Surface>, math::Vector2>> &blit_sequence,
+        Blits(const std::vector<std::pair<Surface_Ptr, math::Vector2>> &blit_sequence,
               rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Creates a new Surface*.
         // Make sure to delete it
-        [[nodiscard]] std::shared_ptr<Surface> convert(rl::PixelFormat format) const;
-        [[nodiscard]] std::shared_ptr<Surface> copy() const;
+        [[nodiscard]] Surface_Ptr convert(rl::PixelFormat format) const;
+        [[nodiscard]] Surface_Ptr copy() const;
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
 
         // Returns a different shared_ptr<Surface>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
-        virtual std::shared_ptr<Surface> SubSurface(Rect rect);
-        std::shared_ptr<Surface> GetParent();
-        std::shared_ptr<Surface> GetAbsParent();
+        virtual Surface_Ptr SubSurface(Rect rect);
+        Surface_Ptr GetParent();
+        Surface_Ptr GetAbsParent();
 
         // Returns shared_texture if exists, render.texture otherwise.
         [[nodiscard]] rl::Texture2D GetTexture() const;
@@ -431,7 +434,7 @@ namespace rg
 
         void Setup(int width, int height);
 
-        std::shared_ptr<Surface> parent = nullptr;
+        Surface_Ptr parent = nullptr;
         math::Vector2 offset{};
         float flip_atlas_height = 1; // 1 or -1 (Frames)
 
@@ -446,7 +449,7 @@ namespace rg
         // Rows/Cols will create atlas vector with N=rows*cols, each N of
         // size (Width/Cols, Height/Rows)
         Frames(int width, int height, int rows, int cols);
-        Frames(const std::shared_ptr<Surface> &surface, int rows, int cols);
+        Frames(const Surface_Ptr &surface, int rows, int cols);
 
         // Set current atlas rect. Default to first frame.
         // Value is moduled with frame length in case it is greater than frames size.
@@ -454,12 +457,12 @@ namespace rg
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
         static std::shared_ptr<Frames>
-        Merge(const std::vector<std::shared_ptr<Surface>> &surfaces, int rows, int cols);
+        Merge(const std::vector<Surface_Ptr> &surfaces, int rows, int cols);
         // Load an image and create frames for it
         static std::shared_ptr<Frames> Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;
 
-        std::shared_ptr<Surface> SubSurface(Rect rect) override
+        Surface_Ptr SubSurface(Rect rect) override
         {
             throw;
         };
@@ -482,41 +485,41 @@ namespace rg
     {
         // Load a file into a new Surface*
         // Make sure to delete it
-        std::shared_ptr<Surface> Load(const char *path);
+        Surface_Ptr Load(const char *path);
         // Loads all files in a folder and returns a vector<> of new Surface*
         // Make sure to delete them
-        std::vector<std::shared_ptr<Surface>> LoadFolderList(const char *path);
+        std::vector<Surface_Ptr> LoadFolderList(const char *path);
         // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
         // where the key is the filename
         // Make sure to delete them
-        std::map<std::string, std::shared_ptr<Surface>> LoadFolderDict(const char *path);
+        std::map<std::string, Surface_Ptr> LoadFolderDict(const char *path);
         // Walk a folder path and loads all images
         // Returns a vector of Surface*
         // The caller must delete Surface*
-        std::vector<std::shared_ptr<Surface>> ImportFolder(const char *path);
+        std::vector<Surface_Ptr> ImportFolder(const char *path);
         // Walk a folder path and loads all images
         // Returns a map where the key is filename and values are Surface*
         // The caller must delete Surface*
-        std::map<std::string, std::shared_ptr<Surface>> ImportFolderDict(const char *path);
+        std::map<std::string, Surface_Ptr> ImportFolderDict(const char *path);
     } // namespace image
 
     namespace draw
     {
         void
-        rect(const std::shared_ptr<Surface> &surface, rl::Color color, Rect rect,
+        rect(const Surface_Ptr &surface, rl::Color color, Rect rect,
              float lineThick = 0.0f, float radius = 0.0f, bool topLeft = true, bool topRight = true,
              bool bottomLeft = true, bool bottomRight = true);
         void
-        circle(const std::shared_ptr<Surface> &surface, rl::Color color, math::Vector2 center,
+        circle(const Surface_Ptr &surface, rl::Color color, math::Vector2 center,
                float radius, float lineThick = 0.0f);
         void
-        bar(const std::shared_ptr<Surface> &surface, Rect rect, float value, float max_value,
+        bar(const Surface_Ptr &surface, Rect rect, float value, float max_value,
             rl::Color color, rl::Color bg_color, float radius = 0.0f);
         void
-        line(const std::shared_ptr<Surface> &surface, rl::Color color, math::Vector2 start,
+        line(const Surface_Ptr &surface, rl::Color color, math::Vector2 start,
              math::Vector2 end, float width = 1.0f);
         void
-        lines(const std::shared_ptr<Surface> &surface, rl::Color color, bool closed,
+        lines(const Surface_Ptr &surface, rl::Color color, bool closed,
               const std::vector<math::Vector2> &points, float width = 1.0f);
     } // namespace draw
 
@@ -535,7 +538,7 @@ namespace rg
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        std::shared_ptr<Surface>
+        Surface_Ptr
         GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
@@ -558,7 +561,7 @@ namespace rg
             virtual ~Group() = default;
 
             // Draw all sprites into surface
-            virtual void Draw(const std::shared_ptr<Surface> &surface);
+            virtual void Draw(const Surface_Ptr &surface);
             // Updates all sprites
             void Update(float deltaTime) const;
             // Removes all sprites from Group
@@ -614,7 +617,7 @@ namespace rg
             int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            std::shared_ptr<Surface> image;
+            Surface_Ptr image;
 
         protected:
 
@@ -714,9 +717,9 @@ namespace rg
 
     namespace display
     {
-        std::shared_ptr<Surface> SetMode(int width, int height);
+        Surface_Ptr SetMode(int width, int height);
         void SetCaption(const char *title);
-        std::shared_ptr<Surface> GetSurface();
+        Surface_Ptr GetSurface();
         void Update();
     } // namespace display
 
@@ -744,14 +747,14 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            [[nodiscard]] std::shared_ptr<Surface> ToSurface() const;
+            [[nodiscard]] Surface_Ptr ToSurface() const;
             [[nodiscard]] std::shared_ptr<Frames> ToFrames(int rows, int cols) const;
 
             rl::Image image{};
             Rect atlas_rect{};
         };
 
-        Mask FromSurface(const std::shared_ptr<Surface> &surface, unsigned char threshold = 127);
+        Mask FromSurface(const Surface_Ptr &surface, unsigned char threshold = 127);
         Mask FromSurface(const std::shared_ptr<Frames> &frames, unsigned char threshold = 127);
     } // namespace mask
 
@@ -774,7 +777,7 @@ namespace rg
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
             // (textsize + (width,height))
-            std::shared_ptr<Surface>
+            Surface_Ptr
             render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
@@ -813,13 +816,13 @@ namespace rg
 
     namespace transform
     {
-        std::shared_ptr<Surface>
-        Flip(const std::shared_ptr<Surface> &surface, bool flip_x, bool flip_y);
+        Surface_Ptr
+        Flip(const Surface_Ptr &surface, bool flip_x, bool flip_y);
         std::shared_ptr<Frames>
         Flip(const std::shared_ptr<Frames> &frames, bool flip_x, bool flip_y);
-        std::shared_ptr<Surface> GrayScale(const std::shared_ptr<Surface> &surface);
-        std::shared_ptr<Surface> Scale(const std::shared_ptr<Surface> &surface, math::Vector2 size);
-        std::shared_ptr<Surface> Scale2x(const std::shared_ptr<Surface> &surface);
+        Surface_Ptr GrayScale(const Surface_Ptr &surface);
+        Surface_Ptr Scale(const Surface_Ptr &surface, math::Vector2 size);
+        Surface_Ptr Scale2x(const Surface_Ptr &surface);
     } // namespace transform
 
 } // namespace rg

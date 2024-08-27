@@ -72,13 +72,13 @@ void rg::Surface::SetAlpha(const float alpha)
 }
 
 void rg::Surface::Blit(
-        const std::shared_ptr<Surface> &incoming, const Rect offset, const rl::BlendMode blend_mode)
+        const Surface_Ptr &incoming, const Rect offset, const rl::BlendMode blend_mode)
 {
     Blit(incoming, offset.pos, blend_mode);
 }
 
 void rg::Surface::Blit(
-        const std::shared_ptr<Surface> &incoming, const math::Vector2 offset,
+        const Surface_Ptr &incoming, const math::Vector2 offset,
         const rl::BlendMode blend_mode)
 {
     TraceLog(
@@ -130,7 +130,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blits(
-        const std::vector<std::pair<std::shared_ptr<Surface>, math::Vector2>> &blit_sequence,
+        const std::vector<std::pair<Surface_Ptr, math::Vector2>> &blit_sequence,
         const rl::BlendMode blend_mode)
 {
     if (blit_sequence.empty())
@@ -160,7 +160,7 @@ void rg::Surface::Blits(
     }
 }
 
-std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) const
+rg::Surface_Ptr rg::Surface::convert(const rl::PixelFormat format) const
 {
     const auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
 
@@ -175,7 +175,7 @@ std::shared_ptr<rg::Surface> rg::Surface::convert(const rl::PixelFormat format) 
     return result;
 }
 
-std::shared_ptr<rg::Surface> rg::Surface::copy() const
+rg::Surface_Ptr rg::Surface::copy() const
 {
     rl::Texture2D texture = GetTexture();
     auto result = std::make_shared<Surface>(texture.width, texture.height);
@@ -195,7 +195,7 @@ rg::Rect rg::Surface::GetRect() const
     return {0, 0, absWidth, absHeight};
 }
 
-std::shared_ptr<rg::Surface> rg::Surface::SubSurface(const Rect rect)
+rg::Surface_Ptr rg::Surface::SubSurface(const Rect rect)
 {
     auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
     UnloadRenderTextureSafe(result->render);
@@ -207,14 +207,14 @@ std::shared_ptr<rg::Surface> rg::Surface::SubSurface(const Rect rect)
     return result;
 }
 
-std::shared_ptr<rg::Surface> rg::Surface::GetParent()
+rg::Surface_Ptr rg::Surface::GetParent()
 {
     return parent;
 }
 
-std::shared_ptr<rg::Surface> rg::Surface::GetAbsParent()
+rg::Surface_Ptr rg::Surface::GetAbsParent()
 {
-    std::shared_ptr<Surface> result = shared_from_this();
+    Surface_Ptr result = shared_from_this();
     while (result->parent)
     {
         result = result->parent;

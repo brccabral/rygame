@@ -2,7 +2,7 @@
 
 
 rg::mask::Mask
-rg::mask::FromSurface(const std::shared_ptr<Surface> &surface, const unsigned char threshold)
+rg::mask::FromSurface(const Surface_Ptr &surface, const unsigned char threshold)
 {
     auto mask = Mask(surface->GetRect().width, surface->GetRect().height);
     const rl::Image surfImage = LoadImageFromTextureSafe(surface->GetTexture());

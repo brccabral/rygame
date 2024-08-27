@@ -1,7 +1,7 @@
 #include "rygame.hpp"
 
 
-void rg::sprite::Group::Draw(const std::shared_ptr<Surface> &surface)
+void rg::sprite::Group::Draw(const Surface_Ptr &surface)
 {
     for (const auto &sprite: sprites)
     {

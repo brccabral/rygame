@@ -20,7 +20,7 @@ public:
         }
     };
 
-    std::shared_ptr<rg::Surface> display_surface = nullptr;
+    rg::Surface_Ptr display_surface = nullptr;
     unsigned int current_render = 0;
     bool isSoundInit = false;
     bool shouldQuit = false;

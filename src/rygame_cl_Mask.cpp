@@ -26,7 +26,7 @@ rg::mask::Mask::~Mask()
     UnloadImage(image);
 }
 
-std::shared_ptr<rg::Surface> rg::mask::Mask::ToSurface() const
+rg::Surface_Ptr rg::mask::Mask::ToSurface() const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     const auto surface = std::make_shared<Surface>(image.width, image.height);

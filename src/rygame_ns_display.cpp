@@ -4,7 +4,7 @@
 
 extern Rygame rygame;
 
-std::shared_ptr<rg::Surface> rg::display::SetMode(const int width, const int height)
+rg::Surface_Ptr rg::display::SetMode(const int width, const int height)
 {
     rl::InitWindow(width, height, "rygame");
     SetExitKey(rl::KEY_NULL);
@@ -17,7 +17,7 @@ void rg::display::SetCaption(const char *title)
     rl::SetWindowTitle(title);
 }
 
-std::shared_ptr<rg::Surface> rg::display::GetSurface()
+rg::Surface_Ptr rg::display::GetSurface()
 {
     return rygame.display_surface;
 }

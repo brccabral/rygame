@@ -1,7 +1,7 @@
 #include "rygame.hpp"
 
 
-std::shared_ptr<rg::Surface> rg::image::Load(const char *path)
+rg::Surface_Ptr rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     const rl::Texture2D loaded_texture = LoadTextureSafe(path);
@@ -14,9 +14,9 @@ std::shared_ptr<rg::Surface> rg::image::Load(const char *path)
     return surface;
 }
 
-std::vector<std::shared_ptr<rg::Surface>> rg::image::LoadFolderList(const char *path)
+std::vector<rg::Surface_Ptr> rg::image::LoadFolderList(const char *path)
 {
-    std::vector<std::shared_ptr<Surface>> surfaces;
+    std::vector<Surface_Ptr> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
@@ -25,9 +25,9 @@ std::vector<std::shared_ptr<rg::Surface>> rg::image::LoadFolderList(const char *
     return surfaces;
 }
 
-std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::LoadFolderDict(const char *path)
+std::map<std::string, rg::Surface_Ptr> rg::image::LoadFolderDict(const char *path)
 {
-    std::map<std::string, std::shared_ptr<Surface>> surfaces;
+    std::map<std::string, Surface_Ptr> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto filename = dirEntry.path().stem().string();
@@ -38,9 +38,9 @@ std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::LoadFolderDict(co
     return surfaces;
 }
 
-std::vector<std::shared_ptr<rg::Surface>> rg::image::ImportFolder(const char *path)
+std::vector<rg::Surface_Ptr> rg::image::ImportFolder(const char *path)
 {
-    std::vector<std::shared_ptr<Surface>> surfaces;
+    std::vector<Surface_Ptr> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
@@ -49,9 +49,9 @@ std::vector<std::shared_ptr<rg::Surface>> rg::image::ImportFolder(const char *pa
     return surfaces;
 }
 
-std::map<std::string, std::shared_ptr<rg::Surface>> rg::image::ImportFolderDict(const char *path)
+std::map<std::string, rg::Surface_Ptr> rg::image::ImportFolderDict(const char *path)
 {
-    std::map<std::string, std::shared_ptr<Surface>> result;
+    std::map<std::string, Surface_Ptr> result;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
