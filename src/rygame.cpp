@@ -1,6 +1,8 @@
 #include "rygame.hpp"
 #include "rygame_cl_Rygame.hpp"
-
+#if _WIN32
+#include <sstream>
+#endif
 
 Rygame rygame{};
 

@@ -5,7 +5,7 @@ rg::Surface_Ptr
 rg::transform::Flip(const Surface_Ptr &surface, const bool flip_x, const bool flip_y)
 {
     const auto result =
-            std::make_shared<Surface>(surface->GetRect().width, surface->GetRect().height);
+            std::make_shared<Surface>((int) surface->GetRect().width, (int) surface->GetRect().height);
     result->Fill(rl::BLANK);
     result->Blit(surface->GetTexture(), {});
     if (flip_x)
@@ -23,8 +23,8 @@ rg::transform::Flip(const Surface_Ptr &surface, const bool flip_x, const bool fl
 rg::Frames_Ptr rg::transform::Flip(const Frames_Ptr &frames, const bool flip_x, const bool flip_y)
 {
     const auto result = std::make_shared<Frames>(
-            (float) frames->render.texture.width, (float) frames->render.texture.height,
-            frames->rows, frames->cols);
+            frames->render.texture.width, frames->render.texture.height, frames->rows,
+            frames->cols);
     result->frames = frames->frames;
     result->Fill(rl::BLANK);
     result->Blit(frames->render.texture, {});
@@ -66,10 +66,10 @@ rg::Surface_Ptr rg::transform::Scale(const Surface_Ptr &surface, math::Vector2 s
 {
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
-    ImageResize(&toScale, size.x, size.y);
+    ImageResize(&toScale, (int) size.x, (int) size.y);
     const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
 
-    auto result = std::make_shared<Surface>(size.x, size.y);
+    auto result = std::make_shared<Surface>((int) size.x, (int) size.y);
     result->Fill(rl::BLANK);
     result->Blit(texScale, {}, {});
     UnloadTextureSafe(texScale);

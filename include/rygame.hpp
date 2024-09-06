@@ -186,9 +186,11 @@ namespace rg
 
     namespace math
     {
-        // GCC warns about Anonymous Struct
+// GCC warns about Anonymous Struct
+#if !_WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
         typedef union Vector2
         {
             rl::Vector2 vector2;
@@ -205,7 +207,9 @@ namespace rg
             float operator[](const unsigned int &i) const;
             explicit operator bool() const;
         } Vector2;
+#if !_WIN32
 #pragma GCC diagnostic pop
+#endif
 
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
         float random_uniform(std::uniform_real_distribution<float> dist);
@@ -214,8 +218,10 @@ namespace rg
     } // namespace math
 
     // GCC warns about Anonymous Struct
+#if !_WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     typedef union Line
     {
         struct
@@ -235,11 +241,15 @@ namespace rg
         [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
         explicit operator bool() const;
     } Line;
+#if !_WIN32
 #pragma GCC diagnostic pop
+#endif
 
     // GCC warns about Anonymous Struct
+#if !_WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     typedef union Rect
     {
         struct
@@ -364,7 +374,9 @@ namespace rg
         // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2);
     } Rect;
+#if !_WIN32
 #pragma GCC diagnostic pop
+#endif
 
     class Surface;
     using Surface_Ptr = std::shared_ptr<Surface>;
