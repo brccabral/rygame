@@ -485,7 +485,7 @@ namespace rg
 
         Surface_Ptr SubSurface(Rect rect) override
         {
-            throw;
+            throw("");
         };
         // Returns a different shared_ptr<Frames>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
@@ -630,7 +630,7 @@ namespace rg
             // Returns a copy of the list of groups
             std::vector<Group *> Groups();
 
-            virtual void Update(float deltaTime){};
+            virtual void Update(float deltaTime) {};
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
             virtual Sprite_Ptr Kill();
@@ -714,9 +714,9 @@ namespace rg
         {}
 
         // Parameterized constructor
-        explicit
-        Timer(float duration, bool repeat = false, bool autostart = false,
-              const std::function<void()> &func = nullptr);
+        explicit Timer(
+                float duration, bool repeat = false, bool autostart = false,
+                const std::function<void()> &func = nullptr);
         void Activate();
         void Deactivate();
         void Update();
