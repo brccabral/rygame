@@ -14,6 +14,11 @@
 
 namespace rl
 {
+#ifdef _WIN32
+#define NOSOUND
+#define MMNOSOUND
+#define MA_NO_WINMM
+#endif
 #include <raylib.h>
 #include <raymath.h>
 #ifdef WITH_TMX
