@@ -39,8 +39,9 @@ add_library(${PROJECT_NAME} STATIC src/rygame.cpp
 target_link_libraries(${PROJECT_NAME} INTERFACE raylib)
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE "/WX" "/NODEFAULTLIB:libcmt")
-    target_link_libraries(${PROJECT_NAME} INTERFACE gdi32 winmm)
+    target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
+    # target_link_libraries(${PROJECT_NAME} INTERFACE gdi32 winmm)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE "-DNOSOUND" "NOSOUND" "-DMMNOSOUND" "MMNOSOUND")
 else ()
     #    set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
     target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Werror" "-Wpedantic" "-Wno-missing-braces" "-Wno-gnu-anonymous-struct" "-Wno-nested-anon-types")
@@ -54,7 +55,8 @@ if (WITH_TMX)
     find_package(tmx REQUIRED)
     find_package(raylib-tmx REQUIRED)
     add_compile_definitions("WITH_TMX")
-    target_link_libraries(${PROJECT_NAME} PRIVATE raylib-tmx tmx LibXml2::LibXml2 ZLIB::ZLIB)
+    target_link_libraries(${PROJECT_NAME} INTERFACE raylib-tmx tmx LibXml2::LibXml2 ZLIB::ZLIB)
+    target_include_directories(${PROJECT_NAME} PUBLIC "$<TARGET_PROPERTY:raylib-tmx,INTERFACE_INCLUDE_DIRECTORIES>")
 endif ()
 
 if (SHOW_FPS)
