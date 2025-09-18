@@ -13,6 +13,7 @@ void rg::Init(
     rl::SetConfigFlags(config_flags);
     rl::SetTraceLogCallback(callback);
     rl::SetRandomSeed(std::time(nullptr));
+    rygame.isInit = true;
 }
 
 void rg::Quit()

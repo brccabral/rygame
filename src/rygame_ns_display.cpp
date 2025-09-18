@@ -4,11 +4,25 @@
 
 extern Rygame rygame;
 
-rg::Surface_Ptr rg::display::SetMode(const int width, const int height)
+rg::Surface &rg::display::SetMode(const int width, const int height)
 {
-    rl::InitWindow(width, height, "rygame");
+    if (!rygame.isInit)
+    {
+        rg::Init();
+    }
+    int w = width;
+    if (width == 0)
+    {
+        w = rl::GetMonitorWidth(rl::GetCurrentMonitor());
+    }
+    int h = height;
+    if (height == 0)
+    {
+        h = rl::GetMonitorWidth(rl::GetCurrentMonitor());
+    }
+    rl::InitWindow(w, h, "rygame");
     SetExitKey(rl::KEY_NULL);
-    rygame.display_surface = std::make_shared<Surface>(width, height);
+    rygame.display_surface = Surface(width, height);
     return rygame.display_surface;
 }
 
@@ -17,7 +31,7 @@ void rg::display::SetCaption(const char *title)
     rl::SetWindowTitle(title);
 }
 
-rg::Surface_Ptr rg::display::GetSurface()
+rg::Surface &rg::display::GetSurface()
 {
     return rygame.display_surface;
 }
@@ -35,9 +49,9 @@ void rg::display::Update()
     TraceLog(rl::LOG_TRACE, rl::TextFormat("display::Update"));
     rl::BeginDrawing();
     DrawTextureRec(
-            rygame.display_surface->GetTexture(),
-            {0, 0, rygame.display_surface->atlas_rect.width,
-             -rygame.display_surface->atlas_rect.height},
+            rygame.display_surface.GetTexture(),
+            {0, 0, rygame.display_surface.atlas_rect.width,
+             -rygame.display_surface.atlas_rect.height},
             {0, 0}, rl::WHITE);
 #ifdef SHOW_FPS
     rl::DrawFPS(20, 20);

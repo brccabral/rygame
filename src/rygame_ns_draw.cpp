@@ -2,14 +2,14 @@
 
 
 void rg::draw::rect(
-        const Surface_Ptr &surface, const rl::Color color, const Rect rect,
+        Surface *surface, const rl::Color color, const Rect rect,
         const float lineThick, const float radius, const bool topLeft, const bool topRight,
         const bool bottomLeft, const bool bottomRight)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
-                                   "draw::rect render %d texture %d", surface->render.id,
-                                   surface->render.texture.id));
+                    "draw::rect render %d texture %d", surface->render.id,
+                    surface->render.texture.id));
     surface->ToggleRender();
     if (lineThick > 0)
     {
@@ -65,13 +65,13 @@ void rg::draw::rect(
 }
 
 void rg::draw::circle(
-        const Surface_Ptr &surface, const rl::Color color, const math::Vector2 center,
+        Surface *surface, const rl::Color color, const math::Vector2 center,
         const float radius, const float lineThick)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
-                                   "draw::circle render %d texture %d", surface->render.id,
-                                   surface->render.texture.id));
+                    "draw::circle render %d texture %d", surface->render.id,
+                    surface->render.texture.id));
     surface->ToggleRender();
 
     if (lineThick > 0)
@@ -85,13 +85,13 @@ void rg::draw::circle(
 }
 
 void rg::draw::bar(
-        const Surface_Ptr &surface, const Rect rect, const float value,
+        Surface *surface, const Rect rect, const float value,
         const float max_value, const rl::Color color, const rl::Color bg_color, const float radius)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
-                                   "draw::bar render %d texture %d", surface->render.id,
-                                   surface->render.texture.id));
+                    "draw::bar render %d texture %d", surface->render.id,
+                    surface->render.texture.id));
     const float ratio = rect.width / max_value;
     const Rect progress_rect = {
             rect.x, rect.y, math::clamp(value * ratio, 0, rect.width), rect.height};
@@ -109,13 +109,13 @@ void rg::draw::bar(
 }
 
 void rg::draw::line(
-        const Surface_Ptr &surface, const rl::Color color, const math::Vector2 start,
+        Surface *surface, const rl::Color color, const math::Vector2 start,
         const math::Vector2 end, const float width)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
-                                   "draw::line render %d texture %d", surface->render.id,
-                                   surface->render.texture.id));
+                    "draw::line render %d texture %d", surface->render.id,
+                    surface->render.texture.id));
     surface->ToggleRender();
 
     if (width > 1)
@@ -129,13 +129,13 @@ void rg::draw::line(
 }
 
 void rg::draw::lines(
-        const Surface_Ptr &surface, const rl::Color color, const bool closed,
+        Surface *surface, const rl::Color color, const bool closed,
         const std::vector<math::Vector2> &points, const float width)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
-                                   "draw::lines render %d texture %d", surface->render.id,
-                                   surface->render.texture.id));
+                    "draw::lines render %d texture %d", surface->render.id,
+                    surface->render.texture.id));
     surface->ToggleRender();
 
     int pointCount = points.size();

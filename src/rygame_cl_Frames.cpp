@@ -2,7 +2,7 @@
 
 
 rg::Frames::Frames(const int width, const int height, int rows, int cols)
-    : Surface(width, height), rows(rows), cols(cols)
+    : Surface(width, height), m_rows(rows), m_cols(cols)
 {
     CreateFrames(width, height, rows, cols);
     atlas_rect = frames[current_frame_index];
@@ -10,7 +10,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols)
 }
 
 
-rg::Frames::Frames(const Surface_Ptr &surface, const int rows, const int cols)
+rg::Frames::Frames(const Surface *surface, const int rows, const int cols)
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
     Fill(rl::BLANK);
@@ -24,25 +24,25 @@ void rg::Frames::SetAtlas(const int frame_index)
     atlas_rect = frames[current_frame_index];
 }
 
-rg::Frames_Ptr
-rg::Frames::Merge(const std::vector<Surface_Ptr> &surfaces, const int rows, const int cols)
+rg::Frames
+rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
-        return nullptr;
+        return Frames();
     }
     const int singleWidth = surfaces[0]->GetRect().width;
     const int singleHeight = surfaces[0]->GetRect().height;
-    const auto result =
-            std::make_shared<Frames>(singleWidth * cols, singleHeight * rows, rows, cols);
-    result->Fill(rl::BLANK);
+    auto result =
+            Frames(singleWidth * cols, singleHeight * rows, rows, cols);
+    result.Fill(rl::BLANK);
 
     for (int r = 0; r < rows; ++r)
     {
         for (int c = 0; c < cols; ++c)
         {
             const unsigned int s = r * cols + c;
-            result->Blit(
+            result.Blit(
                     surfaces[s], math::Vector2{(float) c * singleWidth, (float) r * singleHeight});
         }
     }
@@ -50,14 +50,14 @@ rg::Frames::Merge(const std::vector<Surface_Ptr> &surfaces, const int rows, cons
     return result;
 }
 
-rg::Frames_Ptr rg::Frames::Load(const char *file, int rows, int cols)
+rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 {
-    auto texture = LoadTextureSafe(file);
+    const auto texture = LoadTextureSafe(file);
 
-    auto result = std::make_shared<Frames>(texture.width, texture.height, rows, cols);
-    result->Fill(rl::BLANK);
+    auto result = Frames(texture.width, texture.height, rows, cols);
+    result.Fill(rl::BLANK);
 
-    BeginTextureModeSafe(result->render);
+    BeginTextureModeSafe(result.render);
     DrawTextureRec(
             texture, //
             {0, 0, (float) texture.width, -(float) texture.height}, //
@@ -86,29 +86,29 @@ void rg::Frames::SetColorKey(const rl::Color color)
     UnloadImage(current);
 }
 
-rg::Frames_Ptr rg::Frames::SubFrames(const Rect rect)
+rg::Frames rg::Frames::SubFrames(const Rect rect)
 {
     const float frame_width = frames[0].width;
     const float frame_height = frames[0].height;
-    int rows = rect.height / frame_height;
-    int cols = rect.width / frame_width;
+    const int rows = rect.height / frame_height;
+    const int cols = rect.width / frame_width;
 
-    auto result = std::make_shared<Frames>(GetTexture().width, GetTexture().height, rows, cols);
-    UnloadRenderTextureSafe(result->render);
-    result->render = render;
-    result->shared_texture = shared_texture;
-    result->parent = shared_from_this();
-    result->offset = rect.pos;
+    auto result = Frames(GetTexture().width, GetTexture().height, rows, cols);
+    UnloadRenderTextureSafe(result.render);
+    result.render = render;
+    result.shared_texture = shared_texture;
+    result.parent = this;
+    result.m_offset = rect.pos;
 
-    result->frames.clear();
+    result.frames.clear();
     for (const auto &frame: frames)
     {
         if (frame.colliderect(rect))
         {
-            result->frames.push_back(frame);
+            result.frames.push_back(frame);
         }
     }
-    result->SetAtlas();
+    result.SetAtlas();
 
     return result;
 }
@@ -128,10 +128,10 @@ void rg::Frames::CreateFrames(const int width, const int height, int rows, int c
 
     for (int r = 0; r < rows; ++r)
     {
-        const float y = r * h + offset.y;
+        const float y = r * h + m_offset.y;
         for (int c = 0; c < cols; ++c)
         {
-            const float x = c * w + offset.x;
+            const float x = c * w + m_offset.x;
             frames.push_back({x, y, w, h});
         }
     }

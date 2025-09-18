@@ -35,8 +35,9 @@ namespace rg
     };
 
     void
-    Init(int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
-         rl::TraceLogCallback callback = nullptr);
+    Init(
+            int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
+            rl::TraceLogCallback callback = nullptr);
     void Quit();
     bool WindowCloseOrQuit();
 
@@ -82,6 +83,7 @@ namespace rg
 
         return keys;
     }
+
     template<typename K, typename C>
     std::vector<K> getValues(C &map)
     {
@@ -95,6 +97,7 @@ namespace rg
 
         return values;
     }
+
     template<typename K, typename V, typename C>
     std::vector<std::pair<K, V>> getItems(C &map)
     {
@@ -191,7 +194,7 @@ namespace rg
 
     namespace math
     {
-// GCC warns about Anonymous Struct
+        // GCC warns about Anonymous Struct
 #if !_WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -199,6 +202,7 @@ namespace rg
         typedef union Vector2
         {
             rl::Vector2 vector2;
+
             struct
             {
                 float x;
@@ -234,6 +238,7 @@ namespace rg
             math::Vector2 start;
             math::Vector2 end;
         };
+
         struct
         {
             float x1;
@@ -383,16 +388,11 @@ namespace rg
 #pragma GCC diagnostic pop
 #endif
 
-    class Surface;
-    using Surface_Ptr = std::shared_ptr<Surface>;
-
-    class Surface : public std::enable_shared_from_this<Surface>
+    class Surface
     {
     public:
 
-        // Surface cannot be allocated in Heap
-        void *operator new(size_t) = delete;
-
+        Surface() = default;
         Surface(int width, int height);
         explicit Surface(math::Vector2 size);
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
@@ -408,32 +408,35 @@ namespace rg
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
-        Blit(const Surface_Ptr &incoming, Rect offset, rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        Blit(const Surface *incoming, Rect offset, rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Surface* into this.
         void
-        Blit(const Surface_Ptr &incoming, math::Vector2 offset,
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        Blit(
+                const Surface *incoming, math::Vector2 offset,
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Texture2D into surface*.
         void
-        Blit(const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
-             rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE);
+        Blit(
+                const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
-        Blits(const std::vector<std::pair<Surface_Ptr, math::Vector2>> &blit_sequence,
-              rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        Blits(
+                const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Creates a new Surface*.
         // Make sure to delete it
-        [[nodiscard]] Surface_Ptr convert(rl::PixelFormat format) const;
-        [[nodiscard]] Surface_Ptr copy() const;
+        [[nodiscard]] Surface convert(rl::PixelFormat format) const;
+        [[nodiscard]] Surface copy() const;
         // Returns the atlas size
         [[nodiscard]] Rect GetRect() const;
 
-        // Returns a different shared_ptr<Surface>, but it shares same image
+        // Returns a different Surface, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
-        virtual Surface_Ptr SubSurface(Rect rect);
-        Surface_Ptr GetParent();
-        Surface_Ptr GetAbsParent();
+        virtual Surface SubSurface(Rect rect);
+        Surface *GetParent() const;
+        Surface *GetAbsParent();
 
         // Returns shared_texture if exists, render.texture otherwise.
         [[nodiscard]] rl::Texture2D GetTexture() const;
@@ -450,52 +453,47 @@ namespace rg
 
         void Setup(int width, int height);
 
-        Surface_Ptr parent = nullptr;
-        math::Vector2 offset{};
+        Surface *parent = nullptr;
+        math::Vector2 m_offset{};
         float flip_atlas_height = 1; // 1 or -1 (Frames)
 
-        rl::Color tint{255, 255, 255, 255};
+        rl::Color m_tint{255, 255, 255, 255};
     };
-
-    class Frames;
-    using Frames_Ptr = std::shared_ptr<Frames>;
 
     class Frames : public Surface
     {
     public:
 
-        // Frames cannot be allocated in Heap
-        void *operator new(size_t) = delete;
-
+        Frames() = default;
         // Width/Height is the total size of the image
         // Rows/Cols will create atlas vector with N=rows*cols, each N of
         // size (Width/Cols, Height/Rows)
         Frames(int width, int height, int rows, int cols);
-        Frames(const Surface_Ptr &surface, int rows, int cols);
+        Frames(const Surface *surface, int rows, int cols);
 
         // Set current atlas rect. Default to first frame.
         // Value is moduled with frame length in case it is greater than frames size.
         void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames_Ptr Merge(const std::vector<Surface_Ptr> &surfaces, int rows, int cols);
+        static Frames Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
         // Load an image and create frames for it
-        static Frames_Ptr Load(const char *file, int rows, int cols);
+        static Frames Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;
 
-        Surface_Ptr SubSurface(Rect rect) override
+        Surface SubSurface(Rect rect) override
         {
             throw("");
         };
         // Returns a different shared_ptr<Frames>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         // SubSurface will have its frames updated.
-        Frames_Ptr SubFrames(Rect rect);
+        Frames SubFrames(Rect rect);
 
         int current_frame_index{};
         std::vector<Rect> frames{};
-        int rows{};
-        int cols{};
+        int m_rows{};
+        int m_cols{};
 
     private:
 
@@ -506,42 +504,48 @@ namespace rg
     {
         // Load a file into a new Surface*
         // Make sure to delete it
-        Surface_Ptr Load(const char *path);
+        Surface Load(const char *path);
         // Loads all files in a folder and returns a vector<> of new Surface*
         // Make sure to delete them
-        std::vector<Surface_Ptr> LoadFolderList(const char *path);
+        std::vector<Surface> LoadFolderList(const char *path);
         // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
         // where the key is the filename
         // Make sure to delete them
-        std::map<std::string, Surface_Ptr> LoadFolderDict(const char *path);
+        std::map<std::string, Surface> LoadFolderDict(const char *path);
         // Walk a folder path and loads all images
         // Returns a vector of Surface*
         // The caller must delete Surface*
-        std::vector<Surface_Ptr> ImportFolder(const char *path);
+        std::vector<Surface> ImportFolder(const char *path);
         // Walk a folder path and loads all images
         // Returns a map where the key is filename and values are Surface*
         // The caller must delete Surface*
-        std::map<std::string, Surface_Ptr> ImportFolderDict(const char *path);
+        std::map<std::string, Surface> ImportFolderDict(const char *path);
     } // namespace image
 
     namespace draw
     {
         void
-        rect(const Surface_Ptr &surface, rl::Color color, Rect rect, float lineThick = 0.0f,
-             float radius = 0.0f, bool topLeft = true, bool topRight = true, bool bottomLeft = true,
-             bool bottomRight = true);
+        rect(
+                Surface *surface, rl::Color color, Rect rect, float lineThick = 0.0f,
+                float radius = 0.0f, bool topLeft = true, bool topRight = true,
+                bool bottomLeft = true,
+                bool bottomRight = true);
         void
-        circle(const Surface_Ptr &surface, rl::Color color, math::Vector2 center, float radius,
-               float lineThick = 0.0f);
+        circle(
+                Surface *surface, rl::Color color, math::Vector2 center, float radius,
+                float lineThick = 0.0f);
         void
-        bar(const Surface_Ptr &surface, Rect rect, float value, float max_value, rl::Color color,
-            rl::Color bg_color, float radius = 0.0f);
+        bar(
+                Surface *surface, Rect rect, float value, float max_value, rl::Color color,
+                rl::Color bg_color, float radius = 0.0f);
         void
-        line(const Surface_Ptr &surface, rl::Color color, math::Vector2 start, math::Vector2 end,
-             float width = 1.0f);
+        line(
+                Surface *surface, rl::Color color, math::Vector2 start, math::Vector2 end,
+                float width = 1.0f);
         void
-        lines(const Surface_Ptr &surface, rl::Color color, bool closed,
-              const std::vector<math::Vector2> &points, float width = 1.0f);
+        lines(
+                Surface *surface, rl::Color color, bool closed,
+                const std::vector<math::Vector2> &points, float width = 1.0f);
     } // namespace draw
 
 #ifdef WITH_TMX
@@ -554,12 +558,13 @@ namespace rg
             rl::Texture2D *texture = nullptr; // if tile has image, allocate it in memory
             Rect atlas_rect{};
         };
+
         // get the tile image from the tileset
         rl::Texture2D *GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_rect);
         // get a vector with tile info (position on the layer and surface image)
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
-        Surface_Ptr GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
+        Surface GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
         std::map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
@@ -568,8 +573,7 @@ namespace rg
 
     namespace sprite
     {
-        class Sprite; // forward declaration
-        using Sprite_Ptr = std::shared_ptr<Sprite>;
+        class Sprite;
 
         // Manages multiple sprites at once
         class Group
@@ -582,33 +586,32 @@ namespace rg
             virtual ~Group() = default;
 
             // Draw all sprites into surface
-            virtual void Draw(const Surface_Ptr &surface);
+            virtual void Draw(Surface *surface);
             // Updates all sprites
             void Update(float deltaTime) const;
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<Sprite_Ptr> &to_remove_sprites);
+            void remove(const std::vector<Sprite *> &to_remove_sprites);
             // Removes a Sprite from this group if it is in this group
-            void remove(const Sprite_Ptr &to_remove_sprite);
+            void remove(Sprite *to_remove_sprite);
             // Adds a list of sprites to this group
-            void add(const std::vector<Sprite_Ptr> &to_add_sprites);
+            void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
-            void add(const Sprite_Ptr &to_add_sprite);
+            void add(Sprite *to_add_sprite);
             // Check if all sprites are in group
-            bool has(const std::vector<Sprite_Ptr> &check_sprites);
+            bool has(const std::vector<Sprite *> &check_sprites);
             // Check if sprite is in group
-            bool has(const Sprite_Ptr &check_sprite);
+            bool has(const Sprite *check_sprite);
             // Returns a copy of vector sprites
-            [[nodiscard]] std::vector<Sprite_Ptr> Sprites() const;
-
+            [[nodiscard]] std::vector<Sprite *> Sprites() const;
 
         protected:
 
-            std::vector<Sprite_Ptr> sprites{};
+            std::vector<Sprite *> sprites{};
         };
 
-        class Sprite : public std::enable_shared_from_this<Sprite>
+        class Sprite
         {
         public:
 
@@ -630,15 +633,17 @@ namespace rg
             // Returns a copy of the list of groups
             std::vector<Group *> Groups();
 
-            virtual void Update(float deltaTime) {};
+            virtual void Update(float deltaTime)
+            {
+            };
             // removes sprite from group. Returns current Sprite*
             // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
-            virtual Sprite_Ptr Kill();
+            virtual Sprite *Kill();
 
             int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            Surface_Ptr image;
+            Surface *image;
 
         protected:
 
@@ -657,7 +662,7 @@ namespace rg
             void LeaveAllGroups();
         };
 
-        bool collide_rect(const Sprite_Ptr &left, const Sprite_Ptr &right);
+        bool collide_rect(const Sprite *left, const Sprite *right);
 
         class CollideCallable
         {
@@ -665,7 +670,7 @@ namespace rg
 
             CollideCallable() = default;
 
-            virtual bool operator()(Sprite_Ptr left, Sprite_Ptr right) const = 0;
+            virtual bool operator()(const Sprite *left, const Sprite *right) const = 0;
 
         protected:
 
@@ -677,7 +682,7 @@ namespace rg
         public:
 
             explicit collide_rect_ratio(float ratio);
-            bool operator()(Sprite_Ptr left, Sprite_Ptr right) const override;
+            bool operator()(const Sprite *left, const Sprite *right) const override;
 
         private:
 
@@ -687,16 +692,16 @@ namespace rg
 
         // Returns a list of all sprites in the group that collides with the sprite
         // If dokill is true, all collided sprites are removed from group
-        std::vector<Sprite_Ptr> spritecollide(
-                const Sprite_Ptr &sprite, const Group *group, bool dokill,
-                const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided =
+        std::vector<Sprite *> spritecollide(
+                const Sprite *sprite, const Group *group, bool dokill,
+                const std::function<bool(const Sprite *left, const Sprite *right)> &collided =
                         collide_rect);
 
         // Tests if Sprite collides with any sprite in group, returns the first sprite in
         // group that collides
-        Sprite_Ptr spritecollideany(
-                const Sprite_Ptr &sprite, const Group *group,
-                const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided =
+        Sprite *spritecollideany(
+                const Sprite *sprite, const Group *group,
+                const std::function<bool(const Sprite *left, const Sprite *right)> &collided =
                         collide_rect);
     } // namespace sprite
 
@@ -711,7 +716,8 @@ namespace rg
 
         // Default constructor
         Timer() : duration(0.0f), repeat(false), autostart(false), func(nullptr)
-        {}
+        {
+        }
 
         // Parameterized constructor
         explicit Timer(
@@ -733,9 +739,9 @@ namespace rg
 
     namespace display
     {
-        Surface_Ptr SetMode(int width, int height);
+        Surface &SetMode(int width, int height);
         void SetCaption(const char *title);
-        Surface_Ptr GetSurface();
+        Surface &GetSurface();
         void Update();
     } // namespace display
 
@@ -763,15 +769,15 @@ namespace rg
 
             Mask(unsigned int width, unsigned int height, bool fill = false);
             ~Mask();
-            [[nodiscard]] Surface_Ptr ToSurface() const;
-            [[nodiscard]] Frames_Ptr ToFrames(int rows, int cols) const;
+            [[nodiscard]] Surface ToSurface() const;
+            [[nodiscard]] Frames ToFrames(int rows, int cols) const;
 
             rl::Image image{};
             Rect atlas_rect{};
         };
 
-        Mask FromSurface(const Surface_Ptr &surface, unsigned char threshold = 127);
-        Mask FromSurface(const Frames_Ptr &frames, unsigned char threshold = 127);
+        Mask FromSurface(const Surface *surface, unsigned char threshold = 127);
+        Mask FromSurface(const Frames *frames, unsigned char threshold = 127);
     } // namespace mask
 
     namespace font
@@ -793,9 +799,10 @@ namespace rg
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
             // (textsize + (width,height))
-            Surface_Ptr
-            render(const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
-                   float padding_width = 0, float padding_height = 0) const;
+            Surface
+            render(
+                    const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
+                    float padding_width = 0, float padding_height = 0) const;
             math::Vector2 size(const char *text) const;
 
             rl::Font font;
@@ -805,7 +812,7 @@ namespace rg
 
     namespace mixer
     {
-        class Sound : public std::enable_shared_from_this<Sound>
+        class Sound
         {
         public:
 
@@ -832,11 +839,11 @@ namespace rg
 
     namespace transform
     {
-        Surface_Ptr Flip(const Surface_Ptr &surface, bool flip_x, bool flip_y);
-        Frames_Ptr Flip(const Frames_Ptr &frames, bool flip_x, bool flip_y);
-        Surface_Ptr GrayScale(const Surface_Ptr &surface);
-        Surface_Ptr Scale(const Surface_Ptr &surface, math::Vector2 size);
-        Surface_Ptr Scale2x(const Surface_Ptr &surface);
+        Surface Flip(const Surface *surface, bool flip_x, bool flip_y);
+        Frames Flip(const Frames *frames, bool flip_x, bool flip_y);
+        Surface GrayScale(const Surface *surface);
+        Surface Scale(const Surface *surface, math::Vector2 size);
+        Surface Scale2x(const Surface *surface);
     } // namespace transform
 
 } // namespace rg

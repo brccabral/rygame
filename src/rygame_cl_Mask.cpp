@@ -26,23 +26,23 @@ rg::mask::Mask::~Mask()
     UnloadImage(image);
 }
 
-rg::Surface_Ptr rg::mask::Mask::ToSurface() const
+rg::Surface rg::mask::Mask::ToSurface() const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
-    const auto surface = std::make_shared<Surface>(image.width, image.height);
-    surface->Fill(rl::BLANK);
-    surface->Blit(maskTexture, {}, atlas_rect);
+    auto surface = Surface(image.width, image.height);
+    surface.Fill(rl::BLANK);
+    surface.Blit(maskTexture, {}, atlas_rect);
     UnloadTextureSafe(maskTexture);
     return surface;
 }
 
-rg::Frames_Ptr rg::mask::Mask::ToFrames(int rows, int cols) const
+rg::Frames rg::mask::Mask::ToFrames(int rows, int cols) const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
-    const auto surface = std::make_shared<Frames>(image.width, image.height, rows, cols);
-    surface->Fill(rl::BLANK);
-    surface->Blit(maskTexture, {}, atlas_rect);
-    surface->SetAtlas();
+    auto surface = Frames(image.width, image.height, rows, cols);
+    surface.Fill(rl::BLANK);
+    surface.Blit(maskTexture, {}, atlas_rect);
+    surface.SetAtlas();
     UnloadTextureSafe(maskTexture);
     return surface;
 }

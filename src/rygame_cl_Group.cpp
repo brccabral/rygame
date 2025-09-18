@@ -1,9 +1,10 @@
+#include <algorithm>
 #include "rygame.hpp"
 
 
-void rg::sprite::Group::Draw(const Surface_Ptr &surface)
+void rg::sprite::Group::Draw(Surface *surface)
 {
-    for (const auto &sprite: sprites)
+    for (const auto *sprite: sprites)
     {
         surface->Blit(sprite->image, sprite->rect);
     }
@@ -11,7 +12,7 @@ void rg::sprite::Group::Draw(const Surface_Ptr &surface)
 
 void rg::sprite::Group::Update(const float deltaTime) const
 {
-    for (const auto &sprite: Sprites())
+    for (auto *sprite: Sprites())
     {
         sprite->Update(deltaTime);
     }
@@ -19,41 +20,43 @@ void rg::sprite::Group::Update(const float deltaTime) const
 
 void rg::sprite::Group::empty()
 {
-    for (const auto &sprite: Sprites())
+    for (auto *sprite: Sprites())
     {
         sprite->remove(this);
     }
     sprites.clear();
 }
 
-void rg::sprite::Group::remove(const std::vector<Sprite_Ptr> &to_remove_sprites)
+void rg::sprite::Group::remove(const std::vector<Sprite *> &to_remove_sprites)
 {
-    for (const auto &sprite: to_remove_sprites)
+    for (auto *sprite: to_remove_sprites)
     {
         remove(sprite);
     }
 }
 
-void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        const Sprite_Ptr &to_remove_sprite)
+void rg::sprite::Group::remove(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Sprite *to_remove_sprite)
 {
     if (has(to_remove_sprite))
     {
-        sprites.erase(std::remove(sprites.begin(), sprites.end(), to_remove_sprite), sprites.end());
+        std::erase(sprites, to_remove_sprite);
         to_remove_sprite->remove(this);
     }
 }
 
-void rg::sprite::Group::add(const std::vector<Sprite_Ptr> &to_add_sprites)
+void rg::sprite::Group::add(const std::vector<Sprite *> &to_add_sprites)
 {
-    for (const auto &sprite: to_add_sprites)
+    for (auto *sprite: to_add_sprites)
     {
         add(sprite);
     }
 }
 
-void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
-        const Sprite_Ptr &to_add_sprite)
+void rg::sprite::Group::add(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
+        Sprite *to_add_sprite)
 {
     if (!has(to_add_sprite))
     {
@@ -62,9 +65,9 @@ void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken
     }
 }
 
-bool rg::sprite::Group::has(const std::vector<Sprite_Ptr> &check_sprites)
+bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
 {
-    for (const auto &sprite: check_sprites)
+    for (const auto *sprite: check_sprites)
     {
         if (!has(sprite))
         {
@@ -74,12 +77,12 @@ bool rg::sprite::Group::has(const std::vector<Sprite_Ptr> &check_sprites)
     return true;
 }
 
-bool rg::sprite::Group::has(const Sprite_Ptr &check_sprite)
+bool rg::sprite::Group::has(const Sprite *check_sprite)
 {
     return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
 }
 
-std::vector<rg::sprite::Sprite_Ptr> rg::sprite::Group::Sprites() const
+std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
 {
     return sprites;
 }

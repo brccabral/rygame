@@ -49,18 +49,18 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
     return tiles;
 }
 
-rg::Surface_Ptr
+rg::Surface
 rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
-    const auto surface = std::make_shared<Surface>(
+    auto surface = Surface(
             (int) (map->width * map->tile_width), (int) (map->height * map->tile_height));
-    surface->Fill(rl::BLANK);
+    surface.Fill(rl::BLANK);
     // GetTMXTiles will return many Texture*, but we don't need to unload them here, only
     // at rg::UnloadTMX
     const std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
     for (const auto &[position, texture, atlas_rect]: tiles)
     {
-        surface->Blit(*texture, position, atlas_rect);
+        surface.Blit(*texture, position, atlas_rect);
     }
     return surface;
 }
