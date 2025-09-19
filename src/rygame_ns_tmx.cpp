@@ -28,6 +28,10 @@ std::vector<rg::tmx::TileInfo>
 rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
 {
     std::vector<TileInfo> tiles{};
+    if (layer->type != rl::L_LAYER)
+    {
+        return tiles;
+    }
     tiles.reserve(map->height * map->width);
     for (unsigned int y = 0; y < map->height; y++)
     {
@@ -38,11 +42,8 @@ rg::tmx::GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer)
             if (map->tiles[gid])
             {
                 const rl::tmx_tileset *ts = map->tiles[gid]->tileset;
-                Rect atlas_rect{};
-                auto *tileTexture = GetTMXTileTexture(map->tiles[gid], &atlas_rect);
                 const math::Vector2 pos = {(float) x * ts->tile_width, (float) y * ts->tile_height};
-                TileInfo tile_info = {pos, tileTexture, atlas_rect};
-                tiles.push_back(tile_info);
+                tiles.emplace_back(pos, gid);
             }
         }
     }
@@ -55,12 +56,14 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     auto surface = Surface(
             (int) (map->width * map->tile_width), (int) (map->height * map->tile_height));
     surface.Fill(rl::BLANK);
+    auto surfaces = rg::tmx::GetTMXSurfaces(map);
     // GetTMXTiles will return many Texture*, but we don't need to unload them here, only
     // at rg::UnloadTMX
     const std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
-    for (const auto &[position, texture, atlas_rect]: tiles)
+    for (const auto &[position, gid]: tiles)
     {
-        surface.Blit(*texture, position, atlas_rect);
+        const auto *s = &surfaces[gid];
+        surface.Blit(s->GetTexture(), position, s->atlas_rect);
     }
     return surface;
 }
@@ -89,14 +92,38 @@ rg::math::Vector2 rg::tmx::GetTMXObjPosition(const rl::tmx_object *object)
     return math::Vector2{x, y};
 }
 
-std::map<std::string, rl::tmx_map *> rg::tmx::LoadTMXMaps(const char *path)
+std::unordered_map<std::string, rl::tmx_map *> rg::tmx::LoadTMXMaps(const char *path)
 {
-    std::map<std::string, rl::tmx_map *> result;
+    std::unordered_map<std::string, rl::tmx_map *> result;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto filename = dirEntry.path().stem().string();
         auto entryPath = dirEntry.path().string();
         result[filename] = rl::LoadTMX(entryPath.c_str());
+    }
+    return result;
+}
+
+std::unordered_map<unsigned int, rg::Surface> rg::tmx::GetTMXSurfaces(const rl::tmx_map *map)
+{
+    std::unordered_map<unsigned int, Surface> result;
+    auto tileset_list = map->ts_head;
+    while (tileset_list)
+    {
+        if (const auto *tileset = tileset_list->tileset)
+        {
+            for (unsigned int t = 0; t < tileset->tilecount; ++t)
+            {
+                auto tile = tileset->tiles[t];
+                if (unsigned int gid = tileset_list->firstgid + tile.id)
+                {
+                    Rect atlas_rect{};
+                    const auto texture = GetTMXTileTexture(&tile, &atlas_rect);
+                    result[gid] = Surface(texture, atlas_rect);
+                }
+            }
+        }
+        tileset_list = tileset_list->next;
     }
     return result;
 }

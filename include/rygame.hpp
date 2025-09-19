@@ -558,12 +558,11 @@ namespace rg
 #ifdef WITH_TMX
     namespace tmx
     {
-        // World Position, Atlas image*, Atlas position
+        // World Position, Graphics ID
         struct TileInfo
         {
             math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
-            rl::Texture2D *texture = nullptr; // if tile has image, allocate it in memory
-            Rect atlas_rect{};
+            unsigned int gid{};
         };
 
         // get the tile image from the tileset
@@ -575,6 +574,7 @@ namespace rg
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
         std::unordered_map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
+        std::unordered_map<unsigned int, Surface> GetTMXSurfaces(const rl::tmx_map *map);
     } // namespace tmx
 #endif // WITH_TMX
 
