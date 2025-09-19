@@ -25,14 +25,14 @@ void rg::Frames::SetAtlas(const int frame_index)
 }
 
 rg::Frames
-rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const int cols)
+rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
-        return Frames();
+        return {};
     }
-    const int singleWidth = surfaces[0]->GetRect().width;
-    const int singleHeight = surfaces[0]->GetRect().height;
+    const int singleWidth = surfaces[0].GetRect().width;
+    const int singleHeight = surfaces[0].GetRect().height;
     auto result =
             Frames(singleWidth * cols, singleHeight * rows, rows, cols);
     result.Fill(rl::BLANK);
@@ -43,7 +43,7 @@ rg::Frames::Merge(const std::vector<Surface *> &surfaces, const int rows, const 
         {
             const unsigned int s = r * cols + c;
             result.Blit(
-                    surfaces[s], math::Vector2{(float) c * singleWidth, (float) r * singleHeight});
+                    &surfaces[s], math::Vector2{(float) c * singleWidth, (float) r * singleHeight});
         }
     }
 

@@ -72,7 +72,7 @@ void rg::Surface::SetAlpha(const float alpha)
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const Rect offset, const rl::BlendMode blend_mode)
+        const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode)
 {
     Blit(incoming, offset.pos, blend_mode);
 }

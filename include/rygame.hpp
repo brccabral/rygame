@@ -397,6 +397,11 @@ namespace rg
         explicit Surface(math::Vector2 size);
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
 
+        Surface(const Surface &other) = delete;
+        Surface(Surface &&other) = default;
+        Surface &operator=(const Surface &other) = delete;
+        Surface &operator=(Surface &&other) = default;
+
         // Unloads render
         virtual ~Surface();
 
@@ -408,7 +413,9 @@ namespace rg
         void SetAlpha(float alpha);
         // Blit incoming Surface* into this.
         void
-        Blit(const Surface *incoming, Rect offset, rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+        Blit(
+                const Surface *incoming, const Rect &offset,
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Surface* into this.
         void
         Blit(
@@ -476,7 +483,7 @@ namespace rg
         void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames Merge(const std::vector<Surface *> &surfaces, int rows, int cols);
+        static Frames Merge(const std::vector<Surface> &surfaces, int rows, int cols);
         // Load an image and create frames for it
         static Frames Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;
@@ -580,9 +587,11 @@ namespace rg
         {
         public:
 
-            // Group cannot be allocated in Heap
-            void *operator new(size_t) = delete;
-
+            Group() = default;
+            Group(const Group &other) = delete;
+            Group &operator=(const Group &other) = delete;
+            Group(Group &&other) = default;
+            Group &operator=(Group &&other) = default;
             virtual ~Group() = default;
 
             // Draw all sprites into surface
@@ -604,7 +613,7 @@ namespace rg
             // Check if sprite is in group
             bool has(const Sprite *check_sprite);
             // Returns a copy of vector sprites
-            [[nodiscard]] std::vector<Sprite *> Sprites() const;
+            [[nodiscard]] const std::vector<Sprite *> &Sprites() const;
 
         protected:
 
@@ -614,9 +623,6 @@ namespace rg
         class Sprite
         {
         public:
-
-            // Sprite cannot be allocated in Heap
-            void *operator new(size_t) = delete;
 
             Sprite();
 
@@ -643,7 +649,7 @@ namespace rg
             int z = 0; // in 2D games, used to sort the drawing order
 
             Rect rect{}; // world position
-            Surface *image;
+            Surface *image = nullptr;
 
         protected:
 

@@ -12,7 +12,7 @@ void rg::sprite::Group::Draw(Surface *surface)
 
 void rg::sprite::Group::Update(const float deltaTime) const
 {
-    for (auto *sprite: Sprites())
+    for (auto *sprite: sprites)
     {
         sprite->Update(deltaTime);
     }
@@ -20,7 +20,7 @@ void rg::sprite::Group::Update(const float deltaTime) const
 
 void rg::sprite::Group::empty()
 {
-    for (auto *sprite: Sprites())
+    for (auto *sprite: sprites)
     {
         sprite->remove(this);
     }
@@ -82,7 +82,7 @@ bool rg::sprite::Group::has(const Sprite *check_sprite)
     return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
 }
 
-std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
+const std::vector<rg::sprite::Sprite *> &rg::sprite::Group::Sprites() const
 {
     return sprites;
 }

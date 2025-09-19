@@ -19,7 +19,8 @@ rg::sprite::Sprite::Sprite() = default;
 //     add(groups);
 // }
 
-void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
+void rg::sprite::Sprite::add(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
         Group *to_add_group)
 {
     if (to_add_group)
@@ -27,7 +28,6 @@ void rg::sprite::Sprite::add( // NOLINT(*-no-recursion) - the recursion is broke
         if (!has(to_add_group))
         {
             groups.push_back(to_add_group);
-            // to_add_group->add(this);
             to_add_group->add(this);
         }
     }
@@ -41,7 +41,8 @@ void rg::sprite::Sprite::add(const std::vector<Group *> &to_add_groups)
     }
 }
 
-void rg::sprite::Sprite::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
+void rg::sprite::Sprite::remove(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
         Group *to_remove_group)
 {
     if (has(to_remove_group))
@@ -64,7 +65,7 @@ std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
     return groups;
 }
 
-rg::sprite::Sprite * rg::sprite::Sprite::Kill()
+rg::sprite::Sprite *rg::sprite::Sprite::Kill()
 {
     // leave all groups
     LeaveAllGroups();
@@ -88,7 +89,7 @@ void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
 }
 
 void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recursion does not
-                                          // happen because we pass `false`
+// happen because we pass `false`
 {
     // leave all groups
     for (const auto group: Groups())
