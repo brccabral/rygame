@@ -518,7 +518,7 @@ namespace rg
         // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
         // where the key is the filename
         // Make sure to delete them
-        std::map<std::string, Surface> LoadFolderDict(const char *path);
+        std::unordered_map<std::string, Surface> LoadFolderDict(const char *path);
         // Walk a folder path and loads all images
         // Returns a vector of Surface*
         // The caller must delete Surface*
@@ -526,7 +526,7 @@ namespace rg
         // Walk a folder path and loads all images
         // Returns a map where the key is filename and values are Surface*
         // The caller must delete Surface*
-        std::map<std::string, Surface> ImportFolderDict(const char *path);
+        std::unordered_map<std::string, Surface> ImportFolderDict(const char *path);
     } // namespace image
 
     namespace draw
@@ -574,7 +574,7 @@ namespace rg
         Surface GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
         math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
-        std::map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
+        std::unordered_map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
     } // namespace tmx
 #endif // WITH_TMX
 

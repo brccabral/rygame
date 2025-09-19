@@ -25,9 +25,9 @@ std::vector<rg::Surface> rg::image::LoadFolderList(const char *path)
     return surfaces;
 }
 
-std::map<std::string, rg::Surface> rg::image::LoadFolderDict(const char *path)
+std::unordered_map<std::string, rg::Surface> rg::image::LoadFolderDict(const char *path)
 {
-    std::map<std::string, Surface> surfaces;
+    std::unordered_map<std::string, Surface> surfaces;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto filename = dirEntry.path().stem().string();
@@ -49,9 +49,9 @@ std::vector<rg::Surface> rg::image::ImportFolder(const char *path)
     return surfaces;
 }
 
-std::map<std::string, rg::Surface> rg::image::ImportFolderDict(const char *path)
+std::unordered_map<std::string, rg::Surface> rg::image::ImportFolderDict(const char *path)
 {
-    std::map<std::string, Surface> result;
+    std::unordered_map<std::string, Surface> result;
     for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
     {
         auto entryPath = dirEntry.path().string();
