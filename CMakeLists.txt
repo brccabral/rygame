@@ -54,7 +54,7 @@ endif ()
 message("WITH_TMX ${WITH_TMX}")
 if (WITH_TMX)
     find_package(raylib-tmx REQUIRED)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "WITH_TMX")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "WITH_TMX")
     target_link_libraries(${PROJECT_NAME} PUBLIC raylib-tmx)
 endif ()
 
