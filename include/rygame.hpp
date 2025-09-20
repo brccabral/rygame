@@ -614,6 +614,8 @@ namespace rg
             bool has(const Sprite *check_sprite);
             // Returns a copy of vector sprites
             [[nodiscard]] const std::vector<Sprite *> &Sprites() const;
+            // reserve memory for inner vector
+            void reserve(size_t size);
 
         protected:
 

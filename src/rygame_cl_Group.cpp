@@ -86,3 +86,8 @@ const std::vector<rg::sprite::Sprite *> &rg::sprite::Group::Sprites() const
 {
     return sprites;
 }
+
+void rg::sprite::Group::reserve(const size_t size)
+{
+    sprites.reserve(size);
+}
