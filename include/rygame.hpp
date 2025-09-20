@@ -398,9 +398,9 @@ namespace rg
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
 
         Surface(const Surface &other) = delete;
-        Surface(Surface &&other) = default;
         Surface &operator=(const Surface &other) = delete;
-        Surface &operator=(Surface &&other) = default;
+        Surface(Surface &&other) noexcept;
+        Surface &operator=(Surface &&other) noexcept;
 
         // Unloads render
         virtual ~Surface();
