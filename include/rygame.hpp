@@ -842,7 +842,7 @@ namespace rg
             {
                 rl::Sound sound;
                 rl::Music music;
-            } audio;
+            } audio{};
 
         private:
 
