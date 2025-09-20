@@ -23,6 +23,35 @@ rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic)
     }
 }
 
+rg::mixer::Sound::Sound(Sound &&other) noexcept : audio(other.audio), isMusic(other.isMusic),
+                                                  file(other.file)
+{
+    if (other.isMusic)
+    {
+        other.audio.music.stream.buffer = nullptr;
+    }
+    else
+    {
+        other.audio.sound.stream.buffer = nullptr;
+    }
+}
+
+rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
+{
+    audio = other.audio;
+    isMusic = other.isMusic;
+    file = other.file;
+    if (other.isMusic)
+    {
+        other.audio.music.stream.buffer = nullptr;
+    }
+    else
+    {
+        other.audio.sound.stream.buffer = nullptr;
+    }
+    return *this;
+}
+
 rg::mixer::Sound::~Sound()
 {
     if (isMusic)

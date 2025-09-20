@@ -833,6 +833,10 @@ namespace rg
 
             Sound() = default;
             explicit Sound(const char *file, bool isMusic = false);
+            Sound(const Sound &other) = delete;
+            Sound &operator=(const Sound &other) = delete;
+            Sound(Sound &&other) noexcept;
+            Sound &operator=(Sound &&other) noexcept;
             ~Sound();
 
             void Play() const;
