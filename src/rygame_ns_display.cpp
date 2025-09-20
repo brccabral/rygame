@@ -38,9 +38,9 @@ rg::Surface &rg::display::GetSurface()
 
 void rg::display::Update()
 {
-    for (const auto &music: rygame.musics)
+    for (const auto *music: rygame.musics)
     {
-        UpdateMusicStream(*(rl::Music *) music->audio.get());
+        UpdateMusicStream(music->audio.music);
     }
 
     EndTextureModeSafe();

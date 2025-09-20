@@ -829,9 +829,6 @@ namespace rg
         {
         public:
 
-            // Sound cannot be allocated in Heap
-            void *operator new(size_t) = delete;
-
             Sound() = default;
             explicit Sound(const char *file, bool isMusic = false);
             ~Sound();
@@ -841,7 +838,11 @@ namespace rg
             void SetVolume(float value) const;
             [[nodiscard]] const char *GetFilename() const;
 
-            std::shared_ptr<void> audio = nullptr;
+            union audio
+            {
+                rl::Sound sound;
+                rl::Music music;
+            } audio;
 
         private:
 

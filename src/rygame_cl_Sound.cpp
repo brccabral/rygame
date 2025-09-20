@@ -14,12 +14,12 @@ rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic)
     }
     if (isMusic)
     {
-        audio = std::make_shared<rl::Music>(rl::LoadMusicStream(file));
+        audio.music = rl::Music(rl::LoadMusicStream(file));
         rygame.musics.push_back(this);
     }
     else
     {
-        audio = std::make_shared<rl::Sound>(rl::LoadSound(file));
+        audio.sound = rl::Sound(rl::LoadSound(file));
     }
 }
 
@@ -27,13 +27,12 @@ rg::mixer::Sound::~Sound()
 {
     if (isMusic)
     {
-        rygame.musics.erase(
-                std::remove(rygame.musics.begin(), rygame.musics.end(), this), rygame.musics.end());
-        UnloadMusicStream(*(rl::Music *) audio.get());
+        std::erase(rygame.musics, this);
+        UnloadMusicStream(audio.music);
     }
     else
     {
-        UnloadSound(*(rl::Sound *) audio.get());
+        UnloadSound(audio.sound);
     }
 }
 
@@ -42,11 +41,11 @@ void rg::mixer::Sound::Play() const
 {
     if (isMusic)
     {
-        PlayMusicStream(*(rl::Music *) audio.get());
+        PlayMusicStream(audio.music);
     }
     else
     {
-        PlaySound(*(rl::Sound *) audio.get());
+        PlaySound(audio.sound);
     }
 }
 
@@ -54,17 +53,16 @@ void rg::mixer::Sound::Stop() const
 {
     if (isMusic)
     {
-        if (IsMusicStreamPlaying(*(rl::Music *) audio.get()))
+        if (IsMusicStreamPlaying(audio.music))
         {
-            StopMusicStream(*(rl::Music *) audio.get());
+            StopMusicStream(audio.music);
         }
     }
     else
     {
-
-        if (IsSoundPlaying(*(rl::Sound *) audio.get()))
+        if (IsSoundPlaying(audio.sound))
         {
-            StopSound(*(rl::Sound *) audio.get());
+            StopSound(audio.sound);
         }
     }
 }
@@ -73,11 +71,11 @@ void rg::mixer::Sound::SetVolume(const float value) const
 {
     if (isMusic)
     {
-        SetMusicVolume(*(rl::Music *) audio.get(), value);
+        SetMusicVolume(audio.music, value);
     }
     else
     {
-        SetSoundVolume(*(rl::Sound *) audio.get(), value);
+        SetSoundVolume(audio.sound, value);
     }
 }
 
