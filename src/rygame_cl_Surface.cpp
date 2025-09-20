@@ -107,7 +107,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const math::Vector2 offset,
+        const Surface *incoming, const math::Vector2 &offset,
         const rl::BlendMode blend_mode)
 {
     TraceLog(

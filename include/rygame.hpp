@@ -419,7 +419,7 @@ namespace rg
         // Blit incoming Surface* into this.
         void
         Blit(
-                const Surface *incoming, math::Vector2 offset,
+                const Surface *incoming, const math::Vector2 &offset,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Blit incoming Texture2D into surface*.
         void
