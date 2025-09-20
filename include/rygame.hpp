@@ -721,9 +721,6 @@ namespace rg
     {
     public:
 
-        // Timer cannot be allocated in Heap
-        void *operator new(size_t) = delete;
-
         // Default constructor
         Timer() : duration(0.0f), repeat(false), autostart(false), func(nullptr)
         {
