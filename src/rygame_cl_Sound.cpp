@@ -56,12 +56,18 @@ rg::mixer::Sound::~Sound()
 {
     if (isMusic)
     {
-        std::erase(rygame.musics, this);
-        UnloadMusicStream(audio.music);
+        if (audio.music.stream.buffer)
+        {
+            std::erase(rygame.musics, this);
+            UnloadMusicStream(audio.music);
+        }
     }
     else
     {
-        UnloadSound(audio.sound);
+        if (audio.sound.stream.buffer)
+        {
+            UnloadSound(audio.sound);
+        }
     }
 }
 
