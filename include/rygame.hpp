@@ -626,7 +626,7 @@ namespace rg
         {
         public:
 
-            Sprite();
+            Sprite() = default;
             Sprite(const Sprite &other) = delete;
             Sprite &operator=(const Sprite &other) = delete;
             Sprite(Sprite &&other) = default;

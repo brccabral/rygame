@@ -2,8 +2,6 @@
 #include "rygame.hpp"
 
 
-rg::sprite::Sprite::Sprite() = default;
-
 // !!!!! Can't have these constructors because it can't call "this" before
 // object has actually been created
 // rg::sprite::Sprite::Sprite(Group *to_add_group)
