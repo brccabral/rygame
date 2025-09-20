@@ -51,7 +51,6 @@ else ()
     target_link_libraries(${PROJECT_NAME} PUBLIC m)
 endif ()
 
-message("WITH_TMX ${WITH_TMX}")
 if (WITH_TMX)
     find_package(raylib-tmx REQUIRED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "WITH_TMX")
