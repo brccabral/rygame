@@ -799,15 +799,17 @@ namespace rg
         {
         public:
 
-            // Font cannot be allocated in Heap
-            void *operator new(size_t) = delete;
-
             // Default Font, size 1
             explicit Font(float font_size = 1);
             // Load font from file
             Font(const char *file, float font_size);
             // Raylib Font
             Font(rl::Font font, float font_size);
+            Font(const Font &other) = delete;
+            Font &operator=(const Font &other) = delete;
+            Font(Font &&other) noexcept;
+            Font &operator=(Font &&other) noexcept;
+
             ~Font();
             // Creates a Text surface from this Font. Make sure to delete it.
             // If passed padding_width or padding_height, surface dimensions will be added
