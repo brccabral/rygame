@@ -625,6 +625,10 @@ namespace rg
         public:
 
             Sprite();
+            Sprite(const Sprite &other) = delete;
+            Sprite &operator=(const Sprite &other) = delete;
+            Sprite(Sprite &&other) = default;
+            Sprite &operator=(Sprite &&other) = default;
 
             virtual ~Sprite() = default;
 
@@ -770,10 +774,13 @@ namespace rg
         {
         public:
 
-            // Mask cannot be allocated in Heap
-            void *operator new(size_t) = delete;
-
+            Mask() = default;
             Mask(unsigned int width, unsigned int height, bool fill = false);
+            Mask(const Mask &other) = delete;
+            Mask &operator=(const Mask &other) = delete;
+            Mask(Mask &&other) = default;
+            Mask &operator=(Mask &&other) = default;
+
             ~Mask();
             [[nodiscard]] Surface ToSurface() const;
             [[nodiscard]] Frames ToFrames(int rows, int cols) const;
