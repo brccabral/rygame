@@ -722,10 +722,7 @@ namespace rg
     public:
 
         // Default constructor
-        Timer() : duration(0.0f), repeat(false), autostart(false), func(nullptr)
-        {
-        }
-
+        Timer() = default;
         // Parameterized constructor
         explicit Timer(
                 float duration, bool repeat = false, bool autostart = false,
@@ -734,13 +731,13 @@ namespace rg
         void Deactivate();
         void Update();
         bool active{};
-        float duration;
+        float duration{};
 
     private:
 
         bool repeat{};
         bool autostart{};
-        std::function<void()> func;
+        std::function<void()> func{};
         double start_time{};
     };
 
