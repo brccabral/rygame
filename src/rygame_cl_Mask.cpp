@@ -21,6 +21,20 @@ rg::mask::Mask::Mask(const unsigned int width, const unsigned int height, const 
     image.data = pixels;
 }
 
+rg::mask::Mask::Mask(Mask &&other) noexcept
+    : image(other.image), atlas_rect(other.atlas_rect)
+{
+    other.image.data = nullptr;
+}
+
+rg::mask::Mask &rg::mask::Mask::operator=(Mask &&other) noexcept
+{
+    image = other.image;
+    atlas_rect = other.atlas_rect;
+    other.image.data = nullptr;
+    return *this;
+}
+
 rg::mask::Mask::~Mask()
 {
     UnloadImage(image);

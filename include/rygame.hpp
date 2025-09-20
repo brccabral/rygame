@@ -772,8 +772,8 @@ namespace rg
             Mask(unsigned int width, unsigned int height, bool fill = false);
             Mask(const Mask &other) = delete;
             Mask &operator=(const Mask &other) = delete;
-            Mask(Mask &&other) = default;
-            Mask &operator=(Mask &&other) = default;
+            Mask(Mask &&other) noexcept;
+            Mask &operator=(Mask &&other) noexcept;
 
             ~Mask();
             [[nodiscard]] Surface ToSurface() const;
