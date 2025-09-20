@@ -74,6 +74,11 @@ void rg::Surface::SetAlpha(const float alpha)
 void rg::Surface::Blit(
         const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode)
 {
+    if (!incoming)
+    {
+        TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
+        return;
+    }
     Blit(incoming, offset.pos, blend_mode);
 }
 
