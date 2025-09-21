@@ -18,14 +18,14 @@ rg::font::Font::Font(rl::Font font, const float font_size) : font(font), font_si
 
 rg::font::Font::Font(Font &&other) noexcept : font(other.font), font_size(other.font_size)
 {
-    other.font.texture.id = 0;
+    other.font = rl::GetFontDefault();
 }
 
 rg::font::Font &rg::font::Font::operator=(Font &&other) noexcept
 {
     font = other.font;
     font_size = other.font_size;
-    other.font.texture.id = 0;
+    other.font = rl::GetFontDefault();
     return *this;
 }
 
