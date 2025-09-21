@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "rygame.hpp"
 
 
@@ -34,7 +35,8 @@ void rg::sprite::Group::remove(const std::vector<Sprite_Ptr> &to_remove_sprites)
     }
 }
 
-void rg::sprite::Group::remove( // NOLINT(*-no-recursion) - the recursion is broken with has()
+void rg::sprite::Group::remove(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
         const Sprite_Ptr &to_remove_sprite)
 {
     if (has(to_remove_sprite))
@@ -52,7 +54,8 @@ void rg::sprite::Group::add(const std::vector<Sprite_Ptr> &to_add_sprites)
     }
 }
 
-void rg::sprite::Group::add( // NOLINT(*-no-recursion) - the recursion is broken with has()
+void rg::sprite::Group::add(
+        // NOLINT(*-no-recursion) - the recursion is broken with has()
         const Sprite_Ptr &to_add_sprite)
 {
     if (!has(to_add_sprite))
