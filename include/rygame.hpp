@@ -1,16 +1,18 @@
 // ReSharper disable CppClassCanBeFinal
 #pragma once
-#include <functional>
-#include <list>
-#include <utility>
-#include <vector>
+#include <algorithm>
+#include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <cstdarg>
-#include <filesystem>
 #include <ctime>
+#include <filesystem>
+#include <functional>
+#include <list>
 #include <map>
 #include <random>
+#include <sstream>
+#include <utility>
+#include <vector>
 
 namespace rl
 {
