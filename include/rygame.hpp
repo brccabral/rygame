@@ -216,6 +216,26 @@ namespace rg
             float operator[](const unsigned int &i) const;
             explicit operator bool() const;
         } Vector2;
+
+        typedef union Vector3i
+        {
+            int x, y, z;
+        } Vector3i;
+
+        typedef union Vector3uc
+        {
+            struct
+            {
+                unsigned char x{}, y{}, z{};
+            };
+
+            struct
+            {
+                unsigned char r, g, b;
+            };
+
+            explicit Vector3uc(rl::Vector3 v);
+        } Vector3uc;
 #if !_WIN32
 #pragma GCC diagnostic pop
 #endif
@@ -870,3 +890,6 @@ rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &r
 rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
 rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, float scale);
 rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, float scale);
+
+bool operator!=(const rg::math::Vector3uc &lhs, const rg::math::Vector3uc &rhs);
+bool operator!=(const rg::math::Vector3uc &lhs, const rl::Vector3 &rhs);
