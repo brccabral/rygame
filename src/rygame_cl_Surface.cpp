@@ -57,6 +57,8 @@ rg::Surface::~Surface()
     {
         UnloadRenderTextureSafe(render);
         render.id = 0;
+        // need this trace message for Release mode pick-up the set to 0
+        rl::TraceLog(rl::LOG_TRACE, "after render.id %d", render.id);
     }
 }
 
