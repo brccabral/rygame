@@ -860,7 +860,7 @@ namespace rg
             void Play() const;
             void Stop() const;
             void SetVolume(float value) const;
-            [[nodiscard]] const char *GetFilename() const;
+            [[nodiscard]] const std::string &GetFilename() const;
 
             union audio
             {
@@ -871,7 +871,7 @@ namespace rg
         private:
 
             bool isMusic{};
-            const char *file = nullptr;
+            std::string file{};
         };
     } // namespace mixer
 

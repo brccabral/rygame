@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "rygame.hpp"
 #include "rygame_cl_Rygame.hpp"
 
@@ -34,20 +33,27 @@ rg::mixer::Sound::Sound(Sound &&other) noexcept : audio(other.audio), isMusic(ot
     {
         other.audio.sound.stream.buffer = nullptr;
     }
+    std::erase(rygame.musics, &other);
+    rygame.musics.push_back(this);
 }
 
 rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
 {
-    audio = other.audio;
-    isMusic = other.isMusic;
-    file = other.file;
-    if (other.isMusic)
+    if (this != &other)
     {
-        other.audio.music.stream.buffer = nullptr;
-    }
-    else
-    {
-        other.audio.sound.stream.buffer = nullptr;
+        audio = other.audio;
+        isMusic = other.isMusic;
+        file = other.file;
+        if (other.isMusic)
+        {
+            other.audio.music.stream.buffer = nullptr;
+        }
+        else
+        {
+            other.audio.sound.stream.buffer = nullptr;
+        }
+        std::erase(rygame.musics, &other);
+        rygame.musics.push_back(this);
     }
     return *this;
 }
@@ -114,7 +120,7 @@ void rg::mixer::Sound::SetVolume(const float value) const
     }
 }
 
-const char *rg::mixer::Sound::GetFilename() const
+const std::string &rg::mixer::Sound::GetFilename() const
 {
     return file;
 }
