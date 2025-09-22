@@ -756,12 +756,12 @@ namespace rg
         void Update();
         bool active{};
         float duration{};
+        std::function<void()> func{};
 
     private:
 
         bool repeat{};
         bool autostart{};
-        std::function<void()> func{};
         double start_time{};
     };
 
