@@ -104,6 +104,9 @@ std::unordered_map<std::string, rl::tmx_map *> rg::tmx::LoadTMXMaps(const char *
     return result;
 }
 
+/**
+ * @returns unordered_map<gid, Surface>
+ */
 std::unordered_map<unsigned int, rg::Surface> rg::tmx::GetTMXSurfaces(const rl::tmx_map *map)
 {
     std::unordered_map<unsigned int, Surface> result;
