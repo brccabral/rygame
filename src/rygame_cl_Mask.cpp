@@ -50,7 +50,7 @@ rg::Surface rg::mask::Mask::ToSurface() const
     return surface;
 }
 
-rg::Frames rg::mask::Mask::ToFrames(int rows, int cols) const
+rg::Frames rg::mask::Mask::ToFrames(const int rows, const int cols) const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
     auto surface = Frames(image.width, image.height, rows, cols);

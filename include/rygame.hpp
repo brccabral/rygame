@@ -512,7 +512,7 @@ namespace rg
 
         Surface SubSurface(Rect rect) override
         {
-            throw("");
+            throw std::logic_error("Frame class does not have SubSurface, call SubFrames instead");
         };
         // Returns a different shared_ptr<Frames>, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
