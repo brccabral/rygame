@@ -612,9 +612,9 @@ namespace rg
             Group() = default;
             Group(const Group &other) = delete;
             Group &operator=(const Group &other) = delete;
-            Group(Group &&other) = default;
-            Group &operator=(Group &&other) = default;
-            virtual ~Group() = default;
+            Group(Group &&other) noexcept;
+            Group &operator=(Group &&other) noexcept;
+            virtual ~Group();
 
             // Draw all sprites into surface
             virtual void Draw(Surface *surface);
@@ -651,10 +651,10 @@ namespace rg
             Sprite() = default;
             Sprite(const Sprite &other) = delete;
             Sprite &operator=(const Sprite &other) = delete;
-            Sprite(Sprite &&other) = default;
-            Sprite &operator=(Sprite &&other) = default;
+            Sprite(Sprite &&other) noexcept;
+            Sprite &operator=(Sprite &&other) noexcept;
 
-            virtual ~Sprite() = default;
+            virtual ~Sprite();
 
             // add this sprite to passed group
             void add(Group *to_add_group);
@@ -664,15 +664,14 @@ namespace rg
             void remove(Group *to_remove_group);
             // remove all groups from this sprite
             void remove(const std::vector<Group *> &to_remove_groups);
-            // Returns a copy of the list of groups
-            std::vector<Group *> Groups();
+            // Returns const ref of this sprite groups
+            const std::vector<Group *> &Groups() const;
 
             virtual void Update(float deltaTime)
             {
             };
-            // removes sprite from group. Returns current Sprite*
-            // If discarded, will call ~Sprite(). Capture it to not call ~Sprite()
-            virtual Sprite *Kill();
+            // removes this sprite from all its group.
+            virtual void Kill();
 
             int z = 0; // in 2D games, used to sort the drawing order
 
@@ -681,8 +680,7 @@ namespace rg
 
         protected:
 
-            // !!!!! Can't have these constructors because it can't call "shared_from_this()" before
-            // object has actually been created
+            // TODO : create Sprite(Group *group)
             // explicit Sprite(Group *to_add_group);
             // explicit Sprite(const std::vector<Group *> &groups);
 
@@ -690,10 +688,6 @@ namespace rg
         private:
 
             bool has(const Group *check_group);
-            // Leave groups that are not the passed one
-            virtual void LeaveOtherGroups(const Group *not_leave_group);
-            // leave all groups
-            void LeaveAllGroups();
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);

@@ -2,6 +2,29 @@
 #include "rygame.hpp"
 
 
+rg::sprite::Group::Group(Group &&other) noexcept
+{
+    // need to tell sprites that there is a new group
+    sprites.reserve(other.sprites.capacity());
+    add(other.Sprites());
+}
+
+rg::sprite::Group &rg::sprite::Group::operator=(Group &&other) noexcept
+{
+    if (this != &other)
+    {
+        // need to tell sprites that there is a new group
+        sprites.reserve(other.sprites.capacity());
+        add(other.Sprites());
+    }
+    return *this;
+}
+
+rg::sprite::Group::~Group()
+{
+    empty();
+}
+
 void rg::sprite::Group::Draw(Surface *surface)
 {
     for (const auto *sprite: sprites)
@@ -20,7 +43,13 @@ void rg::sprite::Group::Update(const float deltaTime) const
 
 void rg::sprite::Group::empty()
 {
-    for (auto *sprite: sprites)
+    if (sprites.empty())
+    {
+        return;
+    }
+    // need a copy because sprite->remove() calls erase() which invalidates iterator
+    const auto cpy = sprites;
+    for (auto *sprite: cpy)
     {
         sprite->remove(this);
     }
