@@ -18,11 +18,9 @@
 // }
 
 rg::sprite::Sprite::Sprite(Sprite &&other) noexcept
-    : z(other.z), rect(other.rect), image(other.image)
+    : Sprite()
 {
-    // need to tell groups that there is a new sprite
-    groups.reserve(other.groups.capacity());
-    add(other.Groups());
+    *this = std::move(other);
 }
 
 rg::sprite::Sprite &rg::sprite::Sprite::operator=(Sprite &&other) noexcept

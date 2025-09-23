@@ -3,10 +3,9 @@
 
 
 rg::sprite::Group::Group(Group &&other) noexcept
+    : Group()
 {
-    // need to tell sprites that there is a new group
-    sprites.reserve(other.sprites.capacity());
-    add(other.Sprites());
+    *this = std::move(other);
 }
 
 rg::sprite::Group &rg::sprite::Group::operator=(Group &&other) noexcept
