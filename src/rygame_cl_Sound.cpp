@@ -37,13 +37,13 @@ rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
         if (other.isMusic)
         {
             other.audio.music.stream.buffer = nullptr;
+            std::erase(rygame.musics, &other);
+            rygame.musics.push_back(this);
         }
         else
         {
             other.audio.sound.stream.buffer = nullptr;
         }
-        std::erase(rygame.musics, &other);
-        rygame.musics.push_back(this);
     }
     return *this;
 }
