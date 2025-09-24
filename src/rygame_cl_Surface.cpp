@@ -27,12 +27,38 @@ rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
     }
 }
 
+rg::Surface::Surface(Surface &&other) noexcept
+    : render(other.render), atlas_rect(other.atlas_rect), shared_texture(other.shared_texture),
+      parent(other.parent), m_offset(other.m_offset), flip_atlas_height(other.flip_atlas_height),
+      m_tint(other.m_tint)
+{
+    other.render.id = 0;
+    other.render.texture.id = 0;
+    other.shared_texture = nullptr;
+}
+
+rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
+{
+    render = other.render;
+    atlas_rect = other.atlas_rect;
+    shared_texture = other.shared_texture;
+    parent = other.parent;
+    m_offset = other.m_offset;
+    flip_atlas_height = other.flip_atlas_height;
+    m_tint = other.m_tint;
+    other.render.id = 0;
+    other.render.texture.id = 0;
+    return *this;
+}
+
 rg::Surface::~Surface()
 {
     if (render.id && !parent)
     {
         UnloadRenderTextureSafe(render);
         render.id = 0;
+        // need this trace message for Release mode pick-up the set to 0
+        rl::TraceLog(rl::LOG_TRACE, "after render.id %d", render.id);
     }
 }
 
@@ -65,20 +91,25 @@ void rg::Surface::SetColorKey(const rl::Color color)
 
 void rg::Surface::SetAlpha(const float alpha)
 {
-    tint.r = alpha;
-    tint.g = alpha;
-    tint.b = alpha;
-    tint.a = alpha;
+    m_tint.r = alpha;
+    m_tint.g = alpha;
+    m_tint.b = alpha;
+    m_tint.a = alpha;
 }
 
 void rg::Surface::Blit(
-        const Surface_Ptr &incoming, const Rect offset, const rl::BlendMode blend_mode)
+        const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode)
 {
+    if (!incoming)
+    {
+        TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
+        return;
+    }
     Blit(incoming, offset.pos, blend_mode);
 }
 
 void rg::Surface::Blit(
-        const Surface_Ptr &incoming, const math::Vector2 offset,
+        const Surface *incoming, const math::Vector2 &offset,
         const rl::BlendMode blend_mode)
 {
     TraceLog(
@@ -89,7 +120,7 @@ void rg::Surface::Blit(
             incoming->GetTexture(), offset,
             {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
              incoming->atlas_rect.height * incoming->flip_atlas_height},
-            blend_mode, incoming->tint);
+            blend_mode, incoming->m_tint);
 }
 
 void rg::Surface::Blit(
@@ -130,7 +161,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blits(
-        const std::vector<std::pair<Surface_Ptr, math::Vector2>> &blit_sequence,
+        const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
         const rl::BlendMode blend_mode)
 {
     if (blit_sequence.empty())
@@ -152,7 +183,7 @@ void rg::Surface::Blits(
                 surface->GetTexture(),
                 {surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
                  -surface->atlas_rect.height * surface->flip_atlas_height},
-                offset.vector2, surface->tint);
+                offset.vector2, surface->m_tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
@@ -160,28 +191,28 @@ void rg::Surface::Blits(
     }
 }
 
-rg::Surface_Ptr rg::Surface::convert(const rl::PixelFormat format) const
+rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
 {
-    const auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
+    auto result = Surface(GetTexture().width, GetTexture().height);
 
     rl::Image toConvert = LoadImageFromTextureSafe(GetTexture());
     ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
-    result->Blit(converted, {}, {});
+    result.Blit(converted, {}, {});
 
     UnloadTextureSafe(converted);
     UnloadImage(toConvert);
     return result;
 }
 
-rg::Surface_Ptr rg::Surface::copy() const
+rg::Surface rg::Surface::copy() const
 {
-    rl::Texture2D texture = GetTexture();
-    auto result = std::make_shared<Surface>(texture.width, texture.height);
+    const rl::Texture2D texture = GetTexture();
+    auto result = Surface(texture.width, texture.height);
     const rl::Image toCopy = LoadImageFromTextureSafe(texture);
     const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
-    result->Blit(copyTexture, {}, {});
+    result.Blit(copyTexture, {}, {});
     UnloadTextureSafe(texture);
     UnloadImage(toCopy);
 
@@ -195,26 +226,26 @@ rg::Rect rg::Surface::GetRect() const
     return {0, 0, absWidth, absHeight};
 }
 
-rg::Surface_Ptr rg::Surface::SubSurface(const Rect rect)
+rg::Surface rg::Surface::SubSurface(const Rect rect)
 {
-    auto result = std::make_shared<Surface>(GetTexture().width, GetTexture().height);
-    UnloadRenderTextureSafe(result->render);
-    result->render = render;
-    result->shared_texture = shared_texture;
-    result->atlas_rect = rect;
-    result->parent = shared_from_this();
-    result->offset = rect.pos;
+    auto result = Surface(GetTexture().width, GetTexture().height);
+    UnloadRenderTextureSafe(result.render);
+    result.render = render;
+    result.shared_texture = shared_texture;
+    result.atlas_rect = rect;
+    result.parent = this;
+    result.m_offset = rect.pos;
     return result;
 }
 
-rg::Surface_Ptr rg::Surface::GetParent()
+rg::Surface *rg::Surface::GetParent() const
 {
     return parent;
 }
 
-rg::Surface_Ptr rg::Surface::GetAbsParent()
+rg::Surface *rg::Surface::GetAbsParent()
 {
-    Surface_Ptr result = shared_from_this();
+    auto *result = this;
     while (result->parent)
     {
         result = result->parent;

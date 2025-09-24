@@ -3,10 +3,6 @@ project(rygame VERSION 0.0.1)
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 option(WITH_TMX "use TMX features" OFF)
 option(SHOW_FPS "show FPS on top left of screen" OFF)
 
@@ -15,30 +11,37 @@ find_package(raylib REQUIRED)
 set(PROJECT_CONFIG "${PROJECT_NAME}Config")
 set(PROJECT_TARGETS "${PROJECT_NAME}Targets")
 
-add_library(
-    ${PROJECT_NAME} STATIC
-    src/rygame.cpp
-    src/rygame_ns_math.cpp
-    src/rygame_cl_Rect.cpp
-    src/rygame_cl_Line.cpp
-    src/rygame_cl_Surface.cpp
-    src/rygame_ns_image.cpp
-    src/rygame_cl_Frames.cpp
-    src/rygame_ns_draw.cpp
-    src/rygame_ns_tmx.cpp
-    src/rygame_cl_Group.cpp
-    src/rygame_cl_Sprite.cpp
-    src/rygame_ns_sprite.cpp
-    src/rygame_cl_Timer.cpp
-    src/rygame_cl_Sound.cpp
-    src/rygame_ns_display.cpp
-    src/rygame_cl_Clock.cpp
-    src/rygame_cl_Mask.cpp
-    src/rygame_ns_mask.cpp
-    src/rygame_cl_Font.cpp
-    src/rygame_ns_transform.cpp
-    src/rygame_cl_Vector2.cpp)
-target_link_libraries(${PROJECT_NAME} INTERFACE raylib)
+add_library(${PROJECT_NAME})
+target_sources(
+    ${PROJECT_NAME}
+    PRIVATE src/rygame.cpp
+            src/rygame_cl_Clock.cpp
+            src/rygame_cl_Font.cpp
+            src/rygame_cl_Frames.cpp
+            src/rygame_cl_Group.cpp
+            src/rygame_cl_Line.cpp
+            src/rygame_cl_Mask.cpp
+            src/rygame_cl_Rect.cpp
+            src/rygame_cl_Sound.cpp
+            src/rygame_cl_Sprite.cpp
+            src/rygame_cl_Surface.cpp
+            src/rygame_cl_Timer.cpp
+            src/rygame_cl_Vector2.cpp
+            src/rygame_ns_display.cpp
+            src/rygame_ns_draw.cpp
+            src/rygame_ns_image.cpp
+            src/rygame_ns_mask.cpp
+            src/rygame_ns_math.cpp
+            src/rygame_ns_sprite.cpp
+            src/rygame_ns_tmx.cpp
+            src/rygame_ns_transform.cpp
+    PUBLIC FILE_SET
+           HEADERS
+           FILES
+           include/rygame.hpp
+           BASE_DIRS
+           include)
+target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
 
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
@@ -59,24 +62,14 @@ else ()
                 "-Wno-missing-braces"
                 "-Wno-gnu-anonymous-struct"
                 "-Wno-nested-anon-types")
-    target_link_libraries(${PROJECT_NAME} INTERFACE m)
+    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m)
 endif ()
 
-message("WITH_TMX ${WITH_TMX}")
 if (WITH_TMX)
-    find_package(LibXml2 REQUIRED)
-    find_package(ZLIB REQUIRED)
-    find_package(tmx REQUIRED)
     find_package(raylib-tmx REQUIRED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "WITH_TMX")
-    target_link_libraries(
-        ${PROJECT_NAME}
-        INTERFACE raylib-tmx
-                  tmx
-                  LibXml2::LibXml2
-                  ZLIB::ZLIB)
-    target_include_directories(${PROJECT_NAME}
-                               PUBLIC "$<TARGET_PROPERTY:raylib-tmx,INTERFACE_INCLUDE_DIRECTORIES>")
+    target_link_libraries(${PROJECT_NAME} PUBLIC raylib-tmx)
 endif ()
 
 if (SHOW_FPS)
@@ -92,12 +85,14 @@ install(
     EXPORT ${PROJECT_TARGETS}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin)
-install(DIRECTORY include/ DESTINATION include)
+    RUNTIME DESTINATION bin
+            FILE_SET HEADERS
+            DESTINATION include)
 
 # Export the library for use with find_package
 install(
     EXPORT ${PROJECT_TARGETS}
+    NAMESPACE rygame::
     FILE ${PROJECT_TARGETS}.cmake
     DESTINATION lib/cmake/${PROJECT_NAME})
 

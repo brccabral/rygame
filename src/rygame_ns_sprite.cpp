@@ -1,15 +1,16 @@
 #include "rygame.hpp"
 
 
-bool rg::sprite::collide_rect(const Sprite_Ptr &left, const Sprite_Ptr &right)
+bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
 {
     return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
 }
 
 rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
-{}
+{
+}
 
-bool rg::sprite::collide_rect_ratio::operator()(const Sprite_Ptr left, const Sprite_Ptr right) const
+bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite *right) const
 {
     Rect leftrect = left->rect;
     Rect rightrect = right->rect;
@@ -20,12 +21,12 @@ bool rg::sprite::collide_rect_ratio::operator()(const Sprite_Ptr left, const Spr
     return collide_rect(left, right);
 }
 
-std::vector<rg::sprite::Sprite_Ptr> rg::sprite::spritecollide(
-        const Sprite_Ptr &sprite, const Group *group, const bool dokill,
-        const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided)
+std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
+        const Sprite *sprite, const Group *group, const bool dokill,
+        const std::function<bool(const Sprite *left, const Sprite *right)> &collided)
 {
-    std::vector<Sprite_Ptr> result;
-    for (const auto &other_sprite: group->Sprites())
+    std::vector<Sprite *> result;
+    for (auto *other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {
@@ -42,11 +43,11 @@ std::vector<rg::sprite::Sprite_Ptr> rg::sprite::spritecollide(
     return result;
 }
 
-rg::sprite::Sprite_Ptr rg::sprite::spritecollideany(
-        const Sprite_Ptr &sprite, const Group *group,
-        const std::function<bool(Sprite_Ptr left, Sprite_Ptr right)> &collided)
+rg::sprite::Sprite *rg::sprite::spritecollideany(
+        const Sprite *sprite, const Group *group,
+        const std::function<bool(const Sprite *left, const Sprite *right)> &collided)
 {
-    for (auto other_sprite: group->Sprites())
+    for (auto *other_sprite: group->Sprites())
     {
         if (collided(sprite, other_sprite))
         {

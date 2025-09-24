@@ -2,9 +2,7 @@
 #include "rygame.hpp"
 
 
-rg::sprite::Sprite::Sprite() = default;
-
-// !!!!! Can't have these constructors because it can't call "shared_from_this()" before
+// !!!!! Can't have these constructors because it can't call "this" before
 // object has actually been created
 // rg::sprite::Sprite::Sprite(Group *to_add_group)
 // {
@@ -19,6 +17,31 @@ rg::sprite::Sprite::Sprite() = default;
 //     add(groups);
 // }
 
+rg::sprite::Sprite::Sprite(Sprite &&other) noexcept
+    : Sprite()
+{
+    *this = std::move(other);
+}
+
+rg::sprite::Sprite &rg::sprite::Sprite::operator=(Sprite &&other) noexcept
+{
+    if (this != &other)
+    {
+        z = other.z;
+        rect = other.rect;
+        image = other.image;
+        // need to tell groups that there is a new sprite
+        groups.reserve(other.groups.capacity());
+        add(other.Groups());
+    }
+    return *this;
+}
+
+rg::sprite::Sprite::~Sprite()
+{
+    Sprite::Kill();
+}
+
 void rg::sprite::Sprite::add(
         // NOLINT(*-no-recursion) - the recursion is broken with has()
         Group *to_add_group)
@@ -28,8 +51,7 @@ void rg::sprite::Sprite::add(
         if (!has(to_add_group))
         {
             groups.push_back(to_add_group);
-            // to_add_group->add(this);
-            to_add_group->add(shared_from_this());
+            to_add_group->add(this);
         }
     }
 }
@@ -48,8 +70,8 @@ void rg::sprite::Sprite::remove(
 {
     if (has(to_remove_group))
     {
-        groups.erase(std::remove(groups.begin(), groups.end(), to_remove_group), groups.end());
-        to_remove_group->remove(shared_from_this());
+        std::erase(groups, to_remove_group);
+        to_remove_group->remove(this);
     }
 }
 
@@ -61,42 +83,29 @@ void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
     }
 }
 
-std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
+const std::vector<rg::sprite::Group *> &rg::sprite::Sprite::Groups() const
 {
     return groups;
 }
 
-rg::sprite::Sprite_Ptr rg::sprite::Sprite::Kill()
+void rg::sprite::Sprite::Kill()
 {
+    if (groups.empty())
+    {
+        return;
+    }
     // leave all groups
-    LeaveAllGroups();
-    return shared_from_this();
+    // need a copy because group->remove() calls erase() which invalidates iterator
+    const auto cpy = groups;
+    for (auto *group: cpy)
+    {
+        group->remove(this);
+    }
+    // it doesn't belong to any group
+    groups.clear();
 }
 
 bool rg::sprite::Sprite::has(const Group *check_group)
 {
     return std::find(groups.begin(), groups.end(), check_group) != groups.end();
-}
-
-void rg::sprite::Sprite::LeaveOtherGroups(const Group *not_leave_group)
-{
-    for (const auto group: Groups())
-    {
-        if (group != not_leave_group)
-        {
-            group->remove(shared_from_this());
-        }
-    }
-}
-
-void rg::sprite::Sprite::LeaveAllGroups() // NOLINT(*-no-recursion) - the recursion does not
-// happen because we pass `false`
-{
-    // leave all groups
-    for (const auto group: Groups())
-    {
-        group->remove(shared_from_this());
-    }
-    // it doesn't belong to any group
-    groups.clear();
 }
