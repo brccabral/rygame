@@ -98,19 +98,20 @@ void rg::Surface::SetAlpha(const float alpha)
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode)
+        const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode,
+        const float scale)
 {
     if (!incoming)
     {
         TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
         return;
     }
-    Blit(incoming, offset.pos, blend_mode);
+    Blit(incoming, offset.pos, blend_mode, scale);
 }
 
 void rg::Surface::Blit(
         const Surface *incoming, const math::Vector2 &offset,
-        const rl::BlendMode blend_mode)
+        const rl::BlendMode blend_mode, const float scale)
 {
     TraceLog(
             rl::LOG_TRACE, "Blit render %d texture %d Texture() %d into render %d texture %d",
@@ -120,12 +121,12 @@ void rg::Surface::Blit(
             incoming->GetTexture(), offset,
             {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
              incoming->atlas_rect.height * incoming->flip_atlas_height},
-            blend_mode, incoming->m_tint);
+            blend_mode, incoming->m_tint, scale);
 }
 
 void rg::Surface::Blit(
         const rl::Texture2D &incoming_texture, const math::Vector2 offset, const Rect area,
-        const rl::BlendMode blend_mode, const rl::Color tint)
+        const rl::BlendMode blend_mode, const rl::Color tint, float scale)
 {
     if (!incoming_texture.id)
     {
@@ -144,15 +145,24 @@ void rg::Surface::Blit(
     }
     if (area.height && area.width)
     {
-        DrawTextureRec(
-                incoming_texture, {area.x, area.y, area.width, -area.height}, offset.vector2, tint);
+        rl::Rectangle dest = {offset.vector2.x, offset.vector2.y, fabsf(area.width) * scale,
+                              fabsf(area.height) * scale};
+        rl::Vector2 origin = {0.0f, 0.0f};
+
+        DrawTexturePro(
+                incoming_texture, {area.x, area.y, area.width, -area.height}, dest, origin, 0.0f,
+                tint);
     }
     else
     {
-        DrawTextureRec(
-                incoming_texture,
-                {0, 0, (float) incoming_texture.width, (float) -incoming_texture.height},
-                offset.vector2, tint);
+        rl::Rectangle dest = {offset.vector2.x, offset.vector2.y,
+                              abs(incoming_texture.width) * scale,
+                              abs(incoming_texture.height) * scale};
+        rl::Vector2 origin = {0.0f, 0.0f};
+
+        DrawTexturePro(
+                incoming_texture, {area.x, area.y, area.width, -area.height}, dest, origin, 0.0f,
+                tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {

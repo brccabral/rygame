@@ -437,17 +437,18 @@ namespace rg
         void
         Blit(
                 const Surface *incoming, const Rect &offset,
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
                 const Surface *incoming, const math::Vector2 &offset,
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Texture2D into surface*.
         void
         Blit(
                 const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE,
+                float scale = 1.0f);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void

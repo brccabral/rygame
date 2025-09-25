@@ -50,7 +50,7 @@ rg::Frames rg::transform::Flip(const Frames *frames, const bool flip_x, const bo
 
 rg::Surface rg::transform::GrayScale(const Surface *surface)
 {
-    auto texture = surface->GetTexture();
+    const auto texture = surface->GetTexture();
     rl::Image toGray = LoadImageFromTextureSafe(texture);
     ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
     const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
@@ -63,7 +63,7 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     return result;
 }
 
-rg::Surface rg::transform::Scale(const Surface *surface, math::Vector2 size)
+rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2 size)
 {
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
