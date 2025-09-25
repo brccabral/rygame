@@ -10,6 +10,7 @@
 #include <list>
 #include <map>
 #include <random>
+#include <ranges>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -121,11 +122,13 @@ namespace rg
     public:
 
         InsertOrderMap() = default;
-        InsertOrderMap(std::initializer_list<std::pair<K, V>> init);
+        InsertOrderMap(const std::initializer_list<std::pair<K, V>> &init);
 
         [[nodiscard]] unsigned int size() const;
         void insert(const K &key, const V &value);
         V &operator[](const K &key);
+        typename std::list<std::pair<K, V>>::const_iterator cbegin() const;
+        typename std::list<std::pair<K, V>>::const_iterator cend() const;
         typename std::list<std::pair<K, V>>::iterator begin();
         typename std::list<std::pair<K, V>>::iterator end();
 
@@ -140,7 +143,7 @@ namespace rg
     // !!!! template<> classes must have definitions in .h files
     // due to specialization during executable compilation->linking
     template<typename K, typename V>
-    InsertOrderMap<K, V>::InsertOrderMap(const std::initializer_list<std::pair<K, V>> init)
+    InsertOrderMap<K, V>::InsertOrderMap(const std::initializer_list<std::pair<K, V>> &init)
     {
         for (auto &[key, value]: init)
         {
@@ -180,6 +183,18 @@ namespace rg
         order_.emplace_back(key, V{}); // create a new default value
         map_[key] = --order_.end(); // Point to the `order_` location
         return map_[key]->second; // return the value
+    }
+
+    template<typename K, typename V>
+    typename std::list<std::pair<K, V>>::const_iterator InsertOrderMap<K, V>::cbegin() const
+    {
+        return order_.cbegin();
+    }
+
+    template<typename K, typename V>
+    typename std::list<std::pair<K, V>>::const_iterator InsertOrderMap<K, V>::cend() const
+    {
+        return order_.cend();
     }
 
     template<typename K, typename V>
@@ -632,17 +647,17 @@ namespace rg
             // Adds a Sprite to this group
             void add(Sprite *to_add_sprite);
             // Check if all sprites are in group
-            bool has(const std::vector<Sprite *> &check_sprites);
+            bool has(const std::vector<Sprite *> &check_sprites) const;
             // Check if sprite is in group
-            bool has(const Sprite *check_sprite);
+            bool has(Sprite *check_sprite) const;
             // Returns a copy of vector sprites
-            [[nodiscard]] const std::vector<Sprite *> &Sprites() const;
+            std::vector<Sprite *> Sprites() const;
             // reserve memory for inner vector
             void reserve(size_t size);
 
         protected:
 
-            std::vector<Sprite *> sprites{};
+            std::unordered_map<Sprite *, Sprite *> sprites{};
         };
 
         class Sprite
@@ -666,7 +681,7 @@ namespace rg
             // remove all groups from this sprite
             void remove(const std::vector<Group *> &to_remove_groups);
             // Returns const ref of this sprite groups
-            const std::vector<Group *> &Groups() const;
+            std::vector<Group *> Groups() const;
 
             virtual void Update(float deltaTime)
             {
@@ -685,10 +700,10 @@ namespace rg
             // explicit Sprite(Group *to_add_group);
             // explicit Sprite(const std::vector<Group *> &groups);
 
-            std::vector<Group *> groups{}; // groups that this sprite is in
+            std::unordered_map<Group *, Group *> groups{}; // groups that this sprite is in
         private:
 
-            bool has(const Group *check_group);
+            bool has(Group *check_group) const;
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);

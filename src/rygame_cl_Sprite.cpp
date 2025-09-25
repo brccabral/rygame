@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "rygame.hpp"
 
 
@@ -31,7 +30,7 @@ rg::sprite::Sprite &rg::sprite::Sprite::operator=(Sprite &&other) noexcept
         rect = other.rect;
         image = other.image;
         // need to tell groups that there is a new sprite
-        groups.reserve(other.groups.capacity());
+        groups.reserve(other.groups.size());
         add(other.Groups());
     }
     return *this;
@@ -50,7 +49,7 @@ void rg::sprite::Sprite::add(
     {
         if (!has(to_add_group))
         {
-            groups.push_back(to_add_group);
+            groups.emplace(to_add_group, to_add_group);
             to_add_group->add(this);
         }
     }
@@ -70,7 +69,7 @@ void rg::sprite::Sprite::remove(
 {
     if (has(to_remove_group))
     {
-        std::erase(groups, to_remove_group);
+        groups.erase(to_remove_group);
         to_remove_group->remove(this);
     }
 }
@@ -83,9 +82,16 @@ void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
     }
 }
 
-const std::vector<rg::sprite::Group *> &rg::sprite::Sprite::Groups() const
+std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups() const
 {
-    return groups;
+    // it has to return a vector copy because in a for-loop
+    // user might call sprite.Kill and it will invalidate groups
+    static std::vector<Group *> result;
+    result.clear();
+    result.reserve(groups.size());
+    result.insert(
+            result.end(), (groups | std::views::keys).begin(), (groups | std::views::keys).end());
+    return result;
 }
 
 void rg::sprite::Sprite::Kill()
@@ -96,7 +102,7 @@ void rg::sprite::Sprite::Kill()
     }
     // leave all groups
     // need a copy because group->remove() calls erase() which invalidates iterator
-    const auto cpy = groups;
+    const std::vector<Group *> cpy = Groups();
     for (auto *group: cpy)
     {
         group->remove(this);
@@ -105,7 +111,7 @@ void rg::sprite::Sprite::Kill()
     groups.clear();
 }
 
-bool rg::sprite::Sprite::has(const Group *check_group)
+bool rg::sprite::Sprite::has(Group *check_group) const
 {
-    return std::find(groups.begin(), groups.end(), check_group) != groups.end();
+    return groups.contains(check_group);
 }

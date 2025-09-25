@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "rygame.hpp"
 
 
@@ -13,7 +12,7 @@ rg::sprite::Group &rg::sprite::Group::operator=(Group &&other) noexcept
     if (this != &other)
     {
         // need to tell sprites that there is a new group
-        sprites.reserve(other.sprites.capacity());
+        sprites.reserve(other.sprites.size());
         add(other.Sprites());
     }
     return *this;
@@ -26,7 +25,7 @@ rg::sprite::Group::~Group()
 
 void rg::sprite::Group::Draw(Surface *surface)
 {
-    for (const auto *sprite: sprites)
+    for (const auto sprite: sprites | std::views::keys)
     {
         surface->Blit(sprite->image, sprite->rect);
     }
@@ -34,7 +33,7 @@ void rg::sprite::Group::Draw(Surface *surface)
 
 void rg::sprite::Group::Update(const float deltaTime) const
 {
-    for (auto *sprite: sprites)
+    for (auto *sprite: Sprites())
     {
         sprite->Update(deltaTime);
     }
@@ -47,7 +46,10 @@ void rg::sprite::Group::empty()
         return;
     }
     // need a copy because sprite->remove() calls erase() which invalidates iterator
-    const auto cpy = sprites;
+    std::vector<Sprite *> cpy;
+    cpy.reserve(sprites.size());
+    cpy.insert(
+            cpy.end(), (sprites | std::views::keys).begin(), (sprites | std::views::keys).end());
     for (auto *sprite: cpy)
     {
         sprite->remove(this);
@@ -69,7 +71,7 @@ void rg::sprite::Group::remove(
 {
     if (has(to_remove_sprite))
     {
-        std::erase(sprites, to_remove_sprite);
+        sprites.erase(to_remove_sprite);
         to_remove_sprite->remove(this);
     }
 }
@@ -88,14 +90,14 @@ void rg::sprite::Group::add(
 {
     if (!has(to_add_sprite))
     {
-        sprites.push_back(to_add_sprite);
+        sprites.emplace(to_add_sprite, to_add_sprite);
         to_add_sprite->add(this);
     }
 }
 
-bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
+bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites) const
 {
-    for (const auto *sprite: check_sprites)
+    for (auto *sprite: check_sprites)
     {
         if (!has(sprite))
         {
@@ -105,14 +107,21 @@ bool rg::sprite::Group::has(const std::vector<Sprite *> &check_sprites)
     return true;
 }
 
-bool rg::sprite::Group::has(const Sprite *check_sprite)
+bool rg::sprite::Group::has(Sprite *check_sprite) const
 {
-    return std::find(sprites.begin(), sprites.end(), check_sprite) != sprites.end();
+    return sprites.contains(check_sprite);
 }
 
-const std::vector<rg::sprite::Sprite *> &rg::sprite::Group::Sprites() const
+std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
 {
-    return sprites;
+    // it has to return a vector copy because in a for-loop
+    // user might call sprite.Kill and it will invalidate groups
+    static std::vector<Sprite *> result;
+    result.clear();
+    result.reserve(sprites.size());
+    result.insert(
+            result.end(), (sprites | std::views::keys).begin(), (sprites | std::views::keys).end());
+    return result;
 }
 
 void rg::sprite::Group::reserve(const size_t size)

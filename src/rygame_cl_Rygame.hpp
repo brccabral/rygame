@@ -23,5 +23,5 @@ public:
     bool isInit = false;
     bool isSoundInit = false;
     bool shouldQuit = false;
-    std::vector<rg::mixer::Sound *> musics;
+    std::vector<rg::mixer::Sound *> musics{};
 };
