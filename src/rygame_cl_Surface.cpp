@@ -28,13 +28,9 @@ rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
 }
 
 rg::Surface::Surface(Surface &&other) noexcept
-    : render(other.render), atlas_rect(other.atlas_rect), shared_texture(other.shared_texture),
-      parent(other.parent), m_offset(other.m_offset), flip_atlas_height(other.flip_atlas_height),
-      m_tint(other.m_tint)
+    : Surface()
 {
-    other.render.id = 0;
-    other.render.texture.id = 0;
-    other.shared_texture = nullptr;
+    *this = std::move(other);
 }
 
 rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
@@ -48,6 +44,7 @@ rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
     m_tint = other.m_tint;
     other.render.id = 0;
     other.render.texture.id = 0;
+    other.shared_texture = nullptr;
     return *this;
 }
 
@@ -126,7 +123,7 @@ void rg::Surface::Blit(
 
 void rg::Surface::Blit(
         const rl::Texture2D &incoming_texture, const math::Vector2 offset, const Rect area,
-        const rl::BlendMode blend_mode, const rl::Color tint, float scale)
+        const rl::BlendMode blend_mode, const rl::Color tint, const float scale)
 {
     if (!incoming_texture.id)
     {
@@ -145,9 +142,9 @@ void rg::Surface::Blit(
     }
     if (area.height && area.width)
     {
-        rl::Rectangle dest = {offset.vector2.x, offset.vector2.y, fabsf(area.width) * scale,
-                              fabsf(area.height) * scale};
-        rl::Vector2 origin = {0.0f, 0.0f};
+        const rl::Rectangle dest = {offset.vector2.x, offset.vector2.y, fabsf(area.width) * scale,
+                                    fabsf(area.height) * scale};
+        constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
         DrawTexturePro(
                 incoming_texture, {area.x, area.y, area.width, -area.height}, dest, origin, 0.0f,
@@ -155,13 +152,15 @@ void rg::Surface::Blit(
     }
     else
     {
-        rl::Rectangle dest = {offset.vector2.x, offset.vector2.y,
-                              abs(incoming_texture.width) * scale,
-                              abs(incoming_texture.height) * scale};
-        rl::Vector2 origin = {0.0f, 0.0f};
+        const rl::Rectangle dest = {offset.vector2.x, offset.vector2.y,
+                                    abs(incoming_texture.width) * scale,
+                                    abs(incoming_texture.height) * scale};
+        constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
         DrawTexturePro(
-                incoming_texture, {area.x, area.y, area.width, -area.height}, dest, origin, 0.0f,
+                incoming_texture,
+                {area.x, area.y, (float) incoming_texture.width, (float) -incoming_texture.height},
+                dest, origin, 0.0f,
                 tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
