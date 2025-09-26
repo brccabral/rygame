@@ -308,8 +308,13 @@ namespace rg
 
         struct
         {
-            float x, y, width, height;
+            float x{}, y{}, width{}, height{};
         };
+
+        Rect() = default;
+        Rect(math::Vector2 pos, math::Vector2 size);
+        explicit Rect(rl::Rectangle rect);
+        Rect(float x, float y, float width, float height);
 
         // Returns the X value on the right side (x+width)
         [[nodiscard]] float right() const;
