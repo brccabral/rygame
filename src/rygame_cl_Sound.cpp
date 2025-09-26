@@ -1,21 +1,20 @@
-#include <algorithm>
 #include "rygame.hpp"
 #include "rygame_cl_Rygame.hpp"
 
 
-extern Rygame rygame;
+extern Rygame *rygame;
 
 rg::mixer::Sound::Sound(const char *file, const bool isMusic) : isMusic(isMusic), file(file)
 {
-    if (!rygame.isSoundInit)
+    if (!rygame->isSoundInit)
     {
         rl::InitAudioDevice();
-        rygame.isSoundInit = rl::IsAudioDeviceReady();
+        rygame->isSoundInit = rl::IsAudioDeviceReady();
     }
     if (isMusic)
     {
         audio.music = rl::Music(rl::LoadMusicStream(file));
-        rygame.musics.push_back(this);
+        rygame->musics.push_back(this);
     }
     else
     {
@@ -38,8 +37,8 @@ rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
         if (other.isMusic)
         {
             other.audio.music.stream.buffer = nullptr;
-            std::erase(rygame.musics, &other);
-            rygame.musics.push_back(this);
+            std::erase(rygame->musics, &other);
+            rygame->musics.push_back(this);
         }
         else
         {
@@ -55,7 +54,7 @@ rg::mixer::Sound::~Sound()
     {
         if (audio.music.stream.buffer)
         {
-            std::erase(rygame.musics, this);
+            std::erase(rygame->musics, this);
             UnloadMusicStream(audio.music);
         }
     }

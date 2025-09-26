@@ -1,9 +1,8 @@
 #include "rygame.hpp"
+#include "rygame_cl_Rygame.hpp"
 
 
-std::random_device rd{};
-std::mt19937 gen(rd());
-std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
+extern Rygame *rygame;
 
 rg::math::Vector3uc::Vector3uc(const rl::Vector3 v)
 {
@@ -22,21 +21,21 @@ rg::math::random_uniform_dist(const float min, const float max)
 
 float rg::math::random_uniform(std::uniform_real_distribution<float> dist)
 {
-    return dist(gen);
+    return dist(*rygame->gen);
 }
 
 float rg::math::get_random_uniform(const float min, const float max)
 {
-    if (dists.find(min) == dists.end())
+    if (!rygame->dists.contains(min))
     {
-        dists[min] = {};
+        rygame->dists[min] = {};
     }
-    if (dists[min].find(max) == dists[min].end())
+    if (!rygame->dists[min].contains(max))
     {
-        dists[min][max] = random_uniform_dist(min, max);
+        rygame->dists[min][max] = random_uniform_dist(min, max);
     }
 
-    return dists[min][max](gen);
+    return rygame->dists[min][max](*rygame->gen);
 }
 
 float rg::math::clamp(const float value, const float min, const float max)

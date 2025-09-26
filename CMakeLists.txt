@@ -107,3 +107,5 @@ configure_package_config_file(
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME})
+
+target_compile_options(${PROJECT_NAME} PUBLIC -Wexit-time-destructors)

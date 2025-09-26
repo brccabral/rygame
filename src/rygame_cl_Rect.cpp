@@ -305,20 +305,22 @@ bool rg::Rect::colliderect(const Rect &other) const
     return CheckCollisionRecs(rectangle, other.rectangle);
 }
 
-rg::Line rg::Rect::clipline(const Line line)
+rg::Line rg::Rect::clipline(const Line line) const
 {
     return clipline(line.start, line.end);
 }
 
-rg::Line rg::Rect::clipline(const math::Vector2 start, const math::Vector2 end)
+rg::Line rg::Rect::clipline(const math::Vector2 start, const math::Vector2 end) const
 {
     return clipline(start.x, start.y, end.x, end.y);
 }
 
 // SDL_INTERSECTRECTANDLINE
-rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
+rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
 {
     Line result{};
+    float x_ = x;
+    float y_ = y;
 
     float rectx1 = x;
     float recty1 = y;
@@ -342,7 +344,8 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
     }
 
     if (y1 == y2)
-    { /* Horizontal line, easy to clip */
+    {
+        /* Horizontal line, easy to clip */
         if (x1 < rectx1)
         {
             result.x1 = rectx1;
@@ -363,7 +366,8 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
     }
 
     if (x1 == x2)
-    { /* Vertical line, easy to clip */
+    {
+        /* Vertical line, easy to clip */
         if (y1 < recty1)
         {
             result.y1 = recty1;
@@ -397,26 +401,26 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
         {
             if (outcode1 & CODE_TOP)
             {
-                y = recty1;
-                x = (x1 + ((x2 - x1) * (y - y1)) / (y2 - y1));
+                y_ = recty1;
+                x_ = x1 + (x2 - x1) * (y_ - y1) / (y2 - y1);
             }
             else if (outcode1 & CODE_BOTTOM)
             {
-                y = recty2;
-                x = (x1 + ((x2 - x1) * (y - y1)) / (y2 - y1));
+                y_ = recty2;
+                x_ = x1 + (x2 - x1) * (y_ - y1) / (y2 - y1);
             }
             else if (outcode1 & CODE_LEFT)
             {
-                x = rectx1;
-                y = (y1 + ((y2 - y1) * (x - x1)) / (x2 - x1));
+                x_ = rectx1;
+                y_ = y1 + (y2 - y1) * (x_ - x1) / (x2 - x1);
             }
             else if (outcode1 & CODE_RIGHT)
             {
-                x = rectx2;
-                y = (y1 + ((y2 - y1) * (x - x1)) / (x2 - x1));
+                x_ = rectx2;
+                y_ = y1 + (y2 - y1) * (x_ - x1) / (x2 - x1);
             }
-            x1 = x;
-            y1 = y;
+            x1 = x_;
+            y1 = y_;
             outcode1 = COMPUTEOUTCODE(this, x, y);
         }
         else
@@ -424,14 +428,14 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
             if (outcode2 & CODE_TOP)
             {
                 assert(y2 != y1); /* if equal: division by zero. */
-                y = recty1;
-                x = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
+                y_ = recty1;
+                x_ = x1 + (x2 - x1) * (y_ - y1) / (y2 - y1);
             }
             else if (outcode2 & CODE_BOTTOM)
             {
                 assert(y2 != y1); /* if equal: division by zero. */
-                y = recty2;
-                x = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
+                y_ = recty2;
+                x_ = x1 + (x2 - x1) * (y_ - y1) / (y2 - y1);
             }
             else if (outcode2 & CODE_LEFT)
             {
@@ -439,8 +443,8 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
                    http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-b0d01a.html#EndPath
                  */
                 assert(x2 != x1); /* if equal: division by zero. */
-                x = rectx1;
-                y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+                x_ = rectx1;
+                y_ = y1 + (y2 - y1) * (x_ - x1) / (x2 - x1);
             }
             else if (outcode2 & CODE_RIGHT)
             {
@@ -448,12 +452,12 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2)
                    http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-39b114.html#EndPath
                  */
                 assert(x2 != x1); /* if equal: division by zero. */
-                x = rectx2;
-                y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+                x_ = rectx2;
+                y_ = y1 + (y2 - y1) * (x_ - x1) / (x2 - x1);
             }
-            x2 = x;
-            y2 = y;
-            outcode2 = COMPUTEOUTCODE(this, x, y);
+            x2 = x_;
+            y2 = y_;
+            outcode2 = COMPUTEOUTCODE(this, x_, y_);
         }
     }
     result.x1 = x1;

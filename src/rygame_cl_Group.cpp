@@ -25,13 +25,13 @@ rg::sprite::Group::~Group()
 
 void rg::sprite::Group::Draw(Surface *surface)
 {
-    for (const auto sprite: sprites | std::views::keys)
+    for (const auto *sprite: sprites | std::views::keys)
     {
         surface->Blit(sprite->image, sprite->rect);
     }
 }
 
-void rg::sprite::Group::Update(const float deltaTime) const
+void rg::sprite::Group::Update(const float deltaTime)
 {
     for (auto *sprite: Sprites())
     {
@@ -112,11 +112,10 @@ bool rg::sprite::Group::has(Sprite *check_sprite) const
     return sprites.contains(check_sprite);
 }
 
-std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites() const
+std::vector<rg::sprite::Sprite *> rg::sprite::Group::Sprites()
 {
     // it has to return a vector copy because in a for-loop
     // user might call sprite.Kill and it will invalidate groups
-    static std::vector<Sprite *> result;
     result.clear();
     result.reserve(sprites.size());
     result.insert(

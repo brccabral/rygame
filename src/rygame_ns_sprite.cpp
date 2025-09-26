@@ -22,7 +22,7 @@ bool rg::sprite::collide_rect_ratio::operator()(const Sprite *left, const Sprite
 }
 
 std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
-        const Sprite *sprite, const Group *group, const bool dokill,
+        const Sprite *sprite, Group *group, const bool dokill,
         const std::function<bool(const Sprite *left, const Sprite *right)> &collided)
 {
     std::vector<Sprite *> result;
@@ -44,7 +44,7 @@ std::vector<rg::sprite::Sprite *> rg::sprite::spritecollide(
 }
 
 rg::sprite::Sprite *rg::sprite::spritecollideany(
-        const Sprite *sprite, const Group *group,
+        const Sprite *sprite, Group *group,
         const std::function<bool(const Sprite *left, const Sprite *right)> &collided)
 {
     for (auto *other_sprite: group->Sprites())

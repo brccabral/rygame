@@ -413,13 +413,13 @@ namespace rg
         [[nodiscard]] bool colliderect(const Rect &other) const;
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
-        Line clipline(Line line);
+        Line clipline(Line line) const;
         // If passed line (from start to end) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
-        Line clipline(math::Vector2 start, math::Vector2 end);
+        Line clipline(math::Vector2 start, math::Vector2 end) const;
         // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
-        Line clipline(float x1, float y1, float x2, float y2);
+        Line clipline(float x1, float y1, float x2, float y2) const;
     } Rect;
 #if !_WIN32
 #pragma GCC diagnostic pop
@@ -480,7 +480,7 @@ namespace rg
         // Returns a different Surface, but it shares same image
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         virtual Surface SubSurface(Rect rect);
-        Surface *GetParent() const;
+        [[nodiscard]] Surface *GetParent() const;
         Surface *GetAbsParent();
 
         // Returns shared_texture if exists, render.texture otherwise.
@@ -635,7 +635,7 @@ namespace rg
             // Draw all sprites into surface
             virtual void Draw(Surface *surface);
             // Updates all sprites
-            void Update(float deltaTime) const;
+            void Update(float deltaTime);
             // Removes all sprites from Group
             void empty();
             // Removes a list of sprites from this group (if they are part of this group)
@@ -651,13 +651,17 @@ namespace rg
             // Check if sprite is in group
             bool has(Sprite *check_sprite) const;
             // Returns a copy of vector sprites
-            std::vector<Sprite *> Sprites() const;
+            std::vector<Sprite *> Sprites();
             // reserve memory for inner vector
             void reserve(size_t size);
 
         protected:
 
             std::unordered_map<Sprite *, Sprite *> sprites{};
+
+        private:
+
+            std::vector<Sprite *> result;
         };
 
         class Sprite
@@ -681,7 +685,7 @@ namespace rg
             // remove all groups from this sprite
             void remove(const std::vector<Group *> &to_remove_groups);
             // Returns const ref of this sprite groups
-            std::vector<Group *> Groups() const;
+            std::vector<Group *> Groups();
 
             virtual void Update(float deltaTime)
             {
@@ -704,6 +708,7 @@ namespace rg
         private:
 
             bool has(Group *check_group) const;
+            std::vector<Group *> result;
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);
@@ -737,14 +742,14 @@ namespace rg
         // Returns a list of all sprites in the group that collides with the sprite
         // If dokill is true, all collided sprites are removed from group
         std::vector<Sprite *> spritecollide(
-                const Sprite *sprite, const Group *group, bool dokill,
+                const Sprite *sprite, Group *group, bool dokill,
                 const std::function<bool(const Sprite *left, const Sprite *right)> &collided =
                         collide_rect);
 
         // Tests if Sprite collides with any sprite in group, returns the first sprite in
         // group that collides
         Sprite *spritecollideany(
-                const Sprite *sprite, const Group *group,
+                const Sprite *sprite, Group *group,
                 const std::function<bool(const Sprite *left, const Sprite *right)> &collided =
                         collide_rect);
     } // namespace sprite

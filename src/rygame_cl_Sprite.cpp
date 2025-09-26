@@ -32,6 +32,7 @@ rg::sprite::Sprite &rg::sprite::Sprite::operator=(Sprite &&other) noexcept
         // need to tell groups that there is a new sprite
         groups.reserve(other.groups.size());
         add(other.Groups());
+        other.image = nullptr;
     }
     return *this;
 }
@@ -82,11 +83,10 @@ void rg::sprite::Sprite::remove(const std::vector<Group *> &to_remove_groups)
     }
 }
 
-std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups() const
+std::vector<rg::sprite::Group *> rg::sprite::Sprite::Groups()
 {
     // it has to return a vector copy because in a for-loop
     // user might call sprite.Kill and it will invalidate groups
-    static std::vector<Group *> result;
     result.clear();
     result.reserve(groups.size());
     result.insert(
