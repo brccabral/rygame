@@ -8,12 +8,12 @@ public:
 
     Rygame()
     {
-        gen = new std::mt19937(rd());
+        random_gen = new std::mt19937(rd());
     };
 
     ~Rygame()
     {
-        delete gen;
+        delete random_gen;
         display_surface.~Surface();
         if (isSoundInit)
         {
@@ -30,7 +30,8 @@ public:
     std::vector<rg::mixer::Sound *> musics{};
 
     std::random_device rd{};
-    std::mt19937 *gen;
-    std::map<float, std::map<float, std::uniform_real_distribution<float>>> dists;
+    static std::mt19937 *random_gen;
+    std::map<float, std::map<float, std::uniform_real_distribution<float>>> float_dists;
+    std::map<int, std::map<int, std::uniform_int_distribution<int>>> int_dists;
 
 };

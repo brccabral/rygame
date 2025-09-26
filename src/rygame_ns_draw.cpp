@@ -94,7 +94,7 @@ void rg::draw::bar(
                     surface->render.texture.id));
     const float ratio = rect.width / max_value;
     const Rect progress_rect = {
-            rect.x, rect.y, math::clamp(value * ratio, 0, rect.width), rect.height};
+            rect.x, rect.y, math::clamp(value * ratio, 0.0f, rect.width), rect.height};
 
     if (radius == 0)
     {

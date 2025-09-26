@@ -257,10 +257,15 @@ namespace rg
 #pragma GCC diagnostic pop
 #endif
 
+        std::mt19937 *get_rng();
         std::uniform_real_distribution<float> random_uniform_dist(float min, float max);
         float random_uniform(std::uniform_real_distribution<float> dist);
         float get_random_uniform(float min, float max);
         float clamp(float value, float min, float max);
+        std::uniform_int_distribution<int> random_uniform_dist(int min, int max);
+        int random_uniform(std::uniform_int_distribution<int> dist);
+        int get_random_uniform(int min, int max);
+        int clamp(int value, int min, int max);
     } // namespace math
 
     // GCC warns about Anonymous Struct
