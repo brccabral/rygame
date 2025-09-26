@@ -645,25 +645,25 @@ namespace rg
             // Draw all sprites into surface
             virtual void Draw(Surface *surface);
             // Updates all sprites
-            void Update(float deltaTime);
+            virtual void Update(float deltaTime);
             // Removes all sprites from Group
-            void empty();
+            virtual void empty();
             // Removes a list of sprites from this group (if they are part of this group)
-            void remove(const std::vector<Sprite *> &to_remove_sprites);
+            virtual void remove(const std::vector<Sprite *> &to_remove_sprites);
             // Removes a Sprite from this group if it is in this group
-            void remove(Sprite *to_remove_sprite);
+            virtual void remove(Sprite *to_remove_sprite);
             // Adds a list of sprites to this group
-            void add(const std::vector<Sprite *> &to_add_sprites);
+            virtual void add(const std::vector<Sprite *> &to_add_sprites);
             // Adds a Sprite to this group
-            void add(Sprite *to_add_sprite);
+            virtual void add(Sprite *to_add_sprite);
             // Check if all sprites are in group
-            bool has(const std::vector<Sprite *> &check_sprites) const;
+            virtual bool has(const std::vector<Sprite *> &check_sprites) const;
             // Check if sprite is in group
-            bool has(Sprite *check_sprite) const;
+            virtual bool has(Sprite *check_sprite) const;
             // Returns a copy of vector sprites
-            std::vector<Sprite *> Sprites();
+            virtual std::vector<Sprite *> Sprites();
             // reserve memory for inner vector
-            void reserve(size_t size);
+            virtual void reserve(size_t size);
 
         protected:
 
@@ -672,6 +672,35 @@ namespace rg
         private:
 
             std::vector<Sprite *> result;
+        };
+
+        class OrderedUpdates : public Group
+        {
+        public:
+
+            OrderedUpdates() = default;
+            OrderedUpdates(const OrderedUpdates &other) = delete;
+            OrderedUpdates &operator=(const OrderedUpdates &other) = delete;
+            OrderedUpdates(OrderedUpdates &&other) noexcept;
+            OrderedUpdates &operator=(OrderedUpdates &&other) noexcept;
+            ~OrderedUpdates() override;
+
+            void Draw(Surface *surface) override;
+            void Update(float deltaTime) override;
+            void empty() override;
+            void remove(const std::vector<Sprite *> &to_remove_sprites) override;
+            void remove(Sprite *to_remove_sprite) override;
+            void add(const std::vector<Sprite *> &to_add_sprites) override;
+            void add(Sprite *to_add_sprite) override;
+            bool has(const std::vector<Sprite *> &check_sprites) const override;
+            bool has(Sprite *check_sprite) const override;
+            std::vector<Sprite *> Sprites() override;
+            void reserve(size_t size) override;
+            Sprite *pop();
+
+        protected:
+
+            std::vector<Sprite *> sprites{};
         };
 
         class Sprite
