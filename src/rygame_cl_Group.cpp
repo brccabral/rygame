@@ -261,3 +261,8 @@ rg::sprite::Sprite *rg::sprite::OrderedUpdates::back() const
 {
     return sprites.back();
 }
+
+size_t rg::sprite::OrderedUpdates::size() const
+{
+    return sprites.size();
+}

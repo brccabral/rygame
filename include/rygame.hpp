@@ -721,6 +721,7 @@ namespace rg
             // removes last sprite from group and returns its pointer
             Sprite *pop();
             Sprite *back() const;
+            size_t size() const;
 
         protected:
 
