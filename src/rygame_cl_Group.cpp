@@ -254,3 +254,8 @@ rg::sprite::Sprite *rg::sprite::OrderedUpdates::pop()
     sprites.pop_back();
     return result;
 }
+
+rg::sprite::Sprite *rg::sprite::OrderedUpdates::back() const
+{
+    return sprites.back();
+}

@@ -696,7 +696,9 @@ namespace rg
             bool has(Sprite *check_sprite) const override;
             std::vector<Sprite *> Sprites() override;
             void reserve(size_t size) override;
+            // removes last sprite from group and returns its pointer
             Sprite *pop();
+            Sprite *back() const;
 
         protected:
 
