@@ -11,6 +11,7 @@ rg::sprite::Group &rg::sprite::Group::operator=(Group &&other) noexcept
 {
     if (this != &other)
     {
+        empty();
         // need to tell sprites that there is a new group
         sprites.reserve(other.sprites.size());
         add(other.Sprites());
@@ -138,6 +139,7 @@ rg::sprite::OrderedUpdates &rg::sprite::OrderedUpdates::operator=(OrderedUpdates
 {
     if (this != &other)
     {
+        empty();
         // need to tell sprites that there is a new group
         sprites.reserve(other.sprites.size());
         add(other.Sprites());
@@ -251,7 +253,7 @@ void rg::sprite::OrderedUpdates::reserve(const size_t size)
 rg::sprite::Sprite *rg::sprite::OrderedUpdates::pop()
 {
     Sprite *result = sprites.back();
-    sprites.pop_back();
+    remove(result);
     return result;
 }
 
