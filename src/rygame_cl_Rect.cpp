@@ -332,7 +332,7 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
     if (x1 >= rectx1 && x1 <= rectx2 && x2 >= rectx1 && x2 <= rectx2 && y1 >= recty1 &&
         y1 <= recty2 && y2 >= recty1 && y2 <= recty2)
     {
-        result = {x1, y1, x2, y2};
+        result = rg::Line{x1, y1, x2, y2};
         return result;
     }
 

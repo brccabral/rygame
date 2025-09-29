@@ -6,6 +6,11 @@ bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
     return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
 }
 
+bool rg::sprite::collide_sprite_point(const Sprite *sprite, const math::Vector2 &point)
+{
+    return rl::CheckCollisionPointRec(point.vector2, sprite->rect.rectangle);
+}
+
 rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)
 {
 }
@@ -55,4 +60,26 @@ rg::sprite::Sprite *rg::sprite::spritecollideany(
         }
     }
     return nullptr;
+}
+
+std::vector<rg::sprite::Sprite *> rg::sprite::pointcollide(
+        const math::Vector2 &point, Group *group, const bool dokill,
+        const std::function<bool(const Sprite *sprite, const math::Vector2 &point)> &collided)
+{
+    std::vector<Sprite *> result;
+    for (auto *sprite: group->Sprites())
+    {
+        if (collided(sprite, point))
+        {
+            result.push_back(sprite);
+            if (dokill)
+            {
+                // just remove from group, don't delete
+                // it will be returned in the result
+                // if needed, delete it in the vector later
+                sprite->Kill();
+            }
+        }
+    }
+    return result;
 }

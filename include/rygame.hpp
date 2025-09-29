@@ -15,6 +15,8 @@
 #include <utility>
 #include <vector>
 
+#include "rygame.hpp"
+
 namespace rl
 {
 #ifdef _WIN32
@@ -222,14 +224,24 @@ namespace rg
 
             struct
             {
-                float x;
-                float y;
+                float x{};
+                float y{};
             };
+
+            Vector2() = default;
+            Vector2(const Vector2 &other) = default;
+            Vector2 &operator=(const Vector2 &other) = default;
+            Vector2(Vector2 &&other) = default;
+            Vector2 &operator=(Vector2 &&other) = default;
+
+            Vector2(float x, float y);
+            Vector2(int x, int y);
+            explicit Vector2(const rl::Vector2 &other);
 
             [[nodiscard]] float magnitude() const;
             [[nodiscard]] Vector2 normalize() const;
             void normalize_ip();
-            [[nodiscard]] float distance_to(Vector2 target) const;
+            [[nodiscard]] float distance_to(const Vector2 &target) const;
             float operator[](const unsigned int &i) const;
             explicit operator bool() const;
         } Vector2;
@@ -283,11 +295,21 @@ namespace rg
 
         struct
         {
-            float x1;
-            float y1;
-            float x2;
-            float y2;
+            float x1{};
+            float y1{};
+            float x2{};
+            float y2{};
         };
+
+        Line() = default;
+
+        Line(math::Vector2 start, math::Vector2 end) : start(start), end(end)
+        {
+        }
+
+        Line(float x1, float y1, float x2, float y2) : start(x1, y1), end(x2, y2)
+        {
+        }
 
         [[nodiscard]] bool collidepoint(math::Vector2 point, float threshold = 0.0f) const;
         [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
@@ -753,6 +775,7 @@ namespace rg
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);
+        bool collide_sprite_point(const Sprite *sprite, const math::Vector2 &point);
 
         class CollideCallable
         {
@@ -793,6 +816,12 @@ namespace rg
                 const Sprite *sprite, Group *group,
                 const std::function<bool(const Sprite *left, const Sprite *right)> &collided =
                         collide_rect);
+
+        std::vector<Sprite *> pointcollide(
+                const math::Vector2 &point, Group *group, bool dokill,
+                const std::function<bool(
+                        const Sprite *sprite, const math::Vector2 &point)> &collided
+                        = collide_sprite_point);
     } // namespace sprite
 
     // Remains active for certain duration, can repeat once it is done, can autostart

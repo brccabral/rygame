@@ -1,6 +1,21 @@
 #include "rygame.hpp"
 
 
+rg::math::Vector2::Vector2(const float x, const float y)
+    : x(x), y(y)
+{
+}
+
+rg::math::Vector2::Vector2(const int x, const int y)
+    : x(x), y(y)
+{
+}
+
+rg::math::Vector2::Vector2(const rl::Vector2 &other)
+    : x(other.x), y(other.y)
+{
+}
+
 float rg::math::Vector2::magnitude() const
 {
     return Vector2Length(vector2);
@@ -8,7 +23,8 @@ float rg::math::Vector2::magnitude() const
 
 rg::math::Vector2 rg::math::Vector2::normalize() const
 {
-    return {Vector2Normalize(vector2)};
+    const auto result = Vector2Normalize(vector2);
+    return math::Vector2{result};
 }
 
 void rg::math::Vector2::normalize_ip()
@@ -16,7 +32,7 @@ void rg::math::Vector2::normalize_ip()
     vector2 = Vector2Normalize(vector2);
 }
 
-float rg::math::Vector2::distance_to(const Vector2 target) const
+float rg::math::Vector2::distance_to(const Vector2 &target) const
 {
     return Vector2Distance(vector2, target.vector2);
 }
