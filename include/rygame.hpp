@@ -724,6 +724,7 @@ namespace rg
             size_t size() const;
             // return the sprite position. If not found, return the size of this group
             size_t index(const Sprite *sprite) const;
+            Sprite *operator[](size_t index) const;
 
         protected:
 
