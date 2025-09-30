@@ -211,6 +211,16 @@ namespace rg
         return order_.end();
     }
 
+    // returns the value position. If not found, return the size of the vector
+    template<typename T>
+    std::size_t index(const std::vector<T> &vec, const T &value)
+    {
+        auto it = std::find(vec.begin(), vec.end(), value);
+        if (it == vec.end())
+            return vec.size();
+        return std::distance(vec.begin(), it);
+    }
+
     namespace math
     {
         // GCC warns about Anonymous Struct
@@ -723,7 +733,7 @@ namespace rg
             Sprite *back() const;
             size_t size() const;
             // return the sprite position. If not found, return the size of this group
-            size_t index(const Sprite *sprite) const;
+            size_t index(Sprite *sprite) const;
             Sprite *operator[](size_t index) const;
 
         protected:

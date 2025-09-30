@@ -267,12 +267,9 @@ size_t rg::sprite::OrderedUpdates::size() const
     return sprites.size();
 }
 
-size_t rg::sprite::OrderedUpdates::index(const Sprite *sprite) const
+size_t rg::sprite::OrderedUpdates::index(Sprite *sprite) const
 {
-    const auto it = std::ranges::find(sprites, sprite);
-    if (it == sprites.end())
-        return sprites.size();
-    return std::distance(sprites.begin(), it);
+    return rg::index(sprites, sprite);
 }
 
 rg::sprite::Sprite *rg::sprite::OrderedUpdates::operator[](const size_t index) const
