@@ -257,6 +257,33 @@ namespace rg
             bool operator==(const Vector2 &other) const;
         } Vector2;
 
+        template<std::size_t N>
+        decltype(auto) get(const Vector2 &v)
+        {
+            if constexpr (N == 0)
+                return v.x;
+            else if constexpr (N == 1)
+                return v.y;
+        }
+
+        template<std::size_t N>
+        decltype(auto) get(Vector2 &v)
+        {
+            if constexpr (N == 0)
+                return (v.x);
+            else if constexpr (N == 1)
+                return (v.y);
+        }
+
+        template<std::size_t N>
+        decltype(auto) get(Vector2 &&v)
+        {
+            if constexpr (N == 0)
+                return std::move(v.x);
+            else if constexpr (N == 1)
+                return std::move(v.y);
+        }
+
         typedef union Vector3i
         {
             int x, y, z;
@@ -998,3 +1025,24 @@ rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, float scale);
 
 bool operator!=(const rg::math::Vector3uc &lhs, const rg::math::Vector3uc &rhs);
 bool operator!=(const rg::math::Vector3uc &lhs, const rl::Vector3 &rhs);
+
+
+namespace std
+{
+    template<>
+    struct tuple_size<rg::math::Vector2> : std::integral_constant<std::size_t, 2>
+    {
+    };
+
+    template<>
+    struct tuple_element<0, rg::math::Vector2>
+    {
+        using type = float;
+    };
+
+    template<>
+    struct tuple_element<1, rg::math::Vector2>
+    {
+        using type = float;
+    };
+}
