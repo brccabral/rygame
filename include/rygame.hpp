@@ -1026,6 +1026,19 @@ rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, float scale);
 bool operator!=(const rg::math::Vector3uc &lhs, const rg::math::Vector3uc &rhs);
 bool operator!=(const rg::math::Vector3uc &lhs, const rl::Vector3 &rhs);
 
+template<>
+struct std::hash<rg::math::Vector2>
+{
+    std::size_t operator()(const rg::math::Vector2 &v) const noexcept
+    {
+        // combine hashes of x and y
+        const std::size_t h1 = std::hash<float>{}(v.x);
+        const std::size_t h2 = std::hash<float>{}(v.y);
+
+        // typical hash combine
+        return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+    }
+};
 
 namespace std
 {
