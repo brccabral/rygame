@@ -254,6 +254,7 @@ namespace rg
             [[nodiscard]] float distance_to(const Vector2 &target) const;
             float operator[](const unsigned int &i) const;
             explicit operator bool() const;
+            bool operator==(const Vector2 &other) const;
         } Vector2;
 
         typedef union Vector3i

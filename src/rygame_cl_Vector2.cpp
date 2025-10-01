@@ -55,6 +55,11 @@ rg::math::Vector2::operator bool() const
     return x || y;
 }
 
+bool rg::math::Vector2::operator==(const Vector2 &other) const
+{
+    return x == other.x && y == other.y;
+}
+
 rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs)
 {
     return {lhs.x + rhs.x, lhs.y + rhs.y};
