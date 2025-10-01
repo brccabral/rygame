@@ -136,10 +136,10 @@ namespace rg
 
     private:
 
-        std::list<std::pair<K, V>> order_;
+        std::list<std::pair<K, V>> order_{};
         // the `map_` points to an element inside `order_`, not to the value. The value is stored in
         // `order_` only
-        std::unordered_map<K, typename std::list<std::pair<K, V>>::iterator> map_;
+        std::unordered_map<K, typename std::list<std::pair<K, V>>::iterator> map_{};
     };
 
     // !!!! template<> classes must have definitions in .h files
