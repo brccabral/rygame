@@ -453,6 +453,9 @@ namespace rg
                 Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
         // Returns true if other rect overlaps this one
         [[nodiscard]] bool colliderect(const Rect &other) const;
+        // Tests if this rect collides with a vector<Rect>.
+        // Returns the index of first collided or -1 if no collision.
+        int collidelist(const std::vector<Rect> &list) const;
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
         Line clipline(Line line) const;

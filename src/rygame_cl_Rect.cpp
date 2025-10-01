@@ -305,6 +305,18 @@ bool rg::Rect::colliderect(const Rect &other) const
     return CheckCollisionRecs(rectangle, other.rectangle);
 }
 
+int rg::Rect::collidelist(const std::vector<Rect> &list) const
+{
+    for (int i = 0; i < list.size(); ++i)
+    {
+        if (CheckCollisionRecs(rectangle, list[i].rectangle))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 rg::Line rg::Rect::clipline(const Line line) const
 {
     return clipline(line.start, line.end);
