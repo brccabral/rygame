@@ -133,6 +133,7 @@ namespace rg
         typename std::list<std::pair<K, V>>::const_iterator cend() const;
         typename std::list<std::pair<K, V>>::iterator begin();
         typename std::list<std::pair<K, V>>::iterator end();
+        typename std::list<std::pair<K, V>>::iterator find(const K &val);
 
     private:
 
@@ -208,6 +209,17 @@ namespace rg
     template<typename K, typename V>
     typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::end()
     {
+        return order_.end();
+    }
+
+    template<typename K, typename V>
+    typename std::list<std::pair<K, V>>::iterator InsertOrderMap<K, V>::find(const K &val)
+    {
+        auto it = map_.find(val);
+        if (it != map_.end())
+        {
+            return it->second;
+        }
         return order_.end();
     }
 
