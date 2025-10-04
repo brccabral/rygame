@@ -39,7 +39,7 @@ rg::mask::FromSurface(const Frames *frames, const unsigned char threshold)
         }
     }
     mask.atlas_rect =
-            Rect{0, 0, (float) frames->render.texture.width, (float) frames->render.texture.height};
+            Rect{0, 0, frames->render.texture.width, frames->render.texture.height};
 
     UnloadImage(alphaImage);
     UnloadImage(surfImage);

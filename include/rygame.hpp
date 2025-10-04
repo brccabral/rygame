@@ -503,6 +503,7 @@ namespace rg
         Rect(math::Vector2<float> pos, math::Vector2<float> size);
         explicit Rect(rl::Rectangle rect);
         Rect(float x, float y, float width, float height);
+        Rect(int x, int y, int width, int height);
 
         // Returns the X value on the right side (x+width)
         [[nodiscard]] float right() const;

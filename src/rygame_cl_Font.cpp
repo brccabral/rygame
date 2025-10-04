@@ -49,7 +49,7 @@ rg::Surface rg::font::Font::render(
     result.Fill(bg);
     result.Blit(
             texture, {padding_width / 2.0f, padding_height / 2.0f},
-            {0, 0, (float) texture.width, -(float) texture.height});
+            {0, 0, texture.width, -texture.height});
 
     UnloadTextureSafe(texture);
     UnloadImage(imageText);

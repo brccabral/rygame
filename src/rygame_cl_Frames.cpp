@@ -79,7 +79,7 @@ void rg::Frames::SetColorKey(const rl::Color color)
 
     // replace
     Fill(rl::BLANK);
-    Blit(color_texture, {}, {0, 0, (float) render.texture.width, (float) render.texture.height});
+    Blit(color_texture, {}, {0, 0, render.texture.width, render.texture.height});
 
     // clean up
     UnloadTextureSafe(color_texture);

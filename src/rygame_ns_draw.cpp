@@ -35,7 +35,7 @@ void rg::draw::rect(
             const float roundness = r / greater_dim;
             const int segments = roundness * 90;
             DrawRectangleRounded(rect.rectangle, roundness, segments, color);
-            Rect corner = {0, 0, radius, radius};
+            Rect corner = {0.0f, 0.0f, radius, radius};
             if (!topLeft)
             {
                 corner.topleft(rect.topleft());

@@ -30,6 +30,26 @@ static int COMPUTEOUTCODE(const rg::Rect *rect, const float x, const float y)
     return code;
 }
 
+rg::Rect::Rect(const math::Vector2<float> pos, const math::Vector2<float> size)
+    : Rect(pos.x, pos.y, size.x, size.y)
+{
+}
+
+rg::Rect::Rect(const rl::Rectangle rect)
+    : Rect(rect.x, rect.y, rect.width, rect.height)
+{
+}
+
+rg::Rect::Rect(float x, float y, float width, float height)
+    : x(x), y(y), width(width), height(height)
+{
+}
+
+rg::Rect::Rect(int x, int y, int width, int height)
+    : x(x), y(y), width(width), height(height)
+{
+}
+
 float rg::Rect::right() const
 {
     return x + width;

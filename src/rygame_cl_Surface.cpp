@@ -242,7 +242,7 @@ rg::Rect rg::Surface::GetRect() const
 {
     const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
     const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
-    return {0, 0, absWidth, absHeight};
+    return {0.0f, 0.0f, absWidth, absHeight};
 }
 
 rg::Surface rg::Surface::SubSurface(const Rect rect)
@@ -302,7 +302,7 @@ void rg::Surface::Setup(const int width, const int height)
     }
 
     // RenderTexture draws textures upside-down
-    atlas_rect = {0, 0, (float) width, (float) height};
+    atlas_rect = {0, 0, width, height};
 
     Fill(rl::BLACK);
 }

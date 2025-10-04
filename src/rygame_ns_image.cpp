@@ -9,7 +9,7 @@ rg::Surface rg::image::Load(const char *path)
     surface.Fill(rl::BLANK);
     surface.Blit(
             loaded_texture, {},
-            {0, 0, (float) loaded_texture.width, -(float) loaded_texture.height});
+            {0, 0, loaded_texture.width, -loaded_texture.height});
     UnloadTextureSafe(loaded_texture);
     return surface;
 }
