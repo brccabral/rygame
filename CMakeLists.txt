@@ -107,9 +107,16 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME})
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(
+        ${PROJECT_NAME}
+        PUBLIC -Wexit-time-destructors
+        -Wglobal-constructors)
+endif ()
+
 target_compile_options(
     ${PROJECT_NAME}
-    PUBLIC -Wexit-time-destructors
-    -Wglobal-constructors
+    PUBLIC
     -Wpessimizing-move
-    -Wrange-loop-construct)
+    -Wrange-loop-construct
+)
