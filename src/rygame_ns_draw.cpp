@@ -59,13 +59,13 @@ void rg::draw::rect(
         }
         else
         {
-            DrawRectangleV(rect.pos.vector2, rect.size.vector2, color);
+            DrawRectangleV(rect.pos.vector2(), rect.size.vector2(), color);
         }
     }
 }
 
 void rg::draw::circle(
-        Surface *surface, const rl::Color color, const math::Vector2 center,
+        Surface *surface, const rl::Color color, const math::Vector2<float> center,
         const float radius, const float lineThick)
 {
     TraceLog(
@@ -76,11 +76,11 @@ void rg::draw::circle(
 
     if (lineThick > 0)
     {
-        DrawCircleLinesV(center.vector2, radius, color);
+        DrawCircleLinesV(center.vector2(), radius, color);
     }
     else if (lineThick == 0)
     {
-        DrawCircleV(center.vector2, radius, color);
+        DrawCircleV(center.vector2(), radius, color);
     }
 }
 
@@ -109,8 +109,8 @@ void rg::draw::bar(
 }
 
 void rg::draw::line(
-        Surface *surface, const rl::Color color, const math::Vector2 start,
-        const math::Vector2 end, const float width)
+        Surface *surface, const rl::Color color, const math::Vector2<float> start,
+        const math::Vector2<float> end, const float width)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
@@ -120,17 +120,17 @@ void rg::draw::line(
 
     if (width > 1)
     {
-        DrawLineEx(start.vector2, end.vector2, width, color);
+        DrawLineEx(start.vector2(), end.vector2(), width, color);
     }
     else if (width == 1)
     {
-        DrawLineV(start.vector2, end.vector2, color);
+        DrawLineV(start.vector2(), end.vector2(), color);
     }
 }
 
 void rg::draw::lines(
         Surface *surface, const rl::Color color, const bool closed,
-        const std::vector<math::Vector2> &points, const float width)
+        const std::vector<math::Vector2<float>> &points, const float width)
 {
     TraceLog(
             rl::LOG_TRACE, rl::TextFormat(
@@ -147,11 +147,11 @@ void rg::draw::lines(
     auto *pts = new rl::Vector2[pointCount];
     for (unsigned int i = 0; i < points.size(); ++i)
     {
-        pts[i] = points[i].vector2;
+        pts[i] = points[i].vector2();
     }
     if (closed)
     {
-        pts[pointCount - 1] = points[0].vector2;
+        pts[pointCount - 1] = points[0].vector2();
     }
 
     DrawSplineLinear(pts, pointCount, width, color);

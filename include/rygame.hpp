@@ -236,19 +236,14 @@ namespace rg
     namespace math
     {
         // GCC warns about Anonymous Struct
-#if !_WIN32
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-        typedef union Vector2
-        {
-            rl::Vector2 vector2;
 
-            struct
-            {
-                float x{};
-                float y{};
-            };
+        template<typename N>
+        class Vector2
+        {
+        public:
+
+            N x{};
+            N y{};
 
             Vector2() = default;
             Vector2(const Vector2 &other) = default;
@@ -256,21 +251,133 @@ namespace rg
             Vector2(Vector2 &&other) = default;
             Vector2 &operator=(Vector2 &&other) = default;
 
-            Vector2(float x, float y);
-            Vector2(int x, int y);
-            explicit Vector2(const rl::Vector2 &other);
+            Vector2(N x, N y) : x(x), y(y)
+            {
+            }
 
-            [[nodiscard]] float magnitude() const;
-            [[nodiscard]] Vector2 normalize() const;
-            void normalize_ip();
-            [[nodiscard]] float distance_to(const Vector2 &target) const;
-            float operator[](const unsigned int &i) const;
-            explicit operator bool() const;
-            bool operator==(const Vector2 &other) const;
-        } Vector2;
+            explicit Vector2(const rl::Vector2 &other) : x(other.x), y(other.y)
+            {
+            }
 
-        template<std::size_t N>
-        decltype(auto) get(const Vector2 &v)
+            [[nodiscard]] rl::Vector2 vector2() const
+            {
+                return rl::Vector2((float) x, (float) y);
+            };
+
+            [[nodiscard]] N magnitude() const
+            {
+                return sqrtf(static_cast<float>(x * x) + static_cast<float>(y * y));
+            }
+
+            [[nodiscard]] Vector2 normalize() const
+            {
+                if (auto mag = magnitude())
+                {
+                    Vector2 result{x, y};
+                    return result / magnitude();
+                }
+                return {};
+            }
+
+            void normalize_ip()
+            {
+                auto mag = magnitude();
+                if (mag)
+                {
+                    x /= mag;
+                    y /= mag;
+                }
+            }
+
+            [[nodiscard]] float distance_to(const Vector2 &target) const
+            {
+                auto dx = x - target.x;
+                auto dy = y - target.y;
+                return sqrtf(static_cast<float>(dx) + static_cast<float>(dy));
+            }
+
+            float operator[](const unsigned int &i) const
+            {
+                if (i == 0)
+                {
+                    return x;
+                }
+                if (i == 1)
+                {
+                    return y;
+                }
+                throw std::out_of_range("");
+            }
+
+            explicit operator bool() const
+            {
+                return x != 0 || y != 0;
+            }
+
+            bool operator==(const Vector2 &other) const
+            {
+                return x == other.x && y == other.y;
+            };
+
+            Vector2 operator+(const Vector2 &rhs) const
+            {
+                return Vector2(x + rhs.x, y + rhs.y);
+            }
+
+            Vector2 operator-(const Vector2 &rhs) const
+            {
+                return Vector2(x - rhs.x, y - rhs.y);
+            }
+
+            Vector2 &operator+=(const Vector2 &rhs)
+            {
+                x += rhs.x;
+                y += rhs.y;
+                return *this;
+            }
+
+            Vector2 &operator-=(const Vector2 &rhs)
+            {
+                x -= rhs.x;
+                y -= rhs.y;
+                return *this;
+            }
+
+            Vector2 operator*(N scale) const
+            {
+                return Vector2(x * scale, y * scale);
+            }
+
+            Vector2 &operator*=(N scale)
+            {
+                x *= scale;
+                y *= scale;
+                return *this;
+            }
+
+            Vector2 operator/(N scale) const
+            {
+                if (scale)
+                {
+                    return Vector2(x / scale, y / scale);
+                }
+                return Vector2();
+            }
+
+            Vector2 &operator/=(N scale)
+            {
+                if (scale)
+                {
+                    x /= scale;
+                    y /= scale;
+                }
+                return *this;
+            }
+
+        };
+
+        template<std::size_t N, typename T>
+        decltype(auto) get(const Vector2<T> &v)
         {
             if constexpr (N == 0)
                 return v.x;
@@ -278,8 +385,8 @@ namespace rg
                 return v.y;
         }
 
-        template<std::size_t N>
-        decltype(auto) get(Vector2 &v)
+        template<std::size_t N, typename T>
+        decltype(auto) get(Vector2<T> &v)
         {
             if constexpr (N == 0)
                 return (v.x);
@@ -287,8 +394,8 @@ namespace rg
                 return (v.y);
         }
 
-        template<std::size_t N>
-        decltype(auto) get(Vector2 &&v)
+        template<std::size_t N, typename T>
+        decltype(auto) get(Vector2<T> &&v)
         {
             if constexpr (N == 0)
                 return std::move(v.x);
@@ -296,6 +403,10 @@ namespace rg
                 return std::move(v.y);
         }
 
+#if !_WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
         typedef union Vector3i
         {
             int x, y, z;
@@ -339,8 +450,8 @@ namespace rg
     {
         struct
         {
-            math::Vector2 start;
-            math::Vector2 end;
+            math::Vector2<float> start;
+            math::Vector2<float> end;
         };
 
         struct
@@ -353,7 +464,7 @@ namespace rg
 
         Line() = default;
 
-        Line(math::Vector2 start, math::Vector2 end) : start(start), end(end)
+        Line(math::Vector2<float> start, math::Vector2<float> end) : start(start), end(end)
         {
         }
 
@@ -361,8 +472,8 @@ namespace rg
         {
         }
 
-        [[nodiscard]] bool collidepoint(math::Vector2 point, float threshold = 0.0f) const;
-        [[nodiscard]] bool collideline(Line other, math::Vector2 *collisionPoint) const;
+        [[nodiscard]] bool collidepoint(math::Vector2<float> point, float threshold = 0.0f) const;
+        [[nodiscard]] bool collideline(Line other, math::Vector2<float> *collisionPoint) const;
         explicit operator bool() const;
     } Line;
 #if !_WIN32
@@ -378,7 +489,7 @@ namespace rg
     {
         struct
         {
-            math::Vector2 pos, size;
+            math::Vector2<float> pos, size;
         };
 
         rl::Rectangle rectangle;
@@ -389,88 +500,72 @@ namespace rg
         };
 
         Rect() = default;
-        Rect(math::Vector2 pos, math::Vector2 size);
+        Rect(math::Vector2<float> pos, math::Vector2<float> size);
         explicit Rect(rl::Rectangle rect);
         Rect(float x, float y, float width, float height);
 
         // Returns the X value on the right side (x+width)
         [[nodiscard]] float right() const;
         // Moves the rect so that the right side goes to the passed position
-        // and returns a copy
-        Rect right(float v);
+        Rect &right(float v);
         // Returns the X value on the leftside (x)
         [[nodiscard]] float left() const;
         // Moves the rect so that the left side goes to the passed position
-        // and returns a copy
-        Rect left(float v);
+        Rect &left(float v);
         // Returns the X value of the center
         [[nodiscard]] float centerx() const;
         // Moves the rect so that the center X goes to the passed position
-        // and returns a copy
-        Rect centerx(float v);
+        Rect &centerx(float v);
         // Returns the Y value of the center
         [[nodiscard]] float centery() const;
         // Moves the rect so that the center Y goes to the passed position
-        // and returns a copy
-        Rect centery(float v);
+        Rect &centery(float v);
         // Returns the x,y at the center
-        [[nodiscard]] math::Vector2 center() const;
+        [[nodiscard]] math::Vector2<float> center() const;
         // Moves the rect so that the center goes to the passed position
-        // and returns a copy
-        Rect center(math::Vector2 pos);
+        Rect &center(math::Vector2<float> pos);
         // Returns the Y value of the top
         [[nodiscard]] float top() const;
         // Moves the rect so that the top Y goes to the passed position
-        // and returns a copy
-        Rect top(float v);
+        Rect &top(float v);
         // Returns the Y value of the bottom
         [[nodiscard]] float bottom() const;
         // Moves the rect so that the bottom Y goes to the passed position
-        // and returns a copy
-        Rect bottom(float v);
+        Rect &bottom(float v);
         // Returns the x,y at the top left
-        [[nodiscard]] math::Vector2 topleft() const;
+        [[nodiscard]] math::Vector2<float> topleft() const;
         // Moves the rect so that the top left goes to the passed position
-        // and returns a copy
-        Rect topleft(math::Vector2 pos);
+        Rect &topleft(math::Vector2<float> pos);
         // Returns the x,y at the bottom left
-        [[nodiscard]] math::Vector2 bottomleft() const;
+        [[nodiscard]] math::Vector2<float> bottomleft() const;
         // Moves the rect so that the bottom left goes to the passed position
-        // and returns a copy
-        Rect bottomleft(math::Vector2 pos);
+        Rect &bottomleft(math::Vector2<float> pos);
         // Returns the x,y at the top right
-        [[nodiscard]] math::Vector2 topright() const;
+        [[nodiscard]] math::Vector2<float> topright() const;
         // Moves the rect so that the top right goes to the passed position
-        // and returns a copy
-        Rect topright(math::Vector2 pos);
+        Rect &topright(math::Vector2<float> pos);
         // Returns the x,y at the bottom right
-        [[nodiscard]] math::Vector2 bottomright() const;
+        [[nodiscard]] math::Vector2<float> bottomright() const;
         // Moves the rect so that the bottom right goes to the passed position
-        // and returns a copy
-        Rect bottomright(math::Vector2 pos);
+        Rect &bottomright(math::Vector2<float> pos);
         // Returns the x,y at the midbottom
-        [[nodiscard]] math::Vector2 midbottom() const;
+        [[nodiscard]] math::Vector2<float> midbottom() const;
         // Moves the rect so that the mid bottom goes to the passed position
-        // and returns a copy
-        Rect midbottom(math::Vector2 pos);
+        Rect &midbottom(math::Vector2<float> pos);
         // Returns the x,y at the midtop
-        [[nodiscard]] math::Vector2 midtop() const;
+        [[nodiscard]] math::Vector2<float> midtop() const;
         // Moves the rect so that the mid top goes to the passed position
-        // and returns a copy
-        Rect midtop(math::Vector2 pos);
+        Rect &midtop(math::Vector2<float> pos);
         // Returns the x,y at the mid left
-        [[nodiscard]] math::Vector2 midleft() const;
+        [[nodiscard]] math::Vector2<float> midleft() const;
         // Moves the rect so that the mid left goes to the passed position
-        // and returns a copy
-        Rect midleft(math::Vector2 pos);
+        Rect &midleft(math::Vector2<float> pos);
         // Returns the x,y at the mid right
-        [[nodiscard]] math::Vector2 midright() const;
+        [[nodiscard]] math::Vector2<float> midright() const;
         // Moves the rect so that the mid right goes to the passed position
-        // and returns a copy
-        Rect midright(math::Vector2 pos);
+        Rect &midright(math::Vector2<float> pos);
         // Moves the rect by delta pixels
-        // and returns a copy
-        Rect move(math::Vector2 delta);
+        Rect &move(math::Vector2<float> delta);
         // Returns a modified rect with increased/decreased sizes, but same center
         // This rect is not modified. Use `inflate_ip` for in-place
         [[nodiscard]] Rect inflate(float width, float height) const;
@@ -479,18 +574,19 @@ namespace rg
         [[nodiscard]] Rect scale_by(float ratio) const;
         // Modifies this rect with increased/decreased sizes, keeping the center position
         // This is an in-place change. Use `inflate` to keep original size
-        void inflate_ip(float width, float height);
+        Rect &inflate_ip(float width, float height);
         // Modifies this rect with increased/decreased sizes, keeping the center position
         // This is an in-place change. Use `scale_by` to keep original size
-        void scale_by_ip(float ratio);
+        Rect &scale_by_ip(float ratio);
         // Returns a copy
         [[nodiscard]] Rect copy() const;
         // Returns true if point is inside rect
-        [[nodiscard]] bool collidepoint(math::Vector2 point) const;
+        [[nodiscard]] bool collidepoint(math::Vector2<float> point) const;
         // Returns true if line crosses rect (or is entirely inside it)
         // It also updates collision points on the intersections
         [[nodiscard]] bool collideline(
-                Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const;
+                Line line, math::Vector2<float> *collisionPoint1,
+                math::Vector2<float> *collisionPoint2) const;
         // Returns true if other rect overlaps this one
         [[nodiscard]] bool colliderect(const Rect &other) const;
         // Tests if this rect collides with a vector<Rect>.
@@ -501,7 +597,7 @@ namespace rg
         Line clipline(Line line) const;
         // If passed line (from start to end) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
-        Line clipline(math::Vector2 start, math::Vector2 end) const;
+        Line clipline(math::Vector2<float> start, math::Vector2<float> end) const;
         // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2) const;
@@ -516,7 +612,7 @@ namespace rg
 
         Surface() = default;
         Surface(int width, int height);
-        explicit Surface(math::Vector2 size);
+        explicit Surface(math::Vector2<float> size);
         explicit Surface(rl::Texture2D *texture, Rect atlas = {});
 
         Surface(const Surface &other) = delete;
@@ -541,19 +637,24 @@ namespace rg
         // Blit incoming Surface* into this.
         void
         Blit(
-                const Surface *incoming, const math::Vector2 &offset,
+                const Surface *incoming, const math::Vector2<int> &offset,
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
+        // Blit incoming Surface* into this.
+        void
+        Blit(
+                const Surface *incoming, const math::Vector2<float> &offset,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Texture2D into surface*.
         void
         Blit(
-                const rl::Texture2D &incoming_texture, math::Vector2 offset, Rect area = {},
+                const rl::Texture2D &incoming_texture, math::Vector2<float> offset, Rect area = {},
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE,
                 float scale = 1.0f);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
         Blits(
-                const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
+                const std::vector<std::pair<Surface *, math::Vector2<float>>> &blit_sequence,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA);
         // Creates a new Surface*.
         // Make sure to delete it
@@ -584,7 +685,7 @@ namespace rg
         void Setup(int width, int height);
 
         Surface *parent = nullptr;
-        math::Vector2 m_offset{};
+        math::Vector2<float> m_offset{};
         float flip_atlas_height = 1; // 1 or -1 (Frames)
 
         rl::Color m_tint{255, 255, 255, 255};
@@ -662,7 +763,7 @@ namespace rg
                 bool bottomRight = true);
         void
         circle(
-                Surface *surface, rl::Color color, math::Vector2 center, float radius,
+                Surface *surface, rl::Color color, math::Vector2<float> center, float radius,
                 float lineThick = 0.0f);
         void
         bar(
@@ -670,12 +771,13 @@ namespace rg
                 rl::Color bg_color, float radius = 0.0f);
         void
         line(
-                Surface *surface, rl::Color color, math::Vector2 start, math::Vector2 end,
+                Surface *surface, rl::Color color, math::Vector2<float> start,
+                math::Vector2<float> end,
                 float width = 1.0f);
         void
         lines(
                 Surface *surface, rl::Color color, bool closed,
-                const std::vector<math::Vector2> &points, float width = 1.0f);
+                const std::vector<math::Vector2<float>> &points, float width = 1.0f);
     } // namespace draw
 
 #ifdef WITH_TMX
@@ -684,7 +786,7 @@ namespace rg
         // World Position, Graphics ID
         struct TileInfo
         {
-            math::Vector2 position{}; // position on screen (x*tileSize, y*tileSize)
+            math::Vector2<float> position{}; // position on screen (x*tileSize, y*tileSize)
             unsigned int gid{};
         };
 
@@ -694,7 +796,7 @@ namespace rg
         std::vector<TileInfo> GetTMXTiles(const rl::tmx_map *map, const rl::tmx_layer *layer);
         // merges all tiles into one single surface image
         Surface GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer);
-        math::Vector2 GetTMXObjPosition(const rl::tmx_object *object);
+        math::Vector2<float> GetTMXObjPosition(const rl::tmx_object *object);
         // Load all tmx in a folder
         std::unordered_map<std::string, rl::tmx_map *> LoadTMXMaps(const char *path);
         std::unordered_map<unsigned int, Surface> GetTMXSurfaces(const rl::tmx_map *map);
@@ -832,7 +934,7 @@ namespace rg
         };
 
         bool collide_rect(const Sprite *left, const Sprite *right);
-        bool collide_sprite_point(const Sprite *sprite, const math::Vector2 &point);
+        bool collide_sprite_point(const Sprite *sprite, const math::Vector2<float> &point);
 
         class CollideCallable
         {
@@ -875,9 +977,9 @@ namespace rg
                         collide_rect);
 
         std::vector<Sprite *> pointcollide(
-                const math::Vector2 &point, Group *group, bool dokill,
+                const math::Vector2<float> &point, Group *group, bool dokill,
                 const std::function<bool(
-                        const Sprite *sprite, const math::Vector2 &point)> &collided
+                        const Sprite *sprite, const math::Vector2<float> &point)> &collided
                         = collide_sprite_point);
     } // namespace sprite
 
@@ -978,7 +1080,7 @@ namespace rg
             render(
                     const char *text, rl::Color color, float spacing = 1, rl::Color bg = rl::BLANK,
                     float padding_width = 0, float padding_height = 0) const;
-            math::Vector2 size(const char *text) const;
+            math::Vector2<float> size(const char *text) const;
 
             rl::Font font;
             float font_size;
@@ -1022,26 +1124,19 @@ namespace rg
         Surface Flip(const Surface *surface, bool flip_x, bool flip_y);
         Frames Flip(const Frames *frames, bool flip_x, bool flip_y);
         Surface GrayScale(const Surface *surface);
-        Surface Scale(const Surface *surface, math::Vector2 size);
+        Surface Scale(const Surface *surface, math::Vector2<float> size);
         Surface Scale2x(const Surface *surface);
     } // namespace transform
 
 } // namespace rg
 
-rg::math::Vector2 operator+(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
-rg::math::Vector2 operator-(const rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
-rg::math::Vector2 &operator+=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
-rg::math::Vector2 &operator-=(rg::math::Vector2 &lhs, const rg::math::Vector2 &rhs);
-rg::math::Vector2 operator*(const rg::math::Vector2 &lhs, float scale);
-rg::math::Vector2 &operator*=(rg::math::Vector2 &lhs, float scale);
-
 bool operator!=(const rg::math::Vector3uc &lhs, const rg::math::Vector3uc &rhs);
 bool operator!=(const rg::math::Vector3uc &lhs, const rl::Vector3 &rhs);
 
-template<>
-struct std::hash<rg::math::Vector2>
+template<typename T>
+struct std::hash<rg::math::Vector2<T>>
 {
-    std::size_t operator()(const rg::math::Vector2 &v) const noexcept
+    std::size_t operator()(const rg::math::Vector2<T> &v) const noexcept
     {
         // combine hashes of x and y
         const std::size_t h1 = std::hash<float>{}(v.x);
@@ -1054,20 +1149,20 @@ struct std::hash<rg::math::Vector2>
 
 namespace std
 {
-    template<>
-    struct tuple_size<rg::math::Vector2> : std::integral_constant<std::size_t, 2>
+    template<typename T>
+    struct tuple_size<rg::math::Vector2<T>> : std::integral_constant<std::size_t, 2>
     {
     };
 
-    template<>
-    struct tuple_element<0, rg::math::Vector2>
+    template<typename T>
+    struct tuple_element<0, rg::math::Vector2<T>>
     {
-        using type = float;
+        using type = T;
     };
 
-    template<>
-    struct tuple_element<1, rg::math::Vector2>
+    template<typename T>
+    struct tuple_element<1, rg::math::Vector2<T>>
     {
-        using type = float;
+        using type = T;
     };
 }

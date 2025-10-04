@@ -15,32 +15,31 @@ add_library(${PROJECT_NAME})
 target_sources(
     ${PROJECT_NAME}
     PRIVATE src/rygame.cpp
-            src/rygame_cl_Clock.cpp
-            src/rygame_cl_Font.cpp
-            src/rygame_cl_Frames.cpp
-            src/rygame_cl_Group.cpp
-            src/rygame_cl_Line.cpp
-            src/rygame_cl_Mask.cpp
-            src/rygame_cl_Rect.cpp
-            src/rygame_cl_Sound.cpp
-            src/rygame_cl_Sprite.cpp
-            src/rygame_cl_Surface.cpp
-            src/rygame_cl_Timer.cpp
-            src/rygame_cl_Vector2.cpp
-            src/rygame_ns_display.cpp
-            src/rygame_ns_draw.cpp
-            src/rygame_ns_image.cpp
-            src/rygame_ns_mask.cpp
-            src/rygame_ns_math.cpp
-            src/rygame_ns_sprite.cpp
-            src/rygame_ns_tmx.cpp
-            src/rygame_ns_transform.cpp
+    src/rygame_cl_Clock.cpp
+    src/rygame_cl_Font.cpp
+    src/rygame_cl_Frames.cpp
+    src/rygame_cl_Group.cpp
+    src/rygame_cl_Line.cpp
+    src/rygame_cl_Mask.cpp
+    src/rygame_cl_Rect.cpp
+    src/rygame_cl_Sound.cpp
+    src/rygame_cl_Sprite.cpp
+    src/rygame_cl_Surface.cpp
+    src/rygame_cl_Timer.cpp
+    src/rygame_ns_display.cpp
+    src/rygame_ns_draw.cpp
+    src/rygame_ns_image.cpp
+    src/rygame_ns_mask.cpp
+    src/rygame_ns_math.cpp
+    src/rygame_ns_sprite.cpp
+    src/rygame_ns_tmx.cpp
+    src/rygame_ns_transform.cpp
     PUBLIC FILE_SET
-           HEADERS
-           FILES
-           include/rygame.hpp
-           BASE_DIRS
-           include)
+    HEADERS
+    FILES
+    include/rygame.hpp
+    BASE_DIRS
+    include)
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
@@ -50,19 +49,19 @@ if (MSVC)
     target_compile_definitions(
         ${PROJECT_NAME}
         INTERFACE "-DNOSOUND"
-                  "NOSOUND"
-                  "-DMMNOSOUND"
-                  "MMNOSOUND")
+        "NOSOUND"
+        "-DMMNOSOUND"
+        "MMNOSOUND")
 else ()
     # set(CMAKE_CXX_COMPILER "clang++") # Sprite::Kill() has [[nodiscard]]
     target_compile_options(
         ${PROJECT_NAME}
         PRIVATE "-Wall"
-                "-Werror"
-                "-Wpedantic"
-                "-Wno-missing-braces"
-                "-Wno-gnu-anonymous-struct"
-                "-Wno-nested-anon-types")
+        "-Werror"
+        "-Wpedantic"
+        "-Wno-missing-braces"
+        "-Wno-gnu-anonymous-struct"
+        "-Wno-nested-anon-types")
     target_link_libraries(${PROJECT_NAME} PUBLIC m)
 endif ()
 
@@ -77,7 +76,7 @@ if (SHOW_FPS)
 endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                                                  $<INSTALL_INTERFACE:include>)
+                           $<INSTALL_INTERFACE:include>)
 
 # Install rules
 install(
@@ -86,8 +85,8 @@ install(
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-            FILE_SET HEADERS
-            DESTINATION include)
+    FILE_SET HEADERS
+    DESTINATION include)
 
 # Export the library for use with find_package
 install(
@@ -105,12 +104,12 @@ configure_package_config_file(
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake" INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_CONFIG}Version.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME})
 
 target_compile_options(
     ${PROJECT_NAME}
     PUBLIC -Wexit-time-destructors
-           -Wglobal-constructors
-           -Wpessimizing-move
-           -Wrange-loop-construct)
+    -Wglobal-constructors
+    -Wpessimizing-move
+    -Wrange-loop-construct)

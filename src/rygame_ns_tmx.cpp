@@ -68,7 +68,7 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     return surface;
 }
 
-rg::math::Vector2 rg::tmx::GetTMXObjPosition(const rl::tmx_object *object)
+rg::math::Vector2<float> rg::tmx::GetTMXObjPosition(const rl::tmx_object *object)
 {
     float x = 0, y = 0;
     switch (object->obj_type)

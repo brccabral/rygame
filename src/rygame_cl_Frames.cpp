@@ -14,7 +14,7 @@ rg::Frames::Frames(const Surface *surface, const int rows, const int cols)
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
     Fill(rl::BLANK);
-    Blit(surface, math::Vector2{});
+    Blit(surface, math::Vector2{0.0f, 0.0f});
     flip_atlas_height = -1;
 }
 

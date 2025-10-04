@@ -56,8 +56,8 @@ rg::Surface rg::font::Font::render(
     return result;
 }
 
-rg::math::Vector2 rg::font::Font::size(const char *text) const
+rg::math::Vector2<float> rg::font::Font::size(const char *text) const
 {
     auto result = MeasureTextEx(font, text, font_size, 1);
-    return math::Vector2{result};
+    return math::Vector2<float>{result};
 }

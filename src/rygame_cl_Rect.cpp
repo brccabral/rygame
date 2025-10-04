@@ -35,10 +35,10 @@ float rg::Rect::right() const
     return x + width;
 }
 
-rg::Rect rg::Rect::right(const float v)
+rg::Rect &rg::Rect::right(const float v)
 {
     x = v - width;
-    return copy();
+    return *this;
 }
 
 float rg::Rect::left() const
@@ -46,10 +46,10 @@ float rg::Rect::left() const
     return x;
 }
 
-rg::Rect rg::Rect::left(const float v)
+rg::Rect &rg::Rect::left(const float v)
 {
     x = v;
-    return copy();
+    return *this;
 }
 
 float rg::Rect::centerx() const
@@ -57,10 +57,10 @@ float rg::Rect::centerx() const
     return x + width / 2.0f;
 }
 
-rg::Rect rg::Rect::centerx(const float v)
+rg::Rect &rg::Rect::centerx(const float v)
 {
     x = v - width / 2.0f;
-    return copy();
+    return *this;
 }
 
 float rg::Rect::centery() const
@@ -68,22 +68,22 @@ float rg::Rect::centery() const
     return y + height / 2.0f;
 }
 
-rg::Rect rg::Rect::centery(const float v)
+rg::Rect &rg::Rect::centery(const float v)
 {
     y = v - height / 2.0f;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::center() const
+rg::math::Vector2<float> rg::Rect::center() const
 {
     return {x + width / 2.0f, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::center(const math::Vector2 pos)
+rg::Rect &rg::Rect::center(const math::Vector2<float> pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height / 2.0f;
-    return copy();
+    return *this;
 }
 
 float rg::Rect::top() const
@@ -91,10 +91,10 @@ float rg::Rect::top() const
     return y;
 }
 
-rg::Rect rg::Rect::top(const float v)
+rg::Rect &rg::Rect::top(const float v)
 {
     y = v;
-    return copy();
+    return *this;
 }
 
 float rg::Rect::bottom() const
@@ -102,113 +102,113 @@ float rg::Rect::bottom() const
     return y + height;
 }
 
-rg::Rect rg::Rect::bottom(const float v)
+rg::Rect &rg::Rect::bottom(const float v)
 {
     y = v - height;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::topleft() const
+rg::math::Vector2<float> rg::Rect::topleft() const
 {
     return {x, y};
 }
 
-rg::Rect rg::Rect::topleft(const math::Vector2 pos)
+rg::Rect &rg::Rect::topleft(const math::Vector2<float> pos)
 {
     x = pos.x;
     y = pos.y;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::bottomleft() const
+rg::math::Vector2<float> rg::Rect::bottomleft() const
 {
     return {x, y + height};
 }
 
-rg::Rect rg::Rect::bottomleft(const math::Vector2 pos)
+rg::Rect &rg::Rect::bottomleft(const math::Vector2<float> pos)
 {
     x = pos.x;
     y = pos.y - height;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::topright() const
+rg::math::Vector2<float> rg::Rect::topright() const
 {
     return {x + width, y};
 }
 
-rg::Rect rg::Rect::topright(const math::Vector2 pos)
+rg::Rect &rg::Rect::topright(const math::Vector2<float> pos)
 {
     x = pos.x - width;
     y = pos.y;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::bottomright() const
+rg::math::Vector2<float> rg::Rect::bottomright() const
 {
     return {x + width, y + height};
 }
 
-rg::Rect rg::Rect::bottomright(const math::Vector2 pos)
+rg::Rect &rg::Rect::bottomright(const math::Vector2<float> pos)
 {
     x = pos.x - width;
     y = pos.y - height;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::midbottom() const
+rg::math::Vector2<float> rg::Rect::midbottom() const
 {
     return {x + width / 2.0f, y + height};
 }
 
-rg::Rect rg::Rect::midbottom(const math::Vector2 pos)
+rg::Rect &rg::Rect::midbottom(const math::Vector2<float> pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y - height;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::midtop() const
+rg::math::Vector2<float> rg::Rect::midtop() const
 {
     return {x + width / 2.0f, y};
 }
 
-rg::Rect rg::Rect::midtop(const math::Vector2 pos)
+rg::Rect &rg::Rect::midtop(const math::Vector2<float> pos)
 {
     x = pos.x - width / 2.0f;
     y = pos.y;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::midleft() const
+rg::math::Vector2<float> rg::Rect::midleft() const
 {
     return {x, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::midleft(const math::Vector2 pos)
+rg::Rect &rg::Rect::midleft(const math::Vector2<float> pos)
 {
     x = pos.x;
     y = pos.y - height / 2.0f;
-    return copy();
+    return *this;
 }
 
-rg::math::Vector2 rg::Rect::midright() const
+rg::math::Vector2<float> rg::Rect::midright() const
 {
     return {x + width, y + height / 2.0f};
 }
 
-rg::Rect rg::Rect::midright(const math::Vector2 pos)
+rg::Rect &rg::Rect::midright(const math::Vector2<float> pos)
 {
     x = pos.x - width;
     y = pos.y - height / 2.0f;
-    return copy();
+    return *this;
 }
 
-rg::Rect rg::Rect::move(const math::Vector2 delta)
+rg::Rect &rg::Rect::move(const math::Vector2<float> delta)
 {
     x += delta.x;
     y += delta.y;
-    return copy();
+    return *this;
 }
 
 rg::Rect rg::Rect::inflate(const float width, const float height) const
@@ -225,20 +225,22 @@ rg::Rect rg::Rect::scale_by(const float ratio) const
     return result;
 }
 
-void rg::Rect::inflate_ip(const float width, const float height)
+rg::Rect &rg::Rect::inflate_ip(const float width, const float height)
 {
-    const math::Vector2 oldCenter = center();
+    const math::Vector2<float> oldCenter = center();
     this->width += width;
     this->height += height;
     center(oldCenter);
+    return *this;
 }
 
-void rg::Rect::scale_by_ip(const float ratio)
+rg::Rect &rg::Rect::scale_by_ip(const float ratio)
 {
-    const math::Vector2 oldCenter = center();
+    const math::Vector2<float> oldCenter = center();
     this->width *= ratio;
     this->height *= ratio;
     center(oldCenter);
+    return *this;
 }
 
 rg::Rect rg::Rect::copy() const
@@ -246,17 +248,18 @@ rg::Rect rg::Rect::copy() const
     return {x, y, width, height};
 }
 
-bool rg::Rect::collidepoint(const math::Vector2 point) const
+bool rg::Rect::collidepoint(const math::Vector2<float> point) const
 {
-    return CheckCollisionPointRec(point.vector2, rectangle);
+    return CheckCollisionPointRec(point.vector2(), rectangle);
 }
 
 bool rg::Rect::collideline(
-        Line line, math::Vector2 *collisionPoint1, math::Vector2 *collisionPoint2) const
+        const Line line, math::Vector2<float> *collisionPoint1,
+        math::Vector2<float> *collisionPoint2) const
 {
     bool hasCollision = false;
     bool secondCollision = false;
-    math::Vector2 *collisionPoint = collisionPoint1;
+    math::Vector2<float> *collisionPoint = collisionPoint1;
 
     const Line lineTop{topleft(), topright()};
     const Line lineBottom{bottomleft(), bottomright()};
@@ -322,7 +325,7 @@ rg::Line rg::Rect::clipline(const Line line) const
     return clipline(line.start, line.end);
 }
 
-rg::Line rg::Rect::clipline(const math::Vector2 start, const math::Vector2 end) const
+rg::Line rg::Rect::clipline(const math::Vector2<float> start, const math::Vector2<float> end) const
 {
     return clipline(start.x, start.y, end.x, end.y);
 }

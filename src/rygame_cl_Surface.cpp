@@ -9,7 +9,7 @@ rg::Surface::Surface(const int width, const int height)
     Setup(width, height);
 }
 
-rg::Surface::Surface(const math::Vector2 size)
+rg::Surface::Surface(const math::Vector2<float> size)
 {
     Setup(size.x, size.y);
 }
@@ -107,7 +107,16 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const math::Vector2 &offset,
+        const Surface *incoming, const math::Vector2<int> &offset, const rl::BlendMode blend_mode,
+        const float scale)
+{
+    Blit(
+            incoming, math::Vector2{static_cast<float>(offset.x),
+                                    static_cast<float>(offset.y)}, blend_mode, scale);
+}
+
+void rg::Surface::Blit(
+        const Surface *incoming, const math::Vector2<float> &offset,
         const rl::BlendMode blend_mode, const float scale)
 {
     TraceLog(
@@ -122,7 +131,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D &incoming_texture, const math::Vector2 offset, const Rect area,
+        const rl::Texture2D &incoming_texture, const math::Vector2<float> offset, const Rect area,
         const rl::BlendMode blend_mode, const rl::Color tint, const float scale)
 {
     if (!incoming_texture.id)
@@ -142,7 +151,8 @@ void rg::Surface::Blit(
     }
     if (area.height && area.width)
     {
-        const rl::Rectangle dest = {offset.vector2.x, offset.vector2.y, fabsf(area.width) * scale,
+        const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
+                                    fabsf(area.width) * scale,
                                     fabsf(area.height) * scale};
         constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
@@ -152,7 +162,7 @@ void rg::Surface::Blit(
     }
     else
     {
-        const rl::Rectangle dest = {offset.vector2.x, offset.vector2.y,
+        const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
                                     abs(incoming_texture.width) * scale,
                                     abs(incoming_texture.height) * scale};
         constexpr rl::Vector2 origin = {0.0f, 0.0f};
@@ -170,7 +180,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blits(
-        const std::vector<std::pair<Surface *, math::Vector2>> &blit_sequence,
+        const std::vector<std::pair<Surface *, math::Vector2<float>>> &blit_sequence,
         const rl::BlendMode blend_mode)
 {
     if (blit_sequence.empty())
@@ -192,7 +202,7 @@ void rg::Surface::Blits(
                 surface->GetTexture(),
                 {surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
                  -surface->atlas_rect.height * surface->flip_atlas_height},
-                offset.vector2, surface->m_tint);
+                offset.vector2(), surface->m_tint);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {

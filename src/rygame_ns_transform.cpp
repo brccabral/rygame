@@ -63,7 +63,7 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     return result;
 }
 
-rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2 size)
+rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<float> size)
 {
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
