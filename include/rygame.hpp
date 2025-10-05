@@ -1111,8 +1111,8 @@ struct std::hash<rg::math::Vector2<T>>
     std::size_t operator()(const rg::math::Vector2<T> &v) const noexcept
     {
         // combine hashes of x and y
-        const std::size_t h1 = std::hash<float>{}(v.x);
-        const std::size_t h2 = std::hash<float>{}(v.y);
+        const std::size_t h1 = std::hash<T>{}(v.x);
+        const std::size_t h2 = std::hash<T>{}(v.y);
 
         // typical hash combine
         return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
