@@ -3,12 +3,12 @@
 
 bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
 {
-    return CheckCollisionRecs(left->rect.rectangle, right->rect.rectangle);
+    return CheckCollisionRecs(left->rect.rectangle(), right->rect.rectangle());
 }
 
 bool rg::sprite::collide_sprite_point(const Sprite *sprite, const math::Vector2<float> &point)
 {
-    return rl::CheckCollisionPointRec(point.vector2(), sprite->rect.rectangle);
+    return rl::CheckCollisionPointRec(point.vector2(), sprite->rect.rectangle());
 }
 
 rg::sprite::collide_rect_ratio::collide_rect_ratio(const float ratio) : ratio(ratio)

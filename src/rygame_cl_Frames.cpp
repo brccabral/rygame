@@ -98,7 +98,7 @@ rg::Frames rg::Frames::SubFrames(const Rect rect)
     result.render = render;
     result.shared_texture = shared_texture;
     result.parent = this;
-    result.m_offset = rect.pos;
+    result.m_offset = rect.pos();
 
     result.frames.clear();
     for (const auto &frame: frames)

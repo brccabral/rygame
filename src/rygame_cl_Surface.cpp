@@ -103,7 +103,7 @@ void rg::Surface::Blit(
         TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
         return;
     }
-    Blit(incoming, offset.pos, blend_mode, scale);
+    Blit(incoming, offset.pos(), blend_mode, scale);
 }
 
 void rg::Surface::Blit(
@@ -253,7 +253,7 @@ rg::Surface rg::Surface::SubSurface(const Rect rect)
     result.shared_texture = shared_texture;
     result.atlas_rect = rect;
     result.parent = this;
-    result.m_offset = rect.pos;
+    result.m_offset = rect.pos();
     return result;
 }
 

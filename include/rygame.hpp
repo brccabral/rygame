@@ -235,8 +235,6 @@ namespace rg
 
     namespace math
     {
-        // GCC warns about Anonymous Struct
-
         template<typename N>
         class Vector2
         {
@@ -441,69 +439,40 @@ namespace rg
         int clamp(int value, int min, int max);
     } // namespace math
 
-    // GCC warns about Anonymous Struct
-#if !_WIN32
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-    typedef union Line
+    class Line
     {
-        struct
-        {
-            math::Vector2<float> start;
-            math::Vector2<float> end;
-        };
+    public:
 
-        struct
-        {
-            float x1{};
-            float y1{};
-            float x2{};
-            float y2{};
-        };
+        math::Vector2<float> start{};
+        math::Vector2<float> end{};
 
         Line() = default;
 
-        Line(math::Vector2<float> start, math::Vector2<float> end) : start(start), end(end)
-        {
-        }
+        Line(math::Vector2<float> start, math::Vector2<float> end);
 
-        Line(float x1, float y1, float x2, float y2) : start(x1, y1), end(x2, y2)
-        {
-        }
+        Line(float x1, float y1, float x2, float y2);
 
         [[nodiscard]] bool collidepoint(math::Vector2<float> point, float threshold = 0.0f) const;
         [[nodiscard]] bool collideline(Line other, math::Vector2<float> *collisionPoint) const;
         explicit operator bool() const;
-    } Line;
-#if !_WIN32
-#pragma GCC diagnostic pop
-#endif
+    };
 
-    // GCC warns about Anonymous Struct
-#if !_WIN32
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-    typedef union Rect
+    class Rect
     {
-        struct
-        {
-            math::Vector2<float> pos, size;
-        };
+    public:
 
-        rl::Rectangle rectangle;
-
-        struct
-        {
-            float x{}, y{}, width{}, height{};
-        };
+        float x{}, y{}, width{}, height{};
 
         Rect() = default;
         Rect(math::Vector2<float> pos, math::Vector2<float> size);
         explicit Rect(rl::Rectangle rect);
         Rect(float x, float y, float width, float height);
         Rect(int x, int y, int width, int height);
+
+        [[nodiscard]] math::Vector2<float> pos() const;
+        Rect &pos(math::Vector2<float> p);
+        [[nodiscard]] math::Vector2<float> size() const;
+        [[nodiscard]] rl::Rectangle rectangle() const;
 
         // Returns the X value on the right side (x+width)
         [[nodiscard]] float right() const;
@@ -569,13 +538,13 @@ namespace rg
         Rect &move(math::Vector2<float> delta);
         // Returns a modified rect with increased/decreased sizes, but same center
         // This rect is not modified. Use `inflate_ip` for in-place
-        [[nodiscard]] Rect inflate(float width, float height) const;
+        [[nodiscard]] Rect inflate(float w, float h) const;
         // Returns a modified rect with increased/decreased sizes, but same center
         // This rect is not modified. Use `scale_by_ip` for in-place
         [[nodiscard]] Rect scale_by(float ratio) const;
         // Modifies this rect with increased/decreased sizes, keeping the center position
         // This is an in-place change. Use `inflate` to keep original size
-        Rect &inflate_ip(float width, float height);
+        Rect &inflate_ip(float w, float h);
         // Modifies this rect with increased/decreased sizes, keeping the center position
         // This is an in-place change. Use `scale_by` to keep original size
         Rect &scale_by_ip(float ratio);
@@ -592,7 +561,7 @@ namespace rg
         [[nodiscard]] bool colliderect(const Rect &other) const;
         // Tests if this rect collides with a vector<Rect>.
         // Returns the index of first collided or -1 if no collision.
-        int collidelist(const std::vector<Rect> &list) const;
+        [[nodiscard]] int collidelist(const std::vector<Rect> &list) const;
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
         Line clipline(Line line) const;
@@ -602,10 +571,12 @@ namespace rg
         // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
         Line clipline(float x1, float y1, float x2, float y2) const;
-    } Rect;
-#if !_WIN32
-#pragma GCC diagnostic pop
-#endif
+
+        Rect operator+(const math::Vector2<float> &other) const;
+        Rect &operator+=(const math::Vector2<float> &other);
+        Rect operator-(const math::Vector2<float> &other) const;
+        Rect &operator-=(const math::Vector2<float> &other);
+    };
 
     class Surface
     {

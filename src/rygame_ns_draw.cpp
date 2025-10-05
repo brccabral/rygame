@@ -19,11 +19,11 @@ void rg::draw::rect(
             const float r = (radius > greater_dim) ? greater_dim : radius;
             const float roundness = r / greater_dim;
             const int segments = roundness * 90;
-            DrawRectangleRoundedLinesEx(rect.rectangle, roundness, segments, lineThick, color);
+            DrawRectangleRoundedLinesEx(rect.rectangle(), roundness, segments, lineThick, color);
         }
         else
         {
-            DrawRectangleLinesEx(rect.rectangle, lineThick, color);
+            DrawRectangleLinesEx(rect.rectangle(), lineThick, color);
         }
     }
     else if (lineThick == 0)
@@ -34,32 +34,32 @@ void rg::draw::rect(
             const float r = (radius > greater_dim) ? greater_dim : radius;
             const float roundness = r / greater_dim;
             const int segments = roundness * 90;
-            DrawRectangleRounded(rect.rectangle, roundness, segments, color);
+            DrawRectangleRounded(rect.rectangle(), roundness, segments, color);
             Rect corner = {0.0f, 0.0f, radius, radius};
             if (!topLeft)
             {
                 corner.topleft(rect.topleft());
-                DrawRectangleRec(corner.rectangle, color);
+                DrawRectangleRec(corner.rectangle(), color);
             }
             if (!topRight)
             {
                 corner.topright(rect.topright());
-                DrawRectangleRec(corner.rectangle, color);
+                DrawRectangleRec(corner.rectangle(), color);
             }
             if (!bottomLeft)
             {
                 corner.bottomleft(rect.bottomleft());
-                DrawRectangleRec(corner.rectangle, color);
+                DrawRectangleRec(corner.rectangle(), color);
             }
             if (!bottomRight)
             {
                 corner.bottomright(rect.bottomright());
-                DrawRectangleRec(corner.rectangle, color);
+                DrawRectangleRec(corner.rectangle(), color);
             }
         }
         else
         {
-            DrawRectangleV(rect.pos.vector2(), rect.size.vector2(), color);
+            DrawRectangleV(rect.pos().vector2(), rect.size().vector2(), color);
         }
     }
 }

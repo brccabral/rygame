@@ -50,6 +50,28 @@ rg::Rect::Rect(int x, int y, int width, int height)
 {
 }
 
+rg::math::Vector2<float> rg::Rect::pos() const
+{
+    return {x, y};
+}
+
+rg::Rect &rg::Rect::pos(const math::Vector2<float> p)
+{
+    x = p.x;
+    y = p.y;
+    return *this;
+}
+
+rg::math::Vector2<float> rg::Rect::size() const
+{
+    return {width, height};
+}
+
+rl::Rectangle rg::Rect::rectangle() const
+{
+    return {x, y, width, height};
+}
+
 float rg::Rect::right() const
 {
     return x + width;
@@ -231,25 +253,25 @@ rg::Rect &rg::Rect::move(const math::Vector2<float> delta)
     return *this;
 }
 
-rg::Rect rg::Rect::inflate(const float width, const float height) const
+rg::Rect rg::Rect::inflate(const float w, const float h) const
 {
-    Rect result{x, y, this->width, this->height};
-    result.inflate_ip(width, height);
+    Rect result{x, y, width, height};
+    result.inflate_ip(w, h);
     return result;
 }
 
 rg::Rect rg::Rect::scale_by(const float ratio) const
 {
-    Rect result{x, y, this->width, this->height};
+    Rect result{x, y, width, height};
     result.scale_by_ip(ratio);
     return result;
 }
 
-rg::Rect &rg::Rect::inflate_ip(const float width, const float height)
+rg::Rect &rg::Rect::inflate_ip(const float w, const float h)
 {
     const math::Vector2<float> oldCenter = center();
-    this->width += width;
-    this->height += height;
+    width += w;
+    height += h;
     center(oldCenter);
     return *this;
 }
@@ -270,7 +292,7 @@ rg::Rect rg::Rect::copy() const
 
 bool rg::Rect::collidepoint(const math::Vector2<float> point) const
 {
-    return CheckCollisionPointRec(point.vector2(), rectangle);
+    return CheckCollisionPointRec(point.vector2(), rectangle());
 }
 
 bool rg::Rect::collideline(
@@ -325,14 +347,14 @@ bool rg::Rect::collideline(
 
 bool rg::Rect::colliderect(const Rect &other) const
 {
-    return CheckCollisionRecs(rectangle, other.rectangle);
+    return CheckCollisionRecs(rectangle(), other.rectangle());
 }
 
 int rg::Rect::collidelist(const std::vector<Rect> &list) const
 {
-    for (int i = 0; i < list.size(); ++i)
+    for (size_t i = 0; i < list.size(); ++i)
     {
-        if (CheckCollisionRecs(rectangle, list[i].rectangle))
+        if (CheckCollisionRecs(rectangle(), list[i].rectangle()))
         {
             return i;
         }
@@ -383,19 +405,19 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
         /* Horizontal line, easy to clip */
         if (x1 < rectx1)
         {
-            result.x1 = rectx1;
+            result.start.x = rectx1;
         }
         else if (x1 > rectx2)
         {
-            result.x1 = rectx2;
+            result.start.x = rectx2;
         }
         if (x2 < rectx1)
         {
-            result.x2 = rectx1;
+            result.end.x = rectx1;
         }
         else if (x2 > rectx2)
         {
-            result.x2 = rectx2;
+            result.end.x = rectx2;
         }
         return result;
     }
@@ -405,19 +427,19 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
         /* Vertical line, easy to clip */
         if (y1 < recty1)
         {
-            result.y1 = recty1;
+            result.start.y = recty1;
         }
         else if (y1 > recty2)
         {
-            result.y1 = recty2;
+            result.start.y = recty2;
         }
         if (y2 < recty1)
         {
-            result.y2 = recty1;
+            result.end.y = recty1;
         }
         else if (y2 > recty2)
         {
-            result.y2 = recty2;
+            result.end.y = recty2;
         }
         return result;
     }
@@ -495,10 +517,34 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
             outcode2 = COMPUTEOUTCODE(this, x_, y_);
         }
     }
-    result.x1 = x1;
-    result.y1 = y1;
-    result.x2 = x2;
-    result.y2 = y2;
+    result.start.x = x1;
+    result.start.y = y1;
+    result.end.x = x2;
+    result.end.y = y2;
 
     return result;
+}
+
+rg::Rect rg::Rect::operator+(const math::Vector2<float> &other) const
+{
+    return {x + other.x, y + other.y, width, height};
+}
+
+rg::Rect &rg::Rect::operator+=(const math::Vector2<float> &other)
+{
+    x += other.x;
+    y += other.y;
+    return *this;
+}
+
+rg::Rect rg::Rect::operator-(const math::Vector2<float> &other) const
+{
+    return {x - other.x, y - other.y, width, height};
+}
+
+rg::Rect &rg::Rect::operator-=(const math::Vector2<float> &other)
+{
+    x -= other.x;
+    y -= other.y;
+    return *this;
 }

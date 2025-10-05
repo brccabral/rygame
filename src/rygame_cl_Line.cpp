@@ -1,6 +1,16 @@
 #include "rygame.hpp"
 
 
+rg::Line::Line(
+        const math::Vector2<float> start, const math::Vector2<float> end) : start(start), end(end)
+{
+}
+
+rg::Line::Line(
+        const float x1, const float y1, const float x2, const float y2) : start(x1, y1), end(x2, y2)
+{
+}
+
 bool rg::Line::collidepoint(const math::Vector2<float> point, const float threshold) const
 {
     return CheckCollisionPointLine(point.vector2(), start.vector2(), end.vector2(), threshold);
@@ -19,5 +29,5 @@ bool rg::Line::collideline(const Line other, math::Vector2<float> *collisionPoin
 
 rg::Line::operator bool() const
 {
-    return x1 != x2 || y1 != y2;
+    return start.x != end.x || start.y != end.x;
 }
