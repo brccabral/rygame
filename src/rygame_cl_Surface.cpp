@@ -72,17 +72,13 @@ void rg::Surface::Fill(const rl::Color color)
 
 void rg::Surface::SetColorKey(const rl::Color color)
 {
-    TraceLog(
-            rl::LOG_TRACE,
-            rl::TextFormat("SetColorKey render %d texture %d", render.id, render.texture.id));
     rl::Image current = LoadImageFromTextureSafe(GetTexture());
-    ImageColorReplace(&current, color, rl::BLANK);
+    rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
     UnloadTextureSafe(render.texture);
     render.texture = color_texture;
-    atlas_rect.height *= -1;
 
     // clean up
     UnloadImage(current);
