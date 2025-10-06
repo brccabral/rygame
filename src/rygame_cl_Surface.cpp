@@ -324,6 +324,11 @@ void rg::Surface::Draw()
         blit->Draw();
     }
 
+    if (!render.id)
+    {
+        return;
+    }
+
     rl::BeginTextureMode(render);
     for (auto &cmd: draw_cmds)
     {
