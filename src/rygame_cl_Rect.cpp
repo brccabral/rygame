@@ -40,12 +40,12 @@ rg::Rect::Rect(const rl::Rectangle rect)
 {
 }
 
-rg::Rect::Rect(float x, float y, float width, float height)
+rg::Rect::Rect(const float x, const float y, const float width, const float height)
     : x(x), y(y), width(width), height(height)
 {
 }
 
-rg::Rect::Rect(int x, int y, int width, int height)
+rg::Rect::Rect(const int x, const int y, const int width, const int height)
     : x(x), y(y), width(width), height(height)
 {
 }
@@ -379,11 +379,10 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
     float x_ = x;
     float y_ = y;
 
-    float rectx1 = x;
-    float recty1 = y;
-    float rectx2 = x + width - 1;
-    float recty2 = y + height - 1;
-    int outcode1, outcode2;
+    const float rectx1 = x;
+    const float recty1 = y;
+    const float rectx2 = x + width - 1;
+    const float recty2 = y + height - 1;
 
     /* Check to see if entire line is inside rect */
     if (x1 >= rectx1 && x1 <= rectx2 && x2 >= rectx1 && x2 <= rectx2 && y1 >= recty1 &&
@@ -445,8 +444,8 @@ rg::Line rg::Rect::clipline(float x1, float y1, float x2, float y2) const
     }
 
     /* More complicated Cohen-Sutherland algorithm */
-    outcode1 = COMPUTEOUTCODE(this, x1, y1);
-    outcode2 = COMPUTEOUTCODE(this, x2, y2);
+    int outcode1 = COMPUTEOUTCODE(this, x1, y1);
+    int outcode2 = COMPUTEOUTCODE(this, x2, y2);
     while (outcode1 || outcode2)
     {
         if (outcode1 & outcode2)
