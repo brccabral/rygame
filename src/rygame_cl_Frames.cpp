@@ -1,7 +1,7 @@
 #include "rygame.hpp"
 
 
-rg::Frames::Frames(const int width, const int height, int rows, int cols)
+rg::Frames::Frames(const int width, const int height, const int rows, const int cols)
     : Surface(width, height), m_rows(rows), m_cols(cols)
 {
     CreateFrames(width, height, rows, cols);
@@ -25,27 +25,58 @@ void rg::Frames::SetAtlas(const int frame_index)
 }
 
 rg::Frames
-rg::Frames::Merge(std::vector<Surface> &surfaces, const int rows, const int cols)
+rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {
         return {};
     }
+    struct pixels
+    {
+        unsigned char r;
+        unsigned char g;
+        unsigned char b;
+        unsigned char a;
+    };
     const int singleWidth = surfaces[0].GetRect().width;
     const int singleHeight = surfaces[0].GetRect().height;
     auto result =
             Frames(singleWidth * cols, singleHeight * rows, rows, cols);
-    result.Fill(rl::BLANK);
+    const auto result_image = LoadImageFromTextureSafe(result.render.texture);
+    auto *result_data = (pixels *) result_image.data;
+
+    auto index = [cols, singleWidth, singleHeight](
+            const int rc, const int rr, const int ic, const int ir)
+    {
+        const int fc = rc * singleWidth + ic;
+        const int fr = rr * singleHeight + ir;
+        return fr * (cols * singleWidth) + fc;
+    };
 
     for (int r = 0; r < rows; ++r)
     {
         for (int c = 0; c < cols; ++c)
         {
             const unsigned int s = r * cols + c;
-            result.Blit(
-                    &surfaces[s], math::Vector2{(float) c * singleWidth, (float) r * singleHeight});
+            const auto *surface = &surfaces[s];
+
+            const rl::Image surfImage = LoadImageFromTextureSafe(surface->GetTexture());
+            const auto *image_data = (pixels *) surfImage.data;
+            for (int rr = 0; rr < surfImage.height; ++rr)
+            {
+                for (int cc = 0; cc < surfImage.width; ++cc)
+                {
+                    const auto id_i = rr * surfImage.width + cc;
+                    const auto rd_i = index(c, r, cc, rr);
+                    result_data[rd_i] = image_data[id_i];
+                }
+            }
         }
     }
+
+    const auto result_texture = LoadTextureFromImageSafe(result_image);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = result_texture;
 
     return result;
 }
