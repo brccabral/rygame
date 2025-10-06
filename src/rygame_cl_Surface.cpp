@@ -260,6 +260,12 @@ rg::Surface rg::Surface::copy() const
     result.atlas_rect.height *= -1;
     UnloadImage(toCopy);
 
+    result.parent = parent;
+    result.m_tint = m_tint;
+    result.shared_texture = shared_texture;
+    result.m_offset = m_offset;
+    result.flip_atlas_height = flip_atlas_height;
+
     return result;
 }
 
