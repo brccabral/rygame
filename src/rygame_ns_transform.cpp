@@ -55,9 +55,9 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
     const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
     auto result = Surface(texture.width, texture.height);
-    result.Fill(rl::BLANK);
-    result.Blit(texGray, {}, {});
-    UnloadTextureSafe(texGray);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = texGray;
+    result.atlas_rect.height *= -1;
     UnloadImage(toGray);
 
     return result;
@@ -71,9 +71,8 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
     const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
 
     auto result = Surface((int) size.x, (int) size.y);
-    result.Fill(rl::BLANK);
-    result.Blit(texScale, {}, {});
-    UnloadTextureSafe(texScale);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = texScale;
     UnloadImage(toScale);
 
     return result;

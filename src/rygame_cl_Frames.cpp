@@ -86,15 +86,10 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
     const auto texture = LoadTextureSafe(file);
 
     auto result = Frames(texture.width, texture.height, rows, cols);
-    result.Fill(rl::BLANK);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = texture;
+    result.atlas_rect.height *= -1;
 
-    BeginTextureModeSafe(result.render);
-    DrawTextureRec(
-            texture, //
-            {0, 0, (float) texture.width, -(float) texture.height}, //
-            {0, 0}, rl::WHITE);
-
-    UnloadTextureSafe(texture);
     return result;
 }
 
@@ -109,11 +104,11 @@ void rg::Frames::SetColorKey(const rl::Color color)
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    Fill(rl::BLANK);
-    Blit(color_texture, {}, {0, 0, render.texture.width, render.texture.height});
+    UnloadTextureSafe(render.texture);
+    render.texture = color_texture;
+    atlas_rect.height *= -1;
 
     // clean up
-    UnloadTextureSafe(color_texture);
     UnloadImage(current);
 }
 

@@ -6,11 +6,9 @@ rg::Surface rg::image::Load(const char *path)
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     const rl::Texture2D loaded_texture = LoadTextureSafe(path);
     auto surface = Surface(loaded_texture.width, loaded_texture.height);
-    surface.Fill(rl::BLANK);
-    surface.Blit(
-            loaded_texture, {},
-            {0, 0, loaded_texture.width, -loaded_texture.height});
-    UnloadTextureSafe(loaded_texture);
+    UnloadTextureSafe(surface.render.texture);
+    surface.render.texture = loaded_texture;
+    surface.atlas_rect.height *= -1;
     return surface;
 }
 

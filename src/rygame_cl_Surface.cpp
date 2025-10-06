@@ -80,11 +80,11 @@ void rg::Surface::SetColorKey(const rl::Color color)
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    Fill(rl::BLANK);
-    Blit(color_texture, {}, atlas_rect);
+    UnloadTextureSafe(render.texture);
+    render.texture = color_texture;
+    atlas_rect.height *= -1;
 
     // clean up
-    UnloadTextureSafe(color_texture);
     UnloadImage(current);
 }
 
@@ -241,9 +241,10 @@ rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
     ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
-    result.Blit(converted, {}, {});
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = converted;
+    result.atlas_rect.height *= -1;
 
-    UnloadTextureSafe(converted);
     UnloadImage(toConvert);
     return result;
 }
@@ -254,8 +255,9 @@ rg::Surface rg::Surface::copy() const
     auto result = Surface(texture.width, texture.height);
     const rl::Image toCopy = LoadImageFromTextureSafe(texture);
     const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
-    result.Blit(copyTexture, {}, {});
-    UnloadTextureSafe(texture);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = copyTexture;
+    result.atlas_rect.height *= -1;
     UnloadImage(toCopy);
 
     return result;
@@ -302,19 +304,6 @@ rl::Texture2D rg::Surface::GetTexture() const
         return *shared_texture;
     }
     return render.texture;
-}
-
-void rg::Surface::ToggleRender()
-{
-    if (rygame->current_render != render.id)
-    {
-        EndTextureModeSafe();
-        TraceLog(
-                rl::LOG_TRACE,
-                rl::TextFormat("Begin render %d texture %d", render.id, render.texture.id));
-        BeginTextureModeSafe(render);
-        shared_texture = nullptr;
-    }
 }
 
 void rg::Surface::Draw()
