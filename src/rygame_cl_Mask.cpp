@@ -22,9 +22,9 @@ rg::mask::Mask::Mask(const unsigned int width, const unsigned int height, const 
 }
 
 rg::mask::Mask::Mask(Mask &&other) noexcept
-    : image(other.image), atlas_rect(other.atlas_rect)
+    : Mask()
 {
-    other.image.data = nullptr;
+    *this = std::move(other);
 }
 
 rg::mask::Mask &rg::mask::Mask::operator=(Mask &&other) noexcept
@@ -42,10 +42,27 @@ rg::mask::Mask::~Mask()
 
 rg::Surface rg::mask::Mask::ToSurface() const
 {
-    const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
+    const auto gen = rl::GenImageColor(image.width, image.height, rl::BLANK);
+    auto *gen_data = (rl::Color *) gen.data;
+    const auto *mask_data = (unsigned char *) image.data;
+
+    for (int i = 0; i < image.width * image.height; ++i)
+    {
+        if (mask_data[i] != 0)
+        {
+            gen_data[i] = rl::WHITE;
+        }
+        else
+        {
+            gen_data[i] = rl::BLACK;
+        }
+    }
+
+    const auto maskTexture = LoadTextureFromImageSafe(gen);
     auto surface = Surface(image.width, image.height);
     UnloadTextureSafe(surface.render.texture);
     surface.render.texture = maskTexture;
+    surface.atlas_rect.height *= -1;
     return surface;
 }
 
