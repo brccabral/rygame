@@ -23,9 +23,13 @@ rg::font::Font::Font(Font &&other) noexcept : Font()
 
 rg::font::Font &rg::font::Font::operator=(Font &&other) noexcept
 {
-    font = other.font;
-    font_size = other.font_size;
-    other.font = rl::GetFontDefault();
+    if (this != &other)
+    {
+        UnloadFont(font);
+        font = other.font;
+        font_size = other.font_size;
+        other.font = rl::GetFontDefault(); // default font is unloaded in rl::CloseWindow()
+    }
     return *this;
 }
 
@@ -59,6 +63,6 @@ rg::Surface rg::font::Font::render(
 
 rg::math::Vector2<float> rg::font::Font::size(const char *text) const
 {
-    auto result = MeasureTextEx(font, text, font_size, 1);
+    const auto result = MeasureTextEx(font, text, font_size, 1);
     return math::Vector2<float>{result};
 }

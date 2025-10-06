@@ -1047,6 +1047,7 @@ namespace rg
 
             bool isMusic{};
             std::string file{};
+            void Unload();
         };
     } // namespace mixer
 

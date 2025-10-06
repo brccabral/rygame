@@ -29,9 +29,13 @@ rg::mask::Mask::Mask(Mask &&other) noexcept
 
 rg::mask::Mask &rg::mask::Mask::operator=(Mask &&other) noexcept
 {
-    image = other.image;
-    atlas_rect = other.atlas_rect;
-    other.image.data = nullptr;
+    if (this != &other)
+    {
+        UnloadImage(image);
+        image = other.image;
+        atlas_rect = other.atlas_rect;
+        other.image.data = nullptr;
+    }
     return *this;
 }
 

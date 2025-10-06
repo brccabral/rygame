@@ -35,18 +35,25 @@ rg::Surface::Surface(Surface &&other) noexcept
 
 rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
 {
-    render = other.render;
-    atlas_rect = other.atlas_rect;
-    shared_texture = other.shared_texture;
-    parent = other.parent;
-    m_offset = other.m_offset;
-    flip_atlas_height = other.flip_atlas_height;
-    m_tint = other.m_tint;
-    draw_cmds = std::move(other.draw_cmds);
-    blits = std::move(other.blits);
-    other.render.id = 0;
-    other.render.texture.id = 0;
-    other.shared_texture = nullptr;
+    if (this != &other)
+    {
+        if (render.id && !parent)
+        {
+            UnloadRenderTextureSafe(render);
+        }
+        render = other.render;
+        atlas_rect = other.atlas_rect;
+        shared_texture = other.shared_texture;
+        parent = other.parent;
+        m_offset = other.m_offset;
+        flip_atlas_height = other.flip_atlas_height;
+        m_tint = other.m_tint;
+        draw_cmds = std::move(other.draw_cmds);
+        blits = std::move(other.blits);
+        other.render.id = 0;
+        other.render.texture.id = 0;
+        other.shared_texture = nullptr;
+    }
     return *this;
 }
 
@@ -317,7 +324,10 @@ void rg::Surface::Draw()
 
     for (auto *blit: blits)
     {
-        blit->Draw();
+        if (blit)
+        {
+            blit->Draw();
+        }
     }
 
     if (!render.id)

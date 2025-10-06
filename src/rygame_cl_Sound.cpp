@@ -31,6 +31,7 @@ rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
 {
     if (this != &other)
     {
+        Unload();
         audio = other.audio;
         isMusic = other.isMusic;
         file = other.file;
@@ -50,21 +51,7 @@ rg::mixer::Sound &rg::mixer::Sound::operator=(Sound &&other) noexcept
 
 rg::mixer::Sound::~Sound()
 {
-    if (isMusic)
-    {
-        if (audio.music.stream.buffer)
-        {
-            std::erase(rygame->musics, this);
-            UnloadMusicStream(audio.music);
-        }
-    }
-    else
-    {
-        if (audio.sound.stream.buffer)
-        {
-            UnloadSound(audio.sound);
-        }
-    }
+    Unload();
 }
 
 // TODO - param to allow repetitions
@@ -114,3 +101,23 @@ const std::string &rg::mixer::Sound::GetFilename() const
 {
     return file;
 }
+
+void rg::mixer::Sound::Unload()
+{
+    if (isMusic)
+    {
+        if (audio.music.stream.buffer)
+        {
+            std::erase(rygame->musics, this);
+            UnloadMusicStream(audio.music);
+        }
+    }
+    else
+    {
+        if (audio.sound.stream.buffer)
+        {
+            UnloadSound(audio.sound);
+        }
+    }
+}
+
