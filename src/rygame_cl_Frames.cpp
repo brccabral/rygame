@@ -10,7 +10,7 @@ rg::Frames::Frames(const int width, const int height, int rows, int cols)
 }
 
 
-rg::Frames::Frames(const Surface *surface, const int rows, const int cols)
+rg::Frames::Frames(Surface *surface, const int rows, const int cols)
     : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
 {
     Fill(rl::BLANK);
@@ -25,7 +25,7 @@ void rg::Frames::SetAtlas(const int frame_index)
 }
 
 rg::Frames
-rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const int cols)
+rg::Frames::Merge(std::vector<Surface> &surfaces, const int rows, const int cols)
 {
     if (surfaces.empty())
     {

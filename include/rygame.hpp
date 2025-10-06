@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-#include "rygame.hpp"
-
 namespace rl
 {
 #ifdef _WIN32
@@ -74,48 +72,6 @@ namespace rg
 
     // Split string in a vector<string>
     std::vector<std::string> Split(const std::string &s, char delim);
-
-    template<typename K, typename C>
-    std::vector<K> getKeys(C &map)
-    {
-        std::vector<K> keys;
-        keys.reserve(map.size());
-
-        for (const auto &pair: map)
-        {
-            keys.push_back(pair.first);
-        }
-
-        return keys;
-    }
-
-    template<typename K, typename C>
-    std::vector<K> getValues(C &map)
-    {
-        std::vector<K> values;
-        values.reserve(map.size());
-
-        for (const auto &pair: map)
-        {
-            values.push_back(pair.second);
-        }
-
-        return values;
-    }
-
-    template<typename K, typename V, typename C>
-    std::vector<std::pair<K, V>> getItems(C &map)
-    {
-        std::vector<std::pair<K, V>> items;
-        items.reserve(map.size());
-
-        for (const auto &pair: map)
-        {
-            items.push_back(pair);
-        }
-
-        return items;
-    }
 
     // Map like container, but keeps order as it was inserted, not based on `keys` as `std::map`
     template<typename K, typename V>
@@ -578,6 +534,8 @@ namespace rg
         Rect &operator-=(const math::Vector2<float> &other);
     };
 
+    using DrawCmd = std::function<void()>;
+
     class Surface
     {
     public:
@@ -604,17 +562,17 @@ namespace rg
         // Blit incoming Surface* into this.
         void
         Blit(
-                const Surface *incoming, const Rect &offset,
+                Surface *incoming, const Rect &offset,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
-                const Surface *incoming, const math::Vector2<int> &offset,
+                Surface *incoming, const math::Vector2<int> &offset,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
-                const Surface *incoming, const math::Vector2<float> &offset,
+                Surface *incoming, const math::Vector2<float> &offset,
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Texture2D into surface*.
         void
@@ -652,6 +610,10 @@ namespace rg
         // used when a texture comes from a different object
         rl::Texture2D *shared_texture = nullptr;
 
+        std::vector<DrawCmd> draw_cmds{};
+        std::vector<Surface *> blits;
+        void Draw();
+
     protected:
 
         void Setup(int width, int height);
@@ -672,14 +634,14 @@ namespace rg
         // Rows/Cols will create atlas vector with N=rows*cols, each N of
         // size (Width/Cols, Height/Rows)
         Frames(int width, int height, int rows, int cols);
-        Frames(const Surface *surface, int rows, int cols);
+        Frames(Surface *surface, int rows, int cols);
 
         // Set current atlas rect. Default to first frame.
         // Value is moduled with frame length in case it is greater than frames size.
         void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames Merge(const std::vector<Surface> &surfaces, int rows, int cols);
+        static Frames Merge(std::vector<Surface> &surfaces, int rows, int cols);
         // Load an image and create frames for it
         static Frames Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;

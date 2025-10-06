@@ -22,6 +22,7 @@ target_sources(
     src/rygame_cl_Line.cpp
     src/rygame_cl_Mask.cpp
     src/rygame_cl_Rect.cpp
+    src/rygame_cl_Rygame.cpp
     src/rygame_cl_Sound.cpp
     src/rygame_cl_Sprite.cpp
     src/rygame_cl_Surface.cpp

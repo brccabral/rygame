@@ -8,7 +8,7 @@ rg::Surface &rg::display::SetMode(const int width, const int height)
 {
     if (!rygame->isInit)
     {
-        rg::Init();
+        Init();
     }
     int w = width;
     if (width == 0)
@@ -21,7 +21,7 @@ rg::Surface &rg::display::SetMode(const int width, const int height)
         h = rl::GetMonitorWidth(rl::GetCurrentMonitor());
     }
     rl::InitWindow(w, h, "rygame");
-    SetExitKey(rl::KEY_NULL);
+    rl::SetExitKey(rl::KEY_NULL);
     rygame->display_surface = Surface(width, height);
     return rygame->display_surface;
 }
@@ -40,15 +40,14 @@ void rg::display::Update()
 {
     for (const auto *music: rygame->musics)
     {
-        UpdateMusicStream(music->audio.music);
+        rl::UpdateMusicStream(music->audio.music);
     }
 
-    EndTextureModeSafe();
     // RenderTexture renders things flipped in Y axis, we draw it "unflipped"
     // https://github.com/raysan5/raylib/issues/3803
-    TraceLog(rl::LOG_TRACE, rl::TextFormat("display::Update"));
+    rygame->display_surface.Draw();
     rl::BeginDrawing();
-    DrawTextureRec(
+    rl::DrawTextureRec(
             rygame->display_surface.GetTexture(),
             {0, 0, rygame->display_surface.atlas_rect.width,
              -rygame->display_surface.atlas_rect.height},

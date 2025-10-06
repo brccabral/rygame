@@ -6,21 +6,8 @@ class Rygame
 {
 public:
 
-    Rygame()
-    {
-        random_gen = new std::mt19937(rd());
-    };
-
-    ~Rygame()
-    {
-        delete random_gen;
-        display_surface.~Surface();
-        if (isSoundInit)
-        {
-            rl::CloseAudioDevice();
-        }
-        rl::CloseWindow();
-    };
+    Rygame();
+    ~Rygame();
 
     rg::Surface display_surface{};
     unsigned int current_render = 0;

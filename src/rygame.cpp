@@ -24,7 +24,12 @@ void rg::Quit()
     {
         rygame->shouldQuit = true;
     }
+    if (rygame->isSoundInit)
+    {
+        rl::CloseAudioDevice();
+    }
     delete rygame;
+    rl::CloseWindow();
 }
 
 bool rg::WindowCloseOrQuit()

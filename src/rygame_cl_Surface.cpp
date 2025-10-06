@@ -42,6 +42,8 @@ rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
     m_offset = other.m_offset;
     flip_atlas_height = other.flip_atlas_height;
     m_tint = other.m_tint;
+    draw_cmds = std::move(other.draw_cmds);
+    blits = std::move(other.blits);
     other.render.id = 0;
     other.render.texture.id = 0;
     other.shared_texture = nullptr;
@@ -61,11 +63,11 @@ rg::Surface::~Surface()
 
 void rg::Surface::Fill(const rl::Color color)
 {
-    TraceLog(
-            rl::LOG_TRACE,
-            rl::TextFormat("Fill render %d texture %d", render.id, render.texture.id));
-    ToggleRender();
-    ClearBackground(color);
+    draw_cmds.emplace_back(
+            [color]
+            {
+                ClearBackground(color);
+            });
 }
 
 void rg::Surface::SetColorKey(const rl::Color color)
@@ -95,7 +97,7 @@ void rg::Surface::SetAlpha(const float alpha)
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode,
+        Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode,
         const float scale)
 {
     if (!incoming)
@@ -107,7 +109,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const math::Vector2<int> &offset, const rl::BlendMode blend_mode,
+        Surface *incoming, const math::Vector2<int> &offset, const rl::BlendMode blend_mode,
         const float scale)
 {
     Blit(
@@ -116,18 +118,15 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const Surface *incoming, const math::Vector2<float> &offset,
+        Surface *incoming, const math::Vector2<float> &offset,
         const rl::BlendMode blend_mode, const float scale)
 {
-    TraceLog(
-            rl::LOG_TRACE, "Blit render %d texture %d Texture() %d into render %d texture %d",
-            incoming->render.id, incoming->render.texture.id, incoming->GetTexture().id, render.id,
-            render.texture.id);
-    this->Blit(
+    Blit(
             incoming->GetTexture(), offset,
             {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
              incoming->atlas_rect.height * incoming->flip_atlas_height},
             blend_mode, incoming->m_tint, scale);
+    blits.push_back(incoming);
 }
 
 void rg::Surface::Blit(
@@ -138,16 +137,15 @@ void rg::Surface::Blit(
     {
         return;
     }
-    TraceLog(
-            rl::LOG_TRACE, "Blit texture %d into render %d texture %d", incoming_texture.id,
-            render.id, render.texture.id);
-
-    ToggleRender();
 
     // draw incoming as blended
     if (blend_mode != rl::BLEND_ALPHA)
     {
-        BeginBlendMode(blend_mode);
+        draw_cmds.emplace_back(
+                [blend_mode]
+                {
+                    rl::BeginBlendMode(blend_mode);
+                });
     }
     if (area.height && area.width)
     {
@@ -156,9 +154,14 @@ void rg::Surface::Blit(
                                     fabsf(area.height) * scale};
         constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
-        DrawTexturePro(
-                incoming_texture, {area.x, area.y, area.width, -area.height}, dest, origin, 0.0f,
-                tint);
+        draw_cmds.emplace_back(
+                [incoming_texture, area, dest, origin, tint]
+                {
+                    DrawTexturePro(
+                            incoming_texture, {area.x, area.y, area.width, -area.height}, dest,
+                            origin, 0.0f,
+                            tint);
+                });
     }
     else
     {
@@ -167,15 +170,24 @@ void rg::Surface::Blit(
                                     abs(incoming_texture.height) * scale};
         constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
-        DrawTexturePro(
-                incoming_texture,
-                {area.x, area.y, (float) incoming_texture.width, (float) -incoming_texture.height},
-                dest, origin, 0.0f,
-                tint);
+        draw_cmds.emplace_back(
+                [incoming_texture, area, dest, origin, tint]
+                {
+                    DrawTexturePro(
+                            incoming_texture,
+                            {area.x, area.y, (float) incoming_texture.width,
+                             (float) -incoming_texture.height},
+                            dest, origin, 0.0f,
+                            tint);
+                });
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
-        rl::EndBlendMode();
+        draw_cmds.emplace_back(
+                []
+                {
+                    rl::EndBlendMode();
+                });
     }
 }
 
@@ -187,26 +199,37 @@ void rg::Surface::Blits(
     {
         return;
     }
-    TraceLog(rl::LOG_DEBUG, rl::TextFormat("Blits %d sequences", blit_sequence.size()));
-
-    ToggleRender();
 
     // draw incoming as blended
     if (blend_mode != rl::BLEND_ALPHA)
     {
-        BeginBlendMode(blend_mode);
+        draw_cmds.emplace_back(
+                [blend_mode]
+                {
+                    rl::BeginBlendMode(blend_mode);
+                });
     }
     for (auto &[surface, offset]: blit_sequence)
     {
-        DrawTextureRec(
-                surface->GetTexture(),
-                {surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
-                 -surface->atlas_rect.height * surface->flip_atlas_height},
-                offset.vector2(), surface->m_tint);
+        draw_cmds.emplace_back(
+                [surface, offset]
+                {
+                    DrawTextureRec(
+                            surface->GetTexture(),
+                            {surface->atlas_rect.x, surface->atlas_rect.y,
+                             surface->atlas_rect.width,
+                             -surface->atlas_rect.height * surface->flip_atlas_height},
+                            offset.vector2(), surface->m_tint);
+                });
+        blits.push_back(surface);
     }
     if (blend_mode != rl::BLEND_ALPHA)
     {
-        rl::EndBlendMode();
+        draw_cmds.emplace_back(
+                []
+                {
+                    rl::EndBlendMode();
+                });
     }
 }
 
@@ -292,6 +315,29 @@ void rg::Surface::ToggleRender()
         BeginTextureModeSafe(render);
         shared_texture = nullptr;
     }
+}
+
+void rg::Surface::Draw()
+{
+    if (draw_cmds.empty())
+    {
+        return;
+    }
+
+    for (auto *blit: blits)
+    {
+        blit->Draw();
+    }
+
+    rl::BeginTextureMode(render);
+    for (auto &cmd: draw_cmds)
+    {
+        cmd();
+    }
+    rl::EndTextureMode();
+
+    draw_cmds.clear();
+    blits.clear();
 }
 
 void rg::Surface::Setup(const int width, const int height)
