@@ -167,12 +167,6 @@ void rg::draw::lines(
         Surface *surface, const rl::Color color, const bool closed,
         const std::vector<math::Vector2<float>> &points, const float width)
 {
-    TraceLog(
-            rl::LOG_TRACE, rl::TextFormat(
-                    "draw::lines render %d texture %d", surface->render.id,
-                    surface->render.texture.id));
-    surface->ToggleRender();
-
     int pointCount = points.size();
     if (closed)
     {
@@ -189,7 +183,11 @@ void rg::draw::lines(
         pts[pointCount - 1] = points[0].vector2();
     }
 
-    DrawSplineLinear(pts, pointCount, width, color);
+    surface->draw_cmds.emplace_back(
+            [pts, pointCount, width, color]
+            {
+                DrawSplineLinear(pts, pointCount, width, color);
+            });
 
     delete[] pts;
 }
