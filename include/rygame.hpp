@@ -602,9 +602,6 @@ namespace rg
         // Returns shared_texture if exists, render.texture otherwise.
         [[nodiscard]] rl::Texture2D GetTexture() const;
 
-        // Ends current render, sets this render as current
-        void ToggleRender();
-
         rl::RenderTexture2D render{};
         Rect atlas_rect{}; // atlas position
         // used when a texture comes from a different object
@@ -641,7 +638,7 @@ namespace rg
         void SetAtlas(int frame_index = 0);
         // Merge a list of Surfaces. Assumes all surfaces are same size.
         // Caller must delete returned Frame*
-        static Frames Merge(std::vector<Surface> &surfaces, int rows, int cols);
+        static Frames Merge(const std::vector<Surface> &surfaces, int rows, int cols);
         // Load an image and create frames for it
         static Frames Load(const char *file, int rows, int cols);
         void SetColorKey(rl::Color color) override;
