@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 #include <cassert>
 
 /* For use with the Cohen-Sutherland algorithm for line clipping, in SDL_rect_impl.h */
@@ -292,7 +292,7 @@ rg::Rect rg::Rect::copy() const
 
 bool rg::Rect::collidepoint(const math::Vector2<float> point) const
 {
-    return CheckCollisionPointRec(point.vector2(), rectangle());
+    return rl::CheckCollisionPointRec(point.vector2(), rectangle());
 }
 
 bool rg::Rect::collideline(
@@ -347,14 +347,14 @@ bool rg::Rect::collideline(
 
 bool rg::Rect::colliderect(const Rect &other) const
 {
-    return CheckCollisionRecs(rectangle(), other.rectangle());
+    return rl::CheckCollisionRecs(rectangle(), other.rectangle());
 }
 
 int rg::Rect::collidelist(const std::vector<Rect> &list) const
 {
     for (size_t i = 0; i < list.size(); ++i)
     {
-        if (CheckCollisionRecs(rectangle(), list[i].rectangle()))
+        if (rl::CheckCollisionRecs(rectangle(), list[i].rectangle()))
         {
             return i;
         }

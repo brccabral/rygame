@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 #ifdef WITH_TMX

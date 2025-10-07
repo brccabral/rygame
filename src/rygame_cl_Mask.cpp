@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::mask::Mask::Mask(const unsigned int width, const unsigned int height, const bool fill)
@@ -31,7 +31,7 @@ rg::mask::Mask &rg::mask::Mask::operator=(Mask &&other) noexcept
 {
     if (this != &other)
     {
-        UnloadImage(image);
+        rl::UnloadImage(image);
         image = other.image;
         atlas_rect = other.atlas_rect;
         other.image.data = nullptr;
@@ -41,7 +41,7 @@ rg::mask::Mask &rg::mask::Mask::operator=(Mask &&other) noexcept
 
 rg::mask::Mask::~Mask()
 {
-    UnloadImage(image);
+    rl::UnloadImage(image);
 }
 
 rg::Surface rg::mask::Mask::ToSurface() const

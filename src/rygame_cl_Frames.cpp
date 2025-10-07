@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::Frames::Frames(const int width, const int height, const int rows, const int cols)
@@ -106,7 +106,7 @@ void rg::Frames::SetColorKey(const rl::Color color)
     atlas_rect.height *= -1;
 
     // clean up
-    UnloadImage(current);
+    rl::UnloadImage(current);
 }
 
 rg::Frames rg::Frames::SubFrames(const Rect rect)

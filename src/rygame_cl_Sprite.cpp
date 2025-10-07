@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 // !!!!! Can't have these constructors because it can't call "this" before

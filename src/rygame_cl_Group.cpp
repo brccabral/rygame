@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::sprite::Group::Group(Group &&other) noexcept

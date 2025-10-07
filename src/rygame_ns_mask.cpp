@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::mask::Mask
@@ -18,8 +18,8 @@ rg::mask::FromSurface(const Surface *surface, const unsigned char threshold)
     }
     mask.atlas_rect = surface->atlas_rect;
 
-    UnloadImage(alphaImage);
-    UnloadImage(surfImage);
+    rl::UnloadImage(alphaImage);
+    rl::UnloadImage(surfImage);
     return mask;
 }
 
@@ -41,7 +41,7 @@ rg::mask::FromSurface(const Frames *frames, const unsigned char threshold)
     mask.atlas_rect =
             Rect{0, 0, frames->render.texture.width, frames->render.texture.height};
 
-    UnloadImage(alphaImage);
-    UnloadImage(surfImage);
+    rl::UnloadImage(alphaImage);
+    rl::UnloadImage(surfImage);
     return mask;
 }

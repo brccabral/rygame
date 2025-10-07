@@ -1,9 +1,9 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 bool rg::sprite::collide_rect(const Sprite *left, const Sprite *right)
 {
-    return CheckCollisionRecs(left->rect.rectangle(), right->rect.rectangle());
+    return rl::CheckCollisionRecs(left->rect.rectangle(), right->rect.rectangle());
 }
 
 bool rg::sprite::collide_sprite_point(const Sprite *sprite, const math::Vector2<float> &point)

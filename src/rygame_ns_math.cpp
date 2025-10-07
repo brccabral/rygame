@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 #include "rygame_cl_Rygame.hpp"
 
 

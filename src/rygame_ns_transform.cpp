@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::Surface
@@ -52,13 +52,13 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
 {
     const auto texture = surface->GetTexture();
     rl::Image toGray = LoadImageFromTextureSafe(texture);
-    ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
+    rl::ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
     const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
     auto result = Surface(texture.width, texture.height);
     UnloadTextureSafe(result.render.texture);
     result.render.texture = texGray;
     result.atlas_rect.height *= -1;
-    UnloadImage(toGray);
+    rl::UnloadImage(toGray);
 
     return result;
 }
@@ -67,13 +67,13 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
 {
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
-    ImageResize(&toScale, (int) size.x, (int) size.y);
+    rl::ImageResize(&toScale, (int) size.x, (int) size.y);
     const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
 
     auto result = Surface((int) size.x, (int) size.y);
     UnloadTextureSafe(result.render.texture);
     result.render.texture = texScale;
-    UnloadImage(toScale);
+    rl::UnloadImage(toScale);
 
     return result;
 }

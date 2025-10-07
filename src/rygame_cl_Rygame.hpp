@@ -1,5 +1,5 @@
 #pragma once
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 class Rygame

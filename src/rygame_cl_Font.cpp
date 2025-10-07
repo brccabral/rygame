@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 rg::font::Font::Font(const float font_size) : font(rl::GetFontDefault()), font_size(font_size)
@@ -25,7 +25,7 @@ rg::font::Font &rg::font::Font::operator=(Font &&other) noexcept
 {
     if (this != &other)
     {
-        UnloadFont(font);
+        rl::UnloadFont(font);
         font = other.font;
         font_size = other.font_size;
         other.font = rl::GetFontDefault(); // default font is unloaded in rl::CloseWindow()
@@ -35,7 +35,7 @@ rg::font::Font &rg::font::Font::operator=(Font &&other) noexcept
 
 rg::font::Font::~Font()
 {
-    UnloadFont(font);
+    rl::UnloadFont(font);
 }
 
 rg::Surface rg::font::Font::render(
@@ -63,6 +63,6 @@ rg::Surface rg::font::Font::render(
 
 rg::math::Vector2<float> rg::font::Font::size(const char *text) const
 {
-    const auto result = MeasureTextEx(font, text, font_size, 1);
+    const auto result = rl::MeasureTextEx(font, text, font_size, 1);
     return math::Vector2<float>{result};
 }

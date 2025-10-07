@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 #include "rygame_cl_Rygame.hpp"
 
 
@@ -59,11 +59,11 @@ void rg::mixer::Sound::Play() const
 {
     if (isMusic)
     {
-        PlayMusicStream(audio.music);
+        rl::PlayMusicStream(audio.music);
     }
     else
     {
-        PlaySound(audio.sound);
+        rl::PlaySound(audio.sound);
     }
 }
 
@@ -71,16 +71,16 @@ void rg::mixer::Sound::Stop() const
 {
     if (isMusic)
     {
-        if (IsMusicStreamPlaying(audio.music))
+        if (rl::IsMusicStreamPlaying(audio.music))
         {
-            StopMusicStream(audio.music);
+            rl::StopMusicStream(audio.music);
         }
     }
     else
     {
-        if (IsSoundPlaying(audio.sound))
+        if (rl::IsSoundPlaying(audio.sound))
         {
-            StopSound(audio.sound);
+            rl::StopSound(audio.sound);
         }
     }
 }
@@ -89,11 +89,11 @@ void rg::mixer::Sound::SetVolume(const float value) const
 {
     if (isMusic)
     {
-        SetMusicVolume(audio.music, value);
+        rl::SetMusicVolume(audio.music, value);
     }
     else
     {
-        SetSoundVolume(audio.sound, value);
+        rl::SetSoundVolume(audio.sound, value);
     }
 }
 
@@ -109,14 +109,14 @@ void rg::mixer::Sound::Unload()
         if (audio.music.stream.buffer)
         {
             std::erase(rygame->musics, this);
-            UnloadMusicStream(audio.music);
+            rl::UnloadMusicStream(audio.music);
         }
     }
     else
     {
         if (audio.sound.stream.buffer)
         {
-            UnloadSound(audio.sound);
+            rl::UnloadSound(audio.sound);
         }
     }
 }

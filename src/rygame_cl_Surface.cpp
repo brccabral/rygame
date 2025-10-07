@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 #include "rygame_cl_Rygame.hpp"
 
 
@@ -73,7 +73,7 @@ void rg::Surface::Fill(const rl::Color color)
     draw_cmds.emplace_back(
             [color]
             {
-                ClearBackground(color);
+                rl::ClearBackground(color);
             });
 }
 
@@ -89,7 +89,7 @@ void rg::Surface::SetColorKey(const rl::Color color)
     render.texture = color_texture;
 
     // clean up
-    UnloadImage(current);
+    rl::UnloadImage(current);
 }
 
 void rg::Surface::SetAlpha(const float alpha)
@@ -106,7 +106,7 @@ void rg::Surface::Blit(
 {
     if (!incoming)
     {
-        TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
+        rl::TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
         return;
     }
     Blit(incoming, offset.pos(), blend_mode, scale);
@@ -161,10 +161,9 @@ void rg::Surface::Blit(
         draw_cmds.emplace_back(
                 [incoming_texture, area, dest, origin, tint]
                 {
-                    DrawTexturePro(
+                    rl::DrawTexturePro(
                             incoming_texture, {area.x, area.y, area.width, -area.height}, dest,
-                            origin, 0.0f,
-                            tint);
+                            origin, 0.0f, tint);
                 });
     }
     else
@@ -177,12 +176,11 @@ void rg::Surface::Blit(
         draw_cmds.emplace_back(
                 [incoming_texture, area, dest, origin, tint]
                 {
-                    DrawTexturePro(
+                    rl::DrawTexturePro(
                             incoming_texture,
                             {area.x, area.y, (float) incoming_texture.width,
                              (float) -incoming_texture.height},
-                            dest, origin, 0.0f,
-                            tint);
+                            dest, origin, 0.0f, tint);
                 });
     }
     if (blend_mode != rl::BLEND_ALPHA)
@@ -218,7 +216,7 @@ void rg::Surface::Blits(
         draw_cmds.emplace_back(
                 [surface, offset]
                 {
-                    DrawTextureRec(
+                    rl::DrawTextureRec(
                             surface->GetTexture(),
                             {surface->atlas_rect.x, surface->atlas_rect.y,
                              surface->atlas_rect.width,
@@ -242,14 +240,14 @@ rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
     auto result = Surface(GetTexture().width, GetTexture().height);
 
     rl::Image toConvert = LoadImageFromTextureSafe(GetTexture());
-    ImageFormat(&toConvert, format);
+    rl::ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
     UnloadTextureSafe(result.render.texture);
     result.render.texture = converted;
     result.atlas_rect.height *= -1;
 
-    UnloadImage(toConvert);
+    rl::UnloadImage(toConvert);
     return result;
 }
 
@@ -262,7 +260,7 @@ rg::Surface rg::Surface::copy() const
     UnloadTextureSafe(result.render.texture);
     result.render.texture = copyTexture;
     result.atlas_rect.height *= -1;
-    UnloadImage(toCopy);
+    rl::UnloadImage(toCopy);
 
     result.parent = parent;
     result.m_tint = m_tint;

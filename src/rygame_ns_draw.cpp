@@ -1,4 +1,4 @@
-#include "rygame.hpp"
+#include <rygame.hpp>
 
 
 void rg::draw::rect(
@@ -17,7 +17,7 @@ void rg::draw::rect(
             surface->draw_cmds.emplace_back(
                     [rect, roundness, segments, lineThick, color]
                     {
-                        DrawRectangleRoundedLinesEx(
+                        rl::DrawRectangleRoundedLinesEx(
                                 rect.rectangle(), roundness, segments, lineThick, color);
                     });
         }
@@ -26,7 +26,7 @@ void rg::draw::rect(
             surface->draw_cmds.emplace_back(
                     [rect, lineThick, color]
                     {
-                        DrawRectangleLinesEx(rect.rectangle(), lineThick, color);
+                        rl::DrawRectangleLinesEx(rect.rectangle(), lineThick, color);
                     }
                     );
         }
@@ -42,7 +42,7 @@ void rg::draw::rect(
             surface->draw_cmds.emplace_back(
                     [rect, roundness, segments, color]
                     {
-                        DrawRectangleRounded(rect.rectangle(), roundness, segments, color);
+                        rl::DrawRectangleRounded(rect.rectangle(), roundness, segments, color);
                     }
                     );
             Rect corner = {0.0f, 0.0f, radius, radius};
@@ -52,7 +52,7 @@ void rg::draw::rect(
                 surface->draw_cmds.emplace_back(
                         [corner, color]
                         {
-                            DrawRectangleRec(corner.rectangle(), color);
+                            rl::DrawRectangleRec(corner.rectangle(), color);
                         }
                         );
             }
@@ -62,7 +62,7 @@ void rg::draw::rect(
                 surface->draw_cmds.emplace_back(
                         [corner, color]
                         {
-                            DrawRectangleRec(corner.rectangle(), color);
+                            rl::DrawRectangleRec(corner.rectangle(), color);
                         });
             }
             if (!bottomLeft)
@@ -71,7 +71,7 @@ void rg::draw::rect(
                 surface->draw_cmds.emplace_back(
                         [corner, color]
                         {
-                            DrawRectangleRec(corner.rectangle(), color);
+                            rl::DrawRectangleRec(corner.rectangle(), color);
                         });
             }
             if (!bottomRight)
@@ -80,7 +80,7 @@ void rg::draw::rect(
                 surface->draw_cmds.emplace_back(
                         [corner, color]
                         {
-                            DrawRectangleRec(corner.rectangle(), color);
+                            rl::DrawRectangleRec(corner.rectangle(), color);
                         });
             }
         }
@@ -89,7 +89,7 @@ void rg::draw::rect(
             surface->draw_cmds.emplace_back(
                     [rect, color]
                     {
-                        DrawRectangleV(rect.pos().vector2(), rect.size().vector2(), color);
+                        rl::DrawRectangleV(rect.pos().vector2(), rect.size().vector2(), color);
                     });
         }
     }
@@ -104,7 +104,7 @@ void rg::draw::circle(
         surface->draw_cmds.emplace_back(
                 [center, radius, color]
                 {
-                    DrawCircleLinesV(center.vector2(), radius, color);
+                    rl::DrawCircleLinesV(center.vector2(), radius, color);
                 });
     }
     else if (lineThick == 0)
@@ -112,7 +112,7 @@ void rg::draw::circle(
         surface->draw_cmds.emplace_back(
                 [center, radius, color]
                 {
-                    DrawCircleV(center.vector2(), radius, color);
+                    rl::DrawCircleV(center.vector2(), radius, color);
                 });
     }
 }
@@ -146,7 +146,7 @@ void rg::draw::line(
         surface->draw_cmds.emplace_back(
                 [start, end, width, color]
                 {
-                    DrawLineEx(start.vector2(), end.vector2(), width, color);
+                    rl::DrawLineEx(start.vector2(), end.vector2(), width, color);
                 });
     }
     else if (width == 1)
@@ -154,7 +154,7 @@ void rg::draw::line(
         surface->draw_cmds.emplace_back(
                 [start, end, color]
                 {
-                    DrawLineV(start.vector2(), end.vector2(), color);
+                    rl::DrawLineV(start.vector2(), end.vector2(), color);
                 });
     }
 }
@@ -182,7 +182,7 @@ void rg::draw::lines(
     surface->draw_cmds.emplace_back(
             [pts, pointCount, width, color]
             {
-                DrawSplineLinear(pts, pointCount, width, color);
+                rl::DrawSplineLinear(pts, pointCount, width, color);
             });
 
     delete[] pts;

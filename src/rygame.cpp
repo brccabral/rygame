@@ -49,18 +49,18 @@ void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
         TextFormatSafe(
                 text, "Double call to BeginTextureMode(), previous id %i new id %i",
                 rygame->current_render, render.id);
-        TraceLog(rl::LOG_WARNING, text);
+        rl::TraceLog(rl::LOG_WARNING, text);
         EndTextureModeSafe();
     }
     rygame->current_render = render.id;
-    BeginTextureMode(render);
+    rl::BeginTextureMode(render);
 }
 
 void rg::EndTextureModeSafe()
 {
     if (rygame->current_render)
     {
-        TraceLog(rl::LOG_DEBUG, rl::TextFormat("End render %d", rygame->current_render));
+        rl::TraceLog(rl::LOG_DEBUG, rl::TextFormat("End render %d", rygame->current_render));
         rl::EndTextureMode();
     }
     rygame->current_render = 0;
@@ -75,19 +75,19 @@ rl::Texture2D rg::LoadTextureSafe(const char *file)
 rl::Texture2D rg::LoadTextureFromImageSafe(const rl::Image &image)
 {
     EndTextureModeSafe();
-    return LoadTextureFromImage(image);
+    return rl::LoadTextureFromImage(image);
 }
 
 rl::Image rg::LoadImageFromTextureSafe(const rl::Texture &texture)
 {
     EndTextureModeSafe();
-    return LoadImageFromTexture(texture);
+    return rl::LoadImageFromTexture(texture);
 }
 
 void rg::UnloadTextureSafe(const rl::Texture2D &texture)
 {
     EndTextureModeSafe();
-    UnloadTexture(texture);
+    rl::UnloadTexture(texture);
 }
 
 rl::RenderTexture2D rg::LoadRenderTextureSafe(const int width, const int height)
@@ -99,19 +99,19 @@ rl::RenderTexture2D rg::LoadRenderTextureSafe(const int width, const int height)
 void rg::UnloadRenderTextureSafe(const rl::RenderTexture2D &render)
 {
     EndTextureModeSafe();
-    UnloadRenderTexture(render);
+    rl::UnloadRenderTexture(render);
 }
 
 void rg::BeginTextureModeC(const rl::RenderTexture2D &render, const rl::Color color)
 {
     BeginTextureModeSafe(render);
-    ClearBackground(color); // remove old memory
+    rl::ClearBackground(color); // remove old memory
 }
 
 void rg::BeginDrawingC(const rl::Color color)
 {
     rl::BeginDrawing();
-    ClearBackground(color);
+    rl::ClearBackground(color);
 }
 
 rl::Image rg::GenImageRandomPixels(const float width, const float height)
