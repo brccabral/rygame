@@ -245,9 +245,9 @@ namespace rg
 
             [[nodiscard]] float distance_to(const Vector2 &target) const
             {
-                auto dx = x - target.x;
-                auto dy = y - target.y;
-                return sqrtf(static_cast<float>(dx) + static_cast<float>(dy));
+                const auto dx = static_cast<float>(x - target.x);
+                const auto dy = static_cast<float>(y - target.y);
+                return sqrtf(dx * dx + dy * dy);
             }
 
             float operator[](const unsigned int &i) const
