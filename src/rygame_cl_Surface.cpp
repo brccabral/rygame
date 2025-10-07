@@ -353,6 +353,7 @@ void rg::Surface::Setup(const int width, const int height)
     atlas_rect = {0, 0, width, height};
 
     Fill(rl::BLACK);
+    Draw();
 }
 
 void rg::Surface::ApplyTexture(const rl::Texture &other) const
