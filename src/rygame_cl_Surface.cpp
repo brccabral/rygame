@@ -356,8 +356,12 @@ void rg::Surface::Setup(const int width, const int height)
     Draw();
 }
 
-void rg::Surface::ApplyTexture(const rl::Texture &other) const
+void rg::Surface::ApplyTexture(const rl::Texture &other)
 {
+    Draw();
+    UnloadRenderTextureSafe(render);
+    render = LoadRenderTextureSafe(other.width, other.height);
+    atlas_rect = {0, 0, other.width, other.height};
     BeginTextureModeSafe(render);
     rl::ClearBackground(rl::BLANK);
     rl::DrawTextureRec(

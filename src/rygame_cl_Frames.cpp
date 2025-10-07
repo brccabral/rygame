@@ -134,6 +134,12 @@ rg::Frames rg::Frames::SubFrames(const Rect rect)
     return result;
 }
 
+void rg::Frames::ApplyTexture(const rl::Texture &other)
+{
+    Surface::ApplyTexture(other);
+    atlas_rect = {0, 0, other.width / m_cols, other.height / m_rows};
+}
+
 void rg::Frames::CreateFrames(const int width, const int height, int rows, int cols)
 {
     if (rows <= 0)

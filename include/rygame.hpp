@@ -610,7 +610,7 @@ namespace rg
         std::vector<DrawCmd> draw_cmds{};
         std::vector<Surface *> blits;
         void Draw();
-        void ApplyTexture(const rl::Texture &other) const;
+        virtual void ApplyTexture(const rl::Texture &other);
 
     protected:
 
@@ -652,6 +652,8 @@ namespace rg
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         // SubSurface will have its frames updated.
         Frames SubFrames(Rect rect);
+
+        void ApplyTexture(const rl::Texture &other) override;
 
         int current_frame_index{};
         std::vector<Rect> frames{};
