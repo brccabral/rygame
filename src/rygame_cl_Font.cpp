@@ -57,6 +57,7 @@ rg::Surface rg::font::Font::render(
                         f, text, {padding_width / 2.0f, padding_height / 2.0f}, fs,
                         spacing, color);
             });
+    result.Draw();
 
     return result;
 }
