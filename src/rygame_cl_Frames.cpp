@@ -77,6 +77,7 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
 
     const auto result_texture = LoadTextureFromImageSafe(result_image);
     result.ApplyTexture(result_texture);
+    UnloadTextureSafe(result_texture);
 
     return result;
 }
@@ -87,6 +88,7 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 
     auto result = Frames(texture.width, texture.height, rows, cols);
     result.ApplyTexture(texture);
+    UnloadTextureSafe(texture);
     result.atlas_rect.height *= -1;
 
     return result;
@@ -104,6 +106,7 @@ void rg::Frames::SetColorKey(const rl::Color color)
     ApplyTexture(color_texture);
 
     // clean up
+    UnloadTextureSafe(color_texture);
     rl::UnloadImage(current);
 }
 

@@ -89,6 +89,7 @@ void rg::Surface::SetColorKey(const rl::Color color)
     ApplyTexture(color_texture);
 
     // clean up
+    UnloadTextureSafe(color_texture);
     rl::UnloadImage(current);
 }
 
@@ -246,6 +247,7 @@ rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
 
     result.ApplyTexture(converted);
 
+    UnloadTextureSafe(converted);
     rl::UnloadImage(toConvert);
     return result;
 }
@@ -257,6 +259,7 @@ rg::Surface rg::Surface::copy() const
     const rl::Image toCopy = LoadImageFromTextureSafe(texture);
     const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
     result.ApplyTexture(copyTexture);
+    UnloadTextureSafe(copyTexture);
     rl::UnloadImage(toCopy);
 
     result.parent = parent;

@@ -55,7 +55,9 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
     auto result = Surface(texture.width, texture.height);
     result.ApplyTexture(texGray);
+    UnloadTextureSafe(texGray);
     rl::UnloadImage(toGray);
+    result.atlas_rect.height *= -1;
 
     return result;
 }
@@ -69,6 +71,7 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
 
     auto result = Surface((int) size.x, (int) size.y);
     result.ApplyTexture(texScale);
+    UnloadTextureSafe(texScale);
     rl::UnloadImage(toScale);
 
     return result;
