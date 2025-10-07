@@ -80,6 +80,7 @@ void rg::Surface::Fill(const rl::Color color)
 void rg::Surface::SetColorKey(const rl::Color color)
 {
     rl::Image current = LoadImageFromTextureSafe(GetTexture());
+    rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 

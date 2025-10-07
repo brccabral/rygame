@@ -121,10 +121,6 @@ void rg::draw::bar(
         Surface *surface, const Rect rect, const float value,
         const float max_value, const rl::Color color, const rl::Color bg_color, const float radius)
 {
-    TraceLog(
-            rl::LOG_TRACE, rl::TextFormat(
-                    "draw::bar render %d texture %d", surface->render.id,
-                    surface->render.texture.id));
     const float ratio = rect.width / max_value;
     const Rect progress_rect = {
             rect.x, rect.y, math::clamp(value * ratio, 0.0f, rect.width), rect.height};

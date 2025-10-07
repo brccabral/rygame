@@ -32,6 +32,7 @@ rg::sprite::Sprite &rg::sprite::Sprite::operator=(Sprite &&other) noexcept
         // need to tell groups that there is a new sprite
         Kill();
         groups.reserve(other.groups.size());
+        result.resize(other.result.size());
         add(other.Groups());
         other.image = nullptr;
     }

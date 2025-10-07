@@ -95,12 +95,9 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 
 void rg::Frames::SetColorKey(const rl::Color color)
 {
-    TraceLog(
-            rl::LOG_TRACE,
-            rl::TextFormat(
-                    "Frames::SetColorKey render %d texture %d", render.id, render.texture.id));
     rl::Image current = LoadImageFromTextureSafe(render.texture);
-    ImageColorReplace(&current, color, rl::BLANK);
+    rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
@@ -158,7 +155,7 @@ void rg::Frames::CreateFrames(const int width, const int height, int rows, int c
         for (int c = 0; c < cols; ++c)
         {
             const float x = c * w + m_offset.x;
-            frames.push_back({x, y, w, h});
+            frames.emplace_back(x, y, w, h);
         }
     }
 }

@@ -63,19 +63,19 @@ rg::Surface rg::mask::Mask::ToSurface() const
     }
 
     const auto maskTexture = LoadTextureFromImageSafe(gen);
-    auto surface = Surface(image.width, image.height);
-    UnloadTextureSafe(surface.render.texture);
-    surface.render.texture = maskTexture;
-    surface.atlas_rect.height *= -1;
-    return surface;
+    auto result = Surface(image.width, image.height);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = maskTexture;
+    result.atlas_rect.height *= -1;
+    return result;
 }
 
 rg::Frames rg::mask::Mask::ToFrames(const int rows, const int cols) const
 {
     const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
-    auto surface = Frames(image.width, image.height, rows, cols);
-    UnloadTextureSafe(surface.render.texture);
-    surface.render.texture = maskTexture;
-    surface.SetAtlas();
-    return surface;
+    auto result = Frames(image.width, image.height, rows, cols);
+    UnloadTextureSafe(result.render.texture);
+    result.render.texture = maskTexture;
+    result.SetAtlas();
+    return result;
 }
