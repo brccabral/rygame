@@ -75,8 +75,7 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
     }
 
     const auto result_texture = LoadTextureFromImageSafe(result_image);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = result_texture;
+    result.ApplyTexture(result_texture);
 
     return result;
 }
@@ -86,8 +85,7 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
     const auto texture = LoadTextureSafe(file);
 
     auto result = Frames(texture.width, texture.height, rows, cols);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = texture;
+    result.ApplyTexture(texture);
     result.atlas_rect.height *= -1;
 
     return result;
@@ -95,15 +93,14 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 
 void rg::Frames::SetColorKey(const rl::Color color)
 {
+    Draw();
     rl::Image current = LoadImageFromTextureSafe(render.texture);
     rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    UnloadTextureSafe(render.texture);
-    render.texture = color_texture;
-    atlas_rect.height *= -1;
+    ApplyTexture(color_texture);
 
     // clean up
     rl::UnloadImage(current);

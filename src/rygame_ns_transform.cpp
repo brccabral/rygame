@@ -27,8 +27,7 @@ rg::Frames rg::transform::Flip(const Frames *frames, const bool flip_x, const bo
             frames->render.texture.width, frames->render.texture.height, frames->m_rows,
             frames->m_cols);
     result.frames = frames->frames;
-    result.Fill(rl::BLANK);
-    result.Blit(frames->render.texture, {});
+    result.ApplyTexture(frames->render.texture);
     if (flip_x)
     {
         for (auto &frame: result.frames)
@@ -55,9 +54,7 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     rl::ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
     const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
     auto result = Surface(texture.width, texture.height);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = texGray;
-    result.atlas_rect.height *= -1;
+    result.ApplyTexture(texGray);
     rl::UnloadImage(toGray);
 
     return result;
@@ -71,8 +68,7 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
     const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
 
     auto result = Surface((int) size.x, (int) size.y);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = texScale;
+    result.ApplyTexture(texScale);
     rl::UnloadImage(toScale);
 
     return result;

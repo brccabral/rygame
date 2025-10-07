@@ -610,6 +610,7 @@ namespace rg
         std::vector<DrawCmd> draw_cmds{};
         std::vector<Surface *> blits;
         void Draw();
+        void ApplyTexture(const rl::Texture &other) const;
 
     protected:
 

@@ -5,11 +5,10 @@ rg::Surface rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     const rl::Texture2D loaded_texture = LoadTextureSafe(path);
-    auto surface = Surface(loaded_texture.width, loaded_texture.height);
-    UnloadTextureSafe(surface.render.texture);
-    surface.render.texture = loaded_texture;
-    surface.atlas_rect.height *= -1;
-    return surface;
+    auto result = Surface(loaded_texture.width, loaded_texture.height);
+    result.ApplyTexture(loaded_texture);
+    result.atlas_rect.height *= -1;
+    return result;
 }
 
 std::vector<rg::Surface> rg::image::LoadFolderList(const char *path)

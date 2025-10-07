@@ -79,14 +79,14 @@ void rg::Surface::Fill(const rl::Color color)
 
 void rg::Surface::SetColorKey(const rl::Color color)
 {
+    Draw();
     rl::Image current = LoadImageFromTextureSafe(GetTexture());
     rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    UnloadTextureSafe(render.texture);
-    render.texture = color_texture;
+    ApplyTexture(color_texture);
 
     // clean up
     rl::UnloadImage(current);
@@ -243,9 +243,8 @@ rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
     rl::ImageFormat(&toConvert, format);
 
     const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = converted;
-    result.atlas_rect.height *= -1;
+
+    result.ApplyTexture(converted);
 
     rl::UnloadImage(toConvert);
     return result;
@@ -257,9 +256,7 @@ rg::Surface rg::Surface::copy() const
     auto result = Surface(texture.width, texture.height);
     const rl::Image toCopy = LoadImageFromTextureSafe(texture);
     const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
-    UnloadTextureSafe(result.render.texture);
-    result.render.texture = copyTexture;
-    result.atlas_rect.height *= -1;
+    result.ApplyTexture(copyTexture);
     rl::UnloadImage(toCopy);
 
     result.parent = parent;
@@ -356,4 +353,16 @@ void rg::Surface::Setup(const int width, const int height)
     atlas_rect = {0, 0, width, height};
 
     Fill(rl::BLACK);
+}
+
+void rg::Surface::ApplyTexture(const rl::Texture &other) const
+{
+    BeginTextureModeSafe(render);
+    rl::ClearBackground(rl::BLANK);
+    rl::DrawTextureRec(
+            other,
+            {0.0f, 0.0f, (float) other.width, -(float) other.height},
+            {},
+            rl::WHITE);
+    EndTextureModeSafe();
 }
