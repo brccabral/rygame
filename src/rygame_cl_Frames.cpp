@@ -10,11 +10,16 @@ rg::Frames::Frames(const int width, const int height, const int rows, const int 
 
 
 rg::Frames::Frames(Surface *surface, const int rows, const int cols)
-    : Frames(surface->GetRect().width, surface->GetRect().height, rows, cols)
+    : Frames(surface->GetTexture().width, surface->GetTexture().height, rows, cols)
 {
     Fill(rl::BLANK);
     Blit(surface, math::Vector2{0.0f, 0.0f});
     Draw();
+    for (auto &f: frames)
+    {
+        f.height = -f.height;
+    }
+    SetAtlas();
 }
 
 void rg::Frames::SetAtlas(const int frame_index)
