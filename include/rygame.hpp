@@ -671,20 +671,10 @@ namespace rg
         // Make sure to delete it
         Surface Load(const char *path);
         // Loads all files in a folder and returns a vector<> of new Surface*
-        // Make sure to delete them
         std::vector<Surface> LoadFolderList(const char *path);
-        // Loads all files in a folder and returns a map<> (dictionary) of new Surface*
+        // Loads all files in a folder and returns an unordered_map<> (dictionary) of new Surface*
         // where the key is the filename
-        // Make sure to delete them
         std::unordered_map<std::string, Surface> LoadFolderDict(const char *path);
-        // Walk a folder path and loads all images
-        // Returns a vector of Surface*
-        // The caller must delete Surface*
-        std::vector<Surface> ImportFolder(const char *path);
-        // Walk a folder path and loads all images
-        // Returns a map where the key is filename and values are Surface*
-        // The caller must delete Surface*
-        std::unordered_map<std::string, Surface> ImportFolderDict(const char *path);
     } // namespace image
 
     namespace draw

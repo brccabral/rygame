@@ -14,11 +14,19 @@ rg::Surface rg::image::Load(const char *path)
 std::vector<rg::Surface> rg::image::LoadFolderList(const char *path)
 {
     std::vector<Surface> surfaces;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
+    std::vector<std::string> files_path;
+    for (const auto &dirEntry: std::filesystem::directory_iterator(path))
     {
-        auto entryPath = dirEntry.path().string();
-        surfaces.push_back(Load(entryPath.c_str()));
+        files_path.push_back(dirEntry.path().string());
     }
+
+    std::ranges::sort(files_path);
+
+    for (const auto &filepath: files_path)
+    {
+        surfaces.push_back(Load(filepath.c_str()));
+    }
+
     return surfaces;
 }
 
@@ -29,31 +37,7 @@ std::unordered_map<std::string, rg::Surface> rg::image::LoadFolderDict(const cha
     {
         auto filename = dirEntry.path().stem().string();
         auto entryPath = dirEntry.path().string();
-        // ReSharper disable once CppDFAMemoryLeak
         surfaces[filename] = Load(entryPath.c_str());
     }
     return surfaces;
-}
-
-std::vector<rg::Surface> rg::image::ImportFolder(const char *path)
-{
-    std::vector<Surface> surfaces;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        surfaces.push_back(Load(entryPath.c_str()));
-    }
-    return surfaces;
-}
-
-std::unordered_map<std::string, rg::Surface> rg::image::ImportFolderDict(const char *path)
-{
-    std::unordered_map<std::string, Surface> result;
-    for (const auto &dirEntry: std::filesystem::recursive_directory_iterator(path))
-    {
-        auto entryPath = dirEntry.path().string();
-        auto filename = dirEntry.path().stem().string();
-        result[filename] = Load(entryPath.c_str());
-    }
-    return result;
 }
