@@ -24,10 +24,10 @@ rg::transform::Flip(const Surface *surface, const bool flip_x, const bool flip_y
 rg::Frames rg::transform::Flip(const Frames *frames, const bool flip_x, const bool flip_y)
 {
     auto result = Frames(
-            frames->render.texture.width, frames->render.texture.height, frames->m_rows,
+            frames->GetTexture().width, frames->GetTexture().height, frames->m_rows,
             frames->m_cols);
     result.frames = frames->frames;
-    result.ApplyTexture(frames->render.texture);
+    result.ApplyTexture(frames->GetTexture());
     if (flip_x)
     {
         for (auto &frame: result.frames)

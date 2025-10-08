@@ -26,8 +26,8 @@ rg::mask::FromSurface(const Surface *surface, const unsigned char threshold)
 rg::mask::Mask
 rg::mask::FromSurface(const Frames *frames, const unsigned char threshold)
 {
-    auto mask = Mask(frames->render.texture.width, frames->render.texture.height);
-    const rl::Image surfImage = LoadImageFromTextureSafe(frames->render.texture);
+    auto mask = Mask(frames->GetTexture().width, frames->GetTexture().height);
+    const rl::Image surfImage = LoadImageFromTextureSafe(frames->GetTexture());
     const rl::Image alphaImage = rl::ImageFromChannel(surfImage, 3);
     const auto alphaData = (unsigned char *) alphaImage.data;
     const auto maskData = (unsigned char *) mask.image.data;
@@ -39,7 +39,7 @@ rg::mask::FromSurface(const Frames *frames, const unsigned char threshold)
         }
     }
     mask.atlas_rect =
-            Rect{0, 0, frames->render.texture.width, frames->render.texture.height};
+            Rect{0, 0, frames->GetTexture().width, frames->GetTexture().height};
 
     rl::UnloadImage(alphaImage);
     rl::UnloadImage(surfImage);

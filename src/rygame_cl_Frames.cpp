@@ -43,7 +43,7 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
     const int singleHeight = surfaces[0].GetRect().height;
     auto result =
             Frames(singleWidth * cols, singleHeight * rows, rows, cols);
-    const auto result_image = LoadImageFromTextureSafe(result.render.texture);
+    const auto result_image = LoadImageFromTextureSafe(result.GetTexture());
     auto *result_data = (pixels *) result_image.data;
 
     auto index = [cols, singleWidth, singleHeight](
@@ -97,7 +97,7 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 void rg::Frames::SetColorKey(const rl::Color color)
 {
     Draw();
-    rl::Image current = LoadImageFromTextureSafe(render.texture);
+    rl::Image current = LoadImageFromTextureSafe(GetTexture());
     rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     rl::ImageColorReplace(&current, color, rl::BLANK);
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
