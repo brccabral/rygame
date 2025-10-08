@@ -8,7 +8,6 @@ rg::Surface rg::image::Load(const char *path)
     auto result = Surface(loaded_texture.width, loaded_texture.height);
     result.ApplyTexture(loaded_texture);
     UnloadTextureSafe(loaded_texture);
-    result.atlas_rect.height *= -1;
     return result;
 }
 

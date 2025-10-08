@@ -6,7 +6,6 @@ rg::Frames::Frames(const int width, const int height, const int rows, const int 
 {
     CreateFrames(width, height, rows, cols);
     atlas_rect = frames[current_frame_index];
-    flip_atlas_height = -1;
 }
 
 
@@ -16,7 +15,6 @@ rg::Frames::Frames(Surface *surface, const int rows, const int cols)
     Fill(rl::BLANK);
     Blit(surface, math::Vector2{0.0f, 0.0f});
     Draw();
-    flip_atlas_height = -1;
 }
 
 void rg::Frames::SetAtlas(const int frame_index)
@@ -89,31 +87,24 @@ rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
     auto result = Frames(texture.width, texture.height, rows, cols);
     result.ApplyTexture(texture);
     UnloadTextureSafe(texture);
-    result.atlas_rect.height *= -1;
 
     return result;
 }
 
 void rg::Frames::SetColorKey(const rl::Color color)
 {
-    Draw();
-    rl::Image current = LoadImageFromTextureSafe(GetTexture());
-    rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    rl::ImageColorReplace(&current, color, rl::BLANK);
-    const rl::Texture color_texture = LoadTextureFromImageSafe(current);
-
-    // replace
-    ApplyTexture(color_texture);
-
-    // clean up
-    UnloadTextureSafe(color_texture);
-    rl::UnloadImage(current);
+    Surface::SetColorKey(color);
+    for (auto &f: frames)
+    {
+        f.height = -f.height;
+    }
+    SetAtlas();
 }
 
 rg::Frames rg::Frames::SubFrames(const Rect rect)
 {
-    const float frame_width = frames[0].width;
-    const float frame_height = frames[0].height;
+    const float frame_width = GetRect().width;
+    const float frame_height = GetRect().height;
     const int rows = rect.height / frame_height;
     const int cols = rect.width / frame_width;
 
@@ -134,7 +125,8 @@ rg::Frames rg::Frames::SubFrames(const Rect rect)
 void rg::Frames::ApplyTexture(const rl::Texture &other)
 {
     Surface::ApplyTexture(other);
-    atlas_rect = {0, 0, other.width / m_cols, other.height / m_rows};
+    CreateFrames(other.width, other.height, m_rows, m_cols);
+    SetAtlas();
 }
 
 void rg::Frames::CreateFrames(const int width, const int height, int rows, int cols)
@@ -150,13 +142,14 @@ void rg::Frames::CreateFrames(const int width, const int height, int rows, int c
     const float w = 1.0f * width / cols;
     const float h = 1.0f * height / rows;
 
+    frames.clear();
     for (int r = 0; r < rows; ++r)
     {
         const float y = r * h + m_offset.y;
         for (int c = 0; c < cols; ++c)
         {
             const float x = c * w + m_offset.x;
-            frames.emplace_back(x, y, w, h);
+            frames.emplace_back(x, y, w, -h);
         }
     }
 }

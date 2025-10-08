@@ -618,7 +618,7 @@ namespace rg
 
         Surface *parent = nullptr;
         math::Vector2<float> m_offset{};
-        float flip_atlas_height = 1; // 1 or -1 (Frames)
+        // float flip_atlas_height = 1; // 1 or -1 (Frames)
 
         rl::Color m_tint{255, 255, 255, 255};
     };
@@ -1056,8 +1056,8 @@ namespace rg
 
     namespace transform
     {
-        Surface Flip(const Surface *surface, bool flip_x, bool flip_y);
-        Frames Flip(const Frames *frames, bool flip_x, bool flip_y);
+        Surface Flip(Surface *surface, bool flip_x, bool flip_y);
+        Frames Flip(Frames *frames, bool flip_x, bool flip_y);
         Surface GrayScale(const Surface *surface);
         Surface Scale(const Surface *surface, math::Vector2<float> size);
         Surface Scale2x(const Surface *surface);

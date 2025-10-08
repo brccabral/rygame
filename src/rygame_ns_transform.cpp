@@ -2,13 +2,14 @@
 
 
 rg::Surface
-rg::transform::Flip(const Surface *surface, const bool flip_x, const bool flip_y)
+rg::transform::Flip(Surface *surface, const bool flip_x, const bool flip_y)
 {
     auto result =
             Surface(
                     (int) surface->GetRect().width, (int) surface->GetRect().height);
     result.Fill(rl::BLANK);
-    result.Blit(surface->GetTexture(), {});
+    result.Blit(surface, rg::math::Vector2<float>{});
+    result.Draw();
     if (flip_x)
     {
         result.atlas_rect.width = -result.atlas_rect.width;
@@ -21,13 +22,17 @@ rg::transform::Flip(const Surface *surface, const bool flip_x, const bool flip_y
     return result;
 }
 
-rg::Frames rg::transform::Flip(const Frames *frames, const bool flip_x, const bool flip_y)
+rg::Frames rg::transform::Flip(Frames *frames, const bool flip_x, const bool flip_y)
 {
     auto result = Frames(
             frames->GetTexture().width, frames->GetTexture().height, frames->m_rows,
             frames->m_cols);
     result.frames = frames->frames;
-    result.ApplyTexture(frames->GetTexture());
+    result.Fill(rl::BLANK);
+    result.Blit(
+            frames->GetTexture(), rg::math::Vector2<float>{},
+            {0, 0, frames->GetTexture().width, -frames->GetTexture().height});
+    result.Draw();
     if (flip_x)
     {
         for (auto &frame: result.frames)
@@ -57,7 +62,6 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     result.ApplyTexture(texGray);
     UnloadTextureSafe(texGray);
     rl::UnloadImage(toGray);
-    result.atlas_rect.height *= -1;
 
     return result;
 }

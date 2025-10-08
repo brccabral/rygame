@@ -25,6 +25,7 @@ rg::Surface::Surface(rl::Texture2D *texture, const Rect atlas)
     {
         atlas_rect.height = texture->height;
     }
+    atlas_rect.height = -atlas_rect.height;
 }
 
 rg::Surface::Surface(Surface &&other) noexcept
@@ -46,7 +47,6 @@ rg::Surface &rg::Surface::operator=(Surface &&other) noexcept
         shared_texture = other.shared_texture;
         parent = other.parent;
         m_offset = other.m_offset;
-        flip_atlas_height = other.flip_atlas_height;
         m_tint = other.m_tint;
         draw_cmds = std::move(other.draw_cmds);
         blits = std::move(other.blits);
@@ -86,7 +86,7 @@ void rg::Surface::SetColorKey(const rl::Color color)
     const rl::Texture color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    ApplyTexture(color_texture);
+    Surface::ApplyTexture(color_texture);
 
     // clean up
     UnloadTextureSafe(color_texture);
@@ -129,7 +129,7 @@ void rg::Surface::Blit(
     Blit(
             incoming->GetTexture(), offset,
             {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
-             incoming->atlas_rect.height * incoming->flip_atlas_height},
+             -incoming->atlas_rect.height},
             blend_mode, incoming->m_tint, scale);
     blits.push_back(incoming);
 }
@@ -152,38 +152,20 @@ void rg::Surface::Blit(
                     rl::BeginBlendMode(blend_mode);
                 });
     }
-    if (area.height && area.width)
-    {
-        const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
-                                    fabsf(area.width) * scale,
-                                    fabsf(area.height) * scale};
-        constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
-        draw_cmds.emplace_back(
-                [incoming_texture, area, dest, origin, tint]
-                {
-                    rl::DrawTexturePro(
-                            incoming_texture, {area.x, area.y, area.width, -area.height}, dest,
-                            origin, 0.0f, tint);
-                });
-    }
-    else
-    {
-        const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
-                                    abs(incoming_texture.width) * scale,
-                                    abs(incoming_texture.height) * scale};
-        constexpr rl::Vector2 origin = {0.0f, 0.0f};
+    const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
+                                fabsf(area.width) * scale,
+                                fabsf(area.height) * scale};
+    constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
-        draw_cmds.emplace_back(
-                [incoming_texture, area, dest, origin, tint]
-                {
-                    rl::DrawTexturePro(
-                            incoming_texture,
-                            {area.x, area.y, (float) incoming_texture.width,
-                             (float) -incoming_texture.height},
-                            dest, origin, 0.0f, tint);
-                });
-    }
+    draw_cmds.emplace_back(
+            [incoming_texture, area, dest, origin, tint]
+            {
+                rl::DrawTexturePro(
+                        incoming_texture, area.rectangle(), dest,
+                        origin, 0.0f, tint);
+            });
+
     if (blend_mode != rl::BLEND_ALPHA)
     {
         draw_cmds.emplace_back(
@@ -221,7 +203,7 @@ void rg::Surface::Blits(
                             surface->GetTexture(),
                             {surface->atlas_rect.x, surface->atlas_rect.y,
                              surface->atlas_rect.width,
-                             -surface->atlas_rect.height * surface->flip_atlas_height},
+                             -surface->atlas_rect.height},
                             offset.vector2(), surface->m_tint);
                 });
         blits.push_back(surface);
@@ -266,15 +248,14 @@ rg::Surface rg::Surface::copy() const
     result.m_tint = m_tint;
     result.shared_texture = shared_texture;
     result.m_offset = m_offset;
-    result.flip_atlas_height = flip_atlas_height;
 
     return result;
 }
 
 rg::Rect rg::Surface::GetRect() const
 {
-    const float absWidth = atlas_rect.width > 0 ? atlas_rect.width : -atlas_rect.width;
-    const float absHeight = atlas_rect.height > 0 ? atlas_rect.height : -atlas_rect.height;
+    const float absWidth = std::fabsf(atlas_rect.width);
+    const float absHeight = std::fabsf(atlas_rect.height);
     return {0.0f, 0.0f, absWidth, absHeight};
 }
 
@@ -361,16 +342,8 @@ void rg::Surface::Setup(const int width, const int height)
 
 void rg::Surface::ApplyTexture(const rl::Texture &other)
 {
+    Fill(rl::BLANK);
+    atlas_rect = {0, 0, other.width, -other.height};
+    Blit(other, {}, atlas_rect);
     Draw();
-    UnloadRenderTextureSafe(render);
-    render = LoadRenderTextureSafe(other.width, other.height);
-    atlas_rect = {0, 0, other.width, other.height};
-    BeginTextureModeSafe(render);
-    rl::ClearBackground(rl::BLANK);
-    rl::DrawTextureRec(
-            other,
-            {0.0f, 0.0f, (float) other.width, -(float) other.height},
-            {},
-            rl::WHITE);
-    EndTextureModeSafe();
 }

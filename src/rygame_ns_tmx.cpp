@@ -10,7 +10,7 @@ rl::Texture2D *rg::tmx::GetTMXTileTexture(const rl::tmx_tile *tile, Rect *atlas_
     atlas_rect->x = tile->ul_x;
     atlas_rect->y = tile->ul_y;
     atlas_rect->width = tile->width;
-    atlas_rect->height = -(float) tile->height;
+    atlas_rect->height = tile->height;
 
     if (im && im->resource_image)
     {
@@ -56,15 +56,16 @@ rg::tmx::GetTMXLayerSurface(const rl::tmx_map *map, const rl::tmx_layer *layer)
     auto surface = Surface(
             (int) (map->width * map->tile_width), (int) (map->height * map->tile_height));
     surface.Fill(rl::BLANK);
-    auto surfaces = rg::tmx::GetTMXSurfaces(map);
+    auto surfaces = GetTMXSurfaces(map);
     // GetTMXTiles will return many Texture*, but we don't need to unload them here, only
     // at rg::UnloadTMX
     const std::vector<TileInfo> tiles = GetTMXTiles(map, layer);
     for (const auto &[position, gid]: tiles)
     {
-        const auto *s = &surfaces[gid];
-        surface.Blit(s->GetTexture(), position, s->atlas_rect);
+        auto *s = &surfaces[gid];
+        surface.Blit(s, position);
     }
+    surface.Draw();
     return surface;
 }
 
