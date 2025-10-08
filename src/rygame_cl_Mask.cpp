@@ -46,23 +46,7 @@ rg::mask::Mask::~Mask()
 
 rg::Surface rg::mask::Mask::ToSurface() const
 {
-    const auto gen = rl::GenImageColor(image.width, image.height, rl::BLANK);
-    auto *gen_data = (rl::Color *) gen.data;
-    const auto *mask_data = (unsigned char *) image.data;
-
-    for (int i = 0; i < image.width * image.height; ++i)
-    {
-        if (mask_data[i] != 0)
-        {
-            gen_data[i] = rl::WHITE;
-        }
-        else
-        {
-            gen_data[i] = rl::BLACK;
-        }
-    }
-
-    const auto maskTexture = LoadTextureFromImageSafe(gen);
+    const auto maskTexture = LoadTextureFromImageSafe(image);
     auto result = Surface(image.width, image.height);
     result.ApplyTexture(maskTexture);
     UnloadTextureSafe(maskTexture);
