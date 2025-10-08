@@ -125,13 +125,7 @@ rg::Frames rg::Frames::SubFrames(const Rect rect)
     result.m_offset = rect.pos();
 
     result.frames.clear();
-    for (const auto &frame: frames)
-    {
-        if (frame.colliderect(rect))
-        {
-            result.frames.push_back(frame);
-        }
-    }
+    result.CreateFrames(rect.width, rect.height, rows, cols);
     result.SetAtlas();
 
     return result;
