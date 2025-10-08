@@ -75,12 +75,14 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
                     result_data[rd_i] = image_data[id_i];
                 }
             }
+            rl::UnloadImage(surfImage);
         }
     }
 
     const auto result_texture = LoadTextureFromImageSafe(result_image);
     result.ApplyTexture(result_texture);
     UnloadTextureSafe(result_texture);
+    rl::UnloadImage(result_image);
 
     return result;
 }
