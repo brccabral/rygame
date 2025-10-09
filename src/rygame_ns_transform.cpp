@@ -81,8 +81,7 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
 
     auto result = Surface((int) size.x, (int) size.y);
     auto inverted_sign = std::signbit(surface->atlas_rect.height) ? 1 : -1;
-    auto area = Rect{surface->atlas_rect.x, surface->atlas_rect.y, size.x,
-                     inverted_sign * size.y};
+    auto area = Rect{0.0f, 0.0f, size.x, inverted_sign * size.y};
     auto tempSurf = Surface(&texScale);
     result.Fill(rl::BLANK);
     result.Blit(&tempSurf, rg::math::Vector2<float>{}, area);
