@@ -30,7 +30,7 @@ rg::Frames rg::transform::Flip(Frames *frames, const bool flip_x, const bool fli
     result.frames = frames->frames;
     result.Fill(rl::BLANK);
     result.Blit(
-            frames->GetTexture(), rg::math::Vector2<float>{},
+            frames, rg::math::Vector2<float>{},
             {0, 0, frames->GetTexture().width, -frames->GetTexture().height});
     result.Draw();
     if (flip_x)

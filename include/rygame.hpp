@@ -520,13 +520,13 @@ namespace rg
         [[nodiscard]] int collidelist(const std::vector<Rect> &list) const;
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
-        Line clipline(Line line) const;
+        [[nodiscard]] Line clipline(Line line) const;
         // If passed line (from start to end) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
-        Line clipline(math::Vector2<float> start, math::Vector2<float> end) const;
+        [[nodiscard]] Line clipline(math::Vector2<float> start, math::Vector2<float> end) const;
         // If passed line (from x1,y1 to x2,y2) crosses the rect, returns a new line that is just
         // inside the rect. If passed line is outside, returns an empty line {}
-        Line clipline(float x1, float y1, float x2, float y2) const;
+        [[nodiscard]] Line clipline(float x1, float y1, float x2, float y2) const;
 
         Rect operator+(const math::Vector2<float> &other) const;
         Rect &operator+=(const math::Vector2<float> &other);
@@ -562,24 +562,18 @@ namespace rg
         // Blit incoming Surface* into this.
         void
         Blit(
-                Surface *incoming, const Rect &offset,
+                Surface *incoming, const Rect &dest, const Rect &area = {},
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
-                Surface *incoming, const math::Vector2<int> &offset,
+                Surface *incoming, const math::Vector2<int> &dest, const Rect &area = {},
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
-                Surface *incoming, const math::Vector2<float> &offset,
+                Surface *incoming, const math::Vector2<float> &dest, const Rect &area = {},
                 rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
-        // Blit incoming Texture2D into surface*.
-        void
-        Blit(
-                const rl::Texture2D &incoming_texture, math::Vector2<float> offset, Rect area = {},
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA, rl::Color tint = rl::WHITE,
-                float scale = 1.0f);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
@@ -615,6 +609,12 @@ namespace rg
     protected:
 
         void Setup(int width, int height);
+        // Blit incoming Texture2D into surface*.
+        void
+        Blit(
+                const rl::Texture2D &incoming_texture, const math::Vector2<float> &offset,
+                const Rect &area = {}, rl::BlendMode blend_mode = rl::BLEND_ALPHA,
+                rl::Color tint = rl::WHITE, float scale = 1.0f);
 
         Surface *parent = nullptr;
         math::Vector2<float> m_offset{};

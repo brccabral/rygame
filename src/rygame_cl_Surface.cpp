@@ -102,7 +102,7 @@ void rg::Surface::SetAlpha(const float alpha)
 }
 
 void rg::Surface::Blit(
-        Surface *incoming, const Rect &offset, const rl::BlendMode blend_mode,
+        Surface *incoming, const Rect &dest, const Rect &area, const rl::BlendMode blend_mode,
         const float scale)
 {
     if (!incoming)
@@ -110,32 +110,50 @@ void rg::Surface::Blit(
         rl::TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
         return;
     }
-    Blit(incoming, offset.pos(), blend_mode, scale);
+    Blit(incoming, dest.pos(), area, blend_mode, scale);
 }
 
 void rg::Surface::Blit(
-        Surface *incoming, const math::Vector2<int> &offset, const rl::BlendMode blend_mode,
+        Surface *incoming, const math::Vector2<int> &dest, const Rect &area,
+        const rl::BlendMode blend_mode,
         const float scale)
 {
+    if (!incoming)
+    {
+        rl::TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
+        return;
+    }
     Blit(
-            incoming, math::Vector2{static_cast<float>(offset.x),
-                                    static_cast<float>(offset.y)}, blend_mode, scale);
+            incoming, math::Vector2{static_cast<float>(dest.x),
+                                    static_cast<float>(dest.y)}, area, blend_mode, scale);
 }
 
 void rg::Surface::Blit(
-        Surface *incoming, const math::Vector2<float> &offset,
+        Surface *incoming, const math::Vector2<float> &dest, const Rect &area,
         const rl::BlendMode blend_mode, const float scale)
 {
-    Blit(
-            incoming->GetTexture(), offset,
-            {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
-             -incoming->atlas_rect.height},
-            blend_mode, incoming->m_tint, scale);
+    if (!incoming)
+    {
+        rl::TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
+        return;
+    }
+    if (area.width || area.height)
+    {
+        Blit(incoming->GetTexture(), dest, area, blend_mode, incoming->m_tint, scale);
+    }
+    else
+    {
+        Blit(
+                incoming->GetTexture(), dest,
+                {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
+                 -incoming->atlas_rect.height},
+                blend_mode, incoming->m_tint, scale);
+    }
     blits.push_back(incoming);
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D &incoming_texture, const math::Vector2<float> offset, const Rect area,
+        const rl::Texture2D &incoming_texture, const math::Vector2<float> &offset, const Rect &area,
         const rl::BlendMode blend_mode, const rl::Color tint, const float scale)
 {
     if (!incoming_texture.id)
