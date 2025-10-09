@@ -46,18 +46,24 @@ rg::mask::Mask::~Mask()
 
 rg::Surface rg::mask::Mask::ToSurface() const
 {
-    const auto maskTexture = LoadTextureFromImageSafe(image);
+    auto maskTexture = LoadTextureFromImageSafe(image);
     auto result = Surface(image.width, image.height);
-    result.ApplyTexture(maskTexture);
+    auto tempSurf = Surface(&maskTexture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
     UnloadTextureSafe(maskTexture);
     return result;
 }
 
 rg::Frames rg::mask::Mask::ToFrames(const int rows, const int cols) const
 {
-    const rl::Texture2D maskTexture = LoadTextureFromImageSafe(image);
+    auto maskTexture = LoadTextureFromImageSafe(image);
     auto result = Frames(image.width, image.height, rows, cols);
-    result.ApplyTexture(maskTexture);
+    auto tempSurf = Surface(&maskTexture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
     UnloadTextureSafe(maskTexture);
     result.SetAtlas();
     return result;

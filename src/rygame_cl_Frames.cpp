@@ -79,8 +79,11 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
         }
     }
 
-    const auto result_texture = LoadTextureFromImageSafe(result_image);
-    result.ApplyTexture(result_texture);
+    auto result_texture = LoadTextureFromImageSafe(result_image);
+    auto tempSurf = Surface(&result_texture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
     UnloadTextureSafe(result_texture);
     rl::UnloadImage(result_image);
 
@@ -89,10 +92,13 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
 
 rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 {
-    const auto texture = LoadTextureSafe(file);
+    auto texture = LoadTextureSafe(file);
 
     auto result = Frames(texture.width, texture.height, rows, cols);
-    result.ApplyTexture(texture);
+    auto tempSurf = Surface(&texture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{}, {0, 0, texture.width, -texture.height});
+    result.Draw();
     UnloadTextureSafe(texture);
 
     return result;
@@ -129,12 +135,12 @@ rg::Frames rg::Frames::SubFrames(const Rect rect)
     return result;
 }
 
-void rg::Frames::ApplyTexture(const rl::Texture &other)
-{
-    Surface::ApplyTexture(other);
-    CreateFrames(other.width, other.height, m_rows, m_cols);
-    SetAtlas();
-}
+// void rg::Frames::ApplyTexture(const rl::Texture &other)
+// {
+//     Surface::ApplyTexture(other);
+//     CreateFrames(other.width, other.height, m_rows, m_cols);
+//     SetAtlas();
+// }
 
 void rg::Frames::CreateFrames(const int width, const int height, int rows, int cols)
 {

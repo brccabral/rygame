@@ -604,7 +604,6 @@ namespace rg
         std::vector<DrawCmd> draw_cmds{};
         std::vector<Surface *> blits;
         void Draw();
-        virtual void ApplyTexture(const rl::Texture &other);
 
     protected:
 
@@ -618,7 +617,6 @@ namespace rg
 
         Surface *parent = nullptr;
         math::Vector2<float> m_offset{};
-        // float flip_atlas_height = 1; // 1 or -1 (Frames)
 
         rl::Color m_tint{255, 255, 255, 255};
     };
@@ -652,8 +650,6 @@ namespace rg
         // as this one. SubSurface will have this as parent (GetParent, GetAbsParent).
         // SubSurface will have its frames updated.
         Frames SubFrames(Rect rect);
-
-        void ApplyTexture(const rl::Texture &other) override;
 
         int current_frame_index{};
         std::vector<Rect> frames{};

@@ -57,9 +57,15 @@ rg::Surface rg::transform::GrayScale(const Surface *surface)
     const auto texture = surface->GetTexture();
     rl::Image toGray = LoadImageFromTextureSafe(texture);
     rl::ImageFormat(&toGray, rl::PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA);
-    const rl::Texture2D texGray = LoadTextureFromImageSafe(toGray);
+    auto texGray = LoadTextureFromImageSafe(toGray);
     auto result = Surface(texture.width, texture.height);
-    result.ApplyTexture(texGray);
+    auto inverted_sign = std::signbit(surface->atlas_rect.height) ? 1 : -1;
+    auto area = Rect{surface->atlas_rect.x, surface->atlas_rect.y, surface->atlas_rect.width,
+                     inverted_sign * surface->atlas_rect.height};
+    auto tempSurf = Surface(&texGray);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{}, area);
+    result.Draw();
     UnloadTextureSafe(texGray);
     rl::UnloadImage(toGray);
 
@@ -71,10 +77,16 @@ rg::Surface rg::transform::Scale(const Surface *surface, const math::Vector2<flo
     const auto texture = surface->GetTexture();
     rl::Image toScale = LoadImageFromTextureSafe(texture);
     rl::ImageResize(&toScale, (int) size.x, (int) size.y);
-    const rl::Texture2D texScale = LoadTextureFromImageSafe(toScale);
+    auto texScale = LoadTextureFromImageSafe(toScale);
 
     auto result = Surface((int) size.x, (int) size.y);
-    result.ApplyTexture(texScale);
+    auto inverted_sign = std::signbit(surface->atlas_rect.height) ? 1 : -1;
+    auto area = Rect{surface->atlas_rect.x, surface->atlas_rect.y, size.x,
+                     inverted_sign * size.y};
+    auto tempSurf = Surface(&texScale);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{}, area);
+    result.Draw();
     UnloadTextureSafe(texScale);
     rl::UnloadImage(toScale);
 

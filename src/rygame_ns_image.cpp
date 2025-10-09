@@ -4,9 +4,12 @@
 rg::Surface rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
-    const rl::Texture2D loaded_texture = LoadTextureSafe(path);
+    auto loaded_texture = LoadTextureSafe(path);
     auto result = Surface(loaded_texture.width, loaded_texture.height);
-    result.ApplyTexture(loaded_texture);
+    auto tempSurf = Surface(&loaded_texture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
     UnloadTextureSafe(loaded_texture);
     return result;
 }

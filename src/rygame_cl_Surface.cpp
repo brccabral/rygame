@@ -83,10 +83,13 @@ void rg::Surface::SetColorKey(const rl::Color color)
     rl::Image current = LoadImageFromTextureSafe(GetTexture());
     rl::ImageFormat(&current, rl::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     rl::ImageColorReplace(&current, color, rl::BLANK);
-    const rl::Texture color_texture = LoadTextureFromImageSafe(current);
+    auto color_texture = LoadTextureFromImageSafe(current);
 
     // replace
-    Surface::ApplyTexture(color_texture);
+    auto tempSurf = Surface(&color_texture);
+    Fill(rl::BLANK);
+    Blit(&tempSurf, rg::math::Vector2<float>{});
+    Draw();
 
     // clean up
     UnloadTextureSafe(color_texture);
@@ -243,9 +246,12 @@ rg::Surface rg::Surface::convert(const rl::PixelFormat format) const
     rl::Image toConvert = LoadImageFromTextureSafe(GetTexture());
     rl::ImageFormat(&toConvert, format);
 
-    const rl::Texture2D converted = LoadTextureFromImageSafe(toConvert);
+    auto converted = LoadTextureFromImageSafe(toConvert);
 
-    result.ApplyTexture(converted);
+    auto tempSurf = Surface(&converted);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
 
     UnloadTextureSafe(converted);
     rl::UnloadImage(toConvert);
@@ -257,8 +263,11 @@ rg::Surface rg::Surface::copy() const
     const rl::Texture2D texture = GetTexture();
     auto result = Surface(texture.width, texture.height);
     const rl::Image toCopy = LoadImageFromTextureSafe(texture);
-    const rl::Texture copyTexture = LoadTextureFromImageSafe(toCopy);
-    result.ApplyTexture(copyTexture);
+    auto copyTexture = LoadTextureFromImageSafe(toCopy);
+    auto tempSurf = Surface(&copyTexture);
+    result.Fill(rl::BLANK);
+    result.Blit(&tempSurf, rg::math::Vector2<float>{});
+    result.Draw();
     UnloadTextureSafe(copyTexture);
     rl::UnloadImage(toCopy);
 
@@ -322,7 +331,7 @@ void rg::Surface::Draw()
 
     for (auto *blit: blits)
     {
-        if (blit)
+        if (blit && blit != this)
         {
             blit->Draw();
         }
@@ -358,10 +367,10 @@ void rg::Surface::Setup(const int width, const int height)
     Draw();
 }
 
-void rg::Surface::ApplyTexture(const rl::Texture &other)
-{
-    Fill(rl::BLANK);
-    atlas_rect = {0, 0, other.width, -other.height};
-    Blit(other, {}, atlas_rect);
-    Draw();
-}
+// void rg::Surface::ApplyTexture(const rl::Texture &other)
+// {
+//     Fill(rl::BLANK);
+//     atlas_rect = {0, 0, other.width, -other.height};
+//     Blit(other, {}, atlas_rect);
+//     Draw();
+// }
