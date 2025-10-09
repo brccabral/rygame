@@ -611,7 +611,7 @@ namespace rg
         // Blit incoming Texture2D into surface*.
         void
         Blit(
-                const rl::Texture2D &incoming_texture, const math::Vector2<float> &offset,
+                const rl::Texture2D &incoming_texture, const math::Vector2<float> &dest,
                 const Rect &area = {}, rl::BlendMode blend_mode = rl::BLEND_ALPHA,
                 rl::Color tint = rl::WHITE, float scale = 1.0f);
 

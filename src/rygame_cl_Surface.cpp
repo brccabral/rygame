@@ -156,7 +156,7 @@ void rg::Surface::Blit(
 }
 
 void rg::Surface::Blit(
-        const rl::Texture2D &incoming_texture, const math::Vector2<float> &offset, const Rect &area,
+        const rl::Texture2D &incoming_texture, const math::Vector2<float> &dest, const Rect &area,
         const rl::BlendMode blend_mode, const rl::Color tint, const float scale)
 {
     if (!incoming_texture.id)
@@ -174,16 +174,15 @@ void rg::Surface::Blit(
                 });
     }
 
-    const rl::Rectangle dest = {offset.vector2().x, offset.vector2().y,
-                                fabsf(area.width) * scale,
-                                fabsf(area.height) * scale};
+    const rl::Rectangle destRect = {dest.vector2().x, dest.vector2().y, fabsf(area.width) * scale,
+                                    fabsf(area.height) * scale};
     constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
     draw_cmds.emplace_back(
-            [incoming_texture, area, dest, origin, tint]
+            [incoming_texture, area, destRect, origin, tint]
             {
                 rl::DrawTexturePro(
-                        incoming_texture, area.rectangle(), dest,
+                        incoming_texture, area.rectangle(), destRect,
                         origin, 0.0f, tint);
             });
 
