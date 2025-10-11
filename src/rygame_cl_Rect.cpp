@@ -246,10 +246,17 @@ rg::Rect &rg::Rect::midright(const math::Vector2<float> pos)
     return *this;
 }
 
-rg::Rect &rg::Rect::move(const math::Vector2<float> delta)
+rg::Rect rg::Rect::move(const float dx, const float dy) const
 {
-    x += delta.x;
-    y += delta.y;
+    Rect result{x, y, width, height};
+    result.move_ip(dx, dy);
+    return result;
+}
+
+rg::Rect &rg::Rect::move_ip(const float dx, const float dy)
+{
+    x += dx;
+    y += dy;
     return *this;
 }
 

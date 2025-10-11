@@ -490,8 +490,10 @@ namespace rg
         [[nodiscard]] math::Vector2<float> midright() const;
         // Moves the rect so that the mid right goes to the passed position
         Rect &midright(math::Vector2<float> pos);
+        // Returns new rectangle moved by dx/dy
+        Rect move(float dx, float dy) const;
         // Moves the rect by delta pixels
-        Rect &move(math::Vector2<float> delta);
+        Rect &move_ip(float dx, float dy);
         // Returns a modified rect with increased/decreased sizes, but same center
         // This rect is not modified. Use `inflate_ip` for in-place
         [[nodiscard]] Rect inflate(float w, float h) const;
