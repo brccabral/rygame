@@ -93,6 +93,10 @@ rg::Frames::Merge(const std::vector<Surface> &surfaces, const int rows, const in
 rg::Frames rg::Frames::Load(const char *file, const int rows, const int cols)
 {
     auto texture = LoadTextureSafe(file);
+    if (!texture.id)
+    {
+        throw std::runtime_error("Failed to load " + std::string(file));
+    }
 
     auto result = Frames(texture.width, texture.height, rows, cols);
     auto tempSurf = Surface(&texture);

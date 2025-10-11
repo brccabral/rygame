@@ -5,6 +5,10 @@ rg::Surface rg::image::Load(const char *path)
 {
     // we Blit the loaded texture so it is considered local and unloaded in ~Surface()
     auto loaded_texture = LoadTextureSafe(path);
+    if (!loaded_texture.id)
+    {
+        throw std::runtime_error("Failed to load " + std::string(path));
+    }
     auto result = Surface(loaded_texture.width, loaded_texture.height);
     auto tempSurf = Surface(&loaded_texture);
     result.Fill(rl::BLANK);
