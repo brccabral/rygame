@@ -520,6 +520,9 @@ namespace rg
         // Tests if this rect collides with a vector<Rect>.
         // Returns the index of first collided or -1 if no collision.
         [[nodiscard]] int collidelist(const std::vector<Rect> &list) const;
+        // Test if this rect collides with a vector<Rect>.
+        // Returns all the indexes of all collided or empty vector
+        [[nodiscard]] std::vector<int> collidelistall(const std::vector<Rect> &list) const;
         // If passed line crosses the rect, returns a new line that is just inside the rect
         // If passed line is outside, returns an empty line {}
         [[nodiscard]] Line clipline(Line line) const;

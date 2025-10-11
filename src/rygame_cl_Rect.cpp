@@ -369,6 +369,20 @@ int rg::Rect::collidelist(const std::vector<Rect> &list) const
     return -1;
 }
 
+std::vector<int> rg::Rect::collidelistall(const std::vector<Rect> &list) const
+{
+    std::vector<int> result{};
+    result.reserve(list.size());
+    for (size_t i = 0; i < list.size(); ++i)
+    {
+        if (colliderect(list[i]))
+        {
+            result.push_back(i);
+        }
+    }
+    return result;
+}
+
 rg::Line rg::Rect::clipline(const Line line) const
 {
     return clipline(line.start, line.end);
