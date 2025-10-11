@@ -365,11 +365,3 @@ void rg::Surface::Setup(const int width, const int height)
     Fill(rl::BLACK);
     Draw();
 }
-
-// void rg::Surface::ApplyTexture(const rl::Texture &other)
-// {
-//     Fill(rl::BLANK);
-//     atlas_rect = {0, 0, other.width, -other.height};
-//     Blit(other, {}, atlas_rect);
-//     Draw();
-// }
