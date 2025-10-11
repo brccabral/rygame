@@ -563,17 +563,20 @@ namespace rg
         void
         Blit(
                 Surface *incoming, const Rect &dest, const Rect &area = {},
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale_width = 0.0f,
+                float scale_height = 0.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
                 Surface *incoming, const math::Vector2<int> &dest, const Rect &area = {},
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale_width = 0.0f,
+                float scale_height = 0.0f);
         // Blit incoming Surface* into this.
         void
         Blit(
                 Surface *incoming, const math::Vector2<float> &dest, const Rect &area = {},
-                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale = 1.0f);
+                rl::BlendMode blend_mode = rl::BLEND_ALPHA, float scale_width = 0.0f,
+                float scale_height = 0.0f);
         // Blit many surfaces into this. `blit_sequence` is a vector of pairs of incoming
         // surface* and offset
         void
@@ -613,7 +616,7 @@ namespace rg
         Blit(
                 const rl::Texture2D &incoming_texture, const math::Vector2<float> &dest,
                 const Rect &area = {}, rl::BlendMode blend_mode = rl::BLEND_ALPHA,
-                rl::Color tint = rl::WHITE, float scale = 1.0f);
+                rl::Color tint = rl::WHITE, float scale_width = 0.0f, float scale_height = 0.0f);
 
         Surface *parent = nullptr;
         math::Vector2<float> m_offset{};

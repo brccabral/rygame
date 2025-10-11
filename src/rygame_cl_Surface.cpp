@@ -106,20 +106,19 @@ void rg::Surface::SetAlpha(const float alpha)
 
 void rg::Surface::Blit(
         Surface *incoming, const Rect &dest, const Rect &area, const rl::BlendMode blend_mode,
-        const float scale)
+        const float scale_width, const float scale_height)
 {
     if (!incoming)
     {
         rl::TraceLog(rl::LOG_TRACE, "Incoming Surface is null");
         return;
     }
-    Blit(incoming, dest.pos(), area, blend_mode, scale);
+    Blit(incoming, dest.pos(), area, blend_mode, scale_width, scale_height);
 }
 
 void rg::Surface::Blit(
         Surface *incoming, const math::Vector2<int> &dest, const Rect &area,
-        const rl::BlendMode blend_mode,
-        const float scale)
+        const rl::BlendMode blend_mode, const float scale_width, const float scale_height)
 {
     if (!incoming)
     {
@@ -128,12 +127,13 @@ void rg::Surface::Blit(
     }
     Blit(
             incoming, math::Vector2{static_cast<float>(dest.x),
-                                    static_cast<float>(dest.y)}, area, blend_mode, scale);
+                                    static_cast<float>(dest.y)}, area, blend_mode, scale_width,
+            scale_height);
 }
 
 void rg::Surface::Blit(
         Surface *incoming, const math::Vector2<float> &dest, const Rect &area,
-        const rl::BlendMode blend_mode, const float scale)
+        const rl::BlendMode blend_mode, const float scale_width, const float scale_height)
 {
     if (!incoming)
     {
@@ -142,7 +142,9 @@ void rg::Surface::Blit(
     }
     if (area.width || area.height)
     {
-        Blit(incoming->GetTexture(), dest, area, blend_mode, incoming->m_tint, scale);
+        Blit(
+                incoming->GetTexture(), dest, area, blend_mode, incoming->m_tint, scale_width,
+                scale_height);
     }
     else
     {
@@ -150,14 +152,15 @@ void rg::Surface::Blit(
                 incoming->GetTexture(), dest,
                 {incoming->atlas_rect.x, incoming->atlas_rect.y, incoming->atlas_rect.width,
                  -incoming->atlas_rect.height},
-                blend_mode, incoming->m_tint, scale);
+                blend_mode, incoming->m_tint, scale_width, scale_height);
     }
     blits.push_back(incoming);
 }
 
 void rg::Surface::Blit(
         const rl::Texture2D &incoming_texture, const math::Vector2<float> &dest, const Rect &area,
-        const rl::BlendMode blend_mode, const rl::Color tint, const float scale)
+        const rl::BlendMode blend_mode, const rl::Color tint, const float scale_width,
+        const float scale_height)
 {
     if (!incoming_texture.id)
     {
@@ -174,8 +177,10 @@ void rg::Surface::Blit(
                 });
     }
 
-    const rl::Rectangle destRect = {dest.vector2().x, dest.vector2().y, fabsf(area.width) * scale,
-                                    fabsf(area.height) * scale};
+    const float dest_width = scale_width ? scale_width : fabsf(area.width);
+    const float dest_height = scale_height ? scale_height : fabsf(area.height);
+
+    const rl::Rectangle destRect = {dest.vector2().x, dest.vector2().y, dest_width, dest_height};
     constexpr rl::Vector2 origin = {0.0f, 0.0f};
 
     draw_cmds.emplace_back(
