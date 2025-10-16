@@ -24,6 +24,7 @@ namespace rl
 #endif
 #include <raylib.h>
 #include <raymath.h>
+#define CYAN CLITERAL(Color){0, 255, 255, 255}
 #ifdef WITH_TMX
 #include <raylib-tmx.h>
 #endif // WITH_TMX
