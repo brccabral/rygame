@@ -1069,6 +1069,7 @@ namespace rg
     namespace mouse
     {
         void set_visible(bool value);
+        math::Vector2<float> get_pos();
     };
 
 } // namespace rg
