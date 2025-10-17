@@ -39,7 +39,11 @@ void rg::Quit()
 
 bool rg::WindowCloseOrQuit()
 {
-    return rl::WindowShouldClose() || rygame->shouldQuit;
+    if (rl::WindowShouldClose())
+    {
+        rygame->shouldQuit = true;
+    }
+    return rygame->shouldQuit;
 }
 
 void rg::BeginTextureModeSafe(const rl::RenderTexture2D &render)
