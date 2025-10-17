@@ -42,6 +42,7 @@ namespace rg
     Init(
             int logLevel = rl::LOG_WARNING, unsigned int config_flags = 0,
             rl::TraceLogCallback callback = nullptr);
+    void RygameQuit();
     void Quit();
     bool WindowCloseOrQuit();
 

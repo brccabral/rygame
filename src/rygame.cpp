@@ -18,6 +18,11 @@ void rg::Init(
     rygame->isInit = true;
 }
 
+void rg::RygameQuit()
+{
+    rygame->shouldQuit = true;
+}
+
 void rg::Quit()
 {
     if (!rl::WindowShouldClose())
