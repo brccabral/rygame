@@ -123,8 +123,13 @@ rg::math::Vector2<float> rg::Rect::center() const
 
 rg::Rect &rg::Rect::center(const math::Vector2<float> pos)
 {
-    x = pos.x - width / 2.0f;
-    y = pos.y - height / 2.0f;
+    return center(pos.x, pos.y);
+}
+
+rg::Rect &rg::Rect::center(const float px, const float py)
+{
+    this->x = px - width / 2.0f;
+    this->y = py - height / 2.0f;
     return *this;
 }
 

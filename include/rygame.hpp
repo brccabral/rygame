@@ -451,6 +451,8 @@ namespace rg
         [[nodiscard]] math::Vector2<float> center() const;
         // Moves the rect so that the center goes to the passed position
         Rect &center(math::Vector2<float> pos);
+        // Moves the rect so that the center goes to the passed position
+        Rect &center(float px, float py);
         // Returns the Y value of the top
         [[nodiscard]] float top() const;
         // Moves the rect so that the top Y goes to the passed position
