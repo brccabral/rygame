@@ -32,6 +32,7 @@ target_sources(
     src/rygame_ns_image.cpp
     src/rygame_ns_mask.cpp
     src/rygame_ns_math.cpp
+    src/rygame_ns_mouse.cpp
     src/rygame_ns_sprite.cpp
     src/rygame_ns_tmx.cpp
     src/rygame_ns_transform.cpp

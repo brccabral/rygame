@@ -1066,6 +1066,11 @@ namespace rg
         Surface Scale2x(const Surface *surface);
     } // namespace transform
 
+    namespace mouse
+    {
+        void set_visible(bool value);
+    };
+
 } // namespace rg
 
 bool operator!=(const rg::math::Vector3uc &lhs, const rg::math::Vector3uc &rhs);
