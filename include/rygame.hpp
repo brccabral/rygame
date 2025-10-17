@@ -1049,6 +1049,11 @@ namespace rg
             std::string file{};
             void Unload();
         };
+
+        namespace music
+        {
+            void stop();
+        };
     } // namespace mixer
 
     namespace transform

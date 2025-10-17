@@ -121,3 +121,11 @@ void rg::mixer::Sound::Unload()
     }
 }
 
+void rg::mixer::music::stop()
+{
+    for (const auto *m: rygame->musics)
+    {
+        m->Stop();
+    }
+}
+
