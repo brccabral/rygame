@@ -17,7 +17,7 @@ public:
     std::vector<rg::mixer::Sound *> musics{};
 
     std::random_device rd{};
-    static std::mt19937 *random_gen;
+    std::mt19937 *random_gen{};
     std::map<float, std::map<float, std::uniform_real_distribution<float>>> float_dists;
     std::map<int, std::map<int, std::uniform_int_distribution<int>>> int_dists;
 

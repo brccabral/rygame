@@ -1,6 +1,11 @@
 // ReSharper disable CppClassCanBeFinal
 #pragma once
 #include <algorithm>
+#include <array>
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#endif
+#include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -18,9 +23,15 @@
 namespace rl
 {
 #ifdef _WIN32
+#ifndef NOSOUND
 #define NOSOUND
+#endif
+#ifndef MMNOSOUND
 #define MMNOSOUND
+#endif
+#ifndef MA_NO_WINMM
 #define MA_NO_WINMM
+#endif
 #endif
 #include <raylib.h>
 #include <raymath.h>
@@ -368,20 +379,30 @@ namespace rg
             int x, y, z;
         } Vector3i;
 
-        typedef union Vector3uc
+        class Vector3uc
         {
-            struct
+        public:
+
+            union
             {
-                unsigned char x{}, y{}, z{};
+                struct
+                {
+                    unsigned char x, y, z;
+                };
+
+                struct
+                {
+                    unsigned char r, g, b;
+                };
             };
 
-            struct
+            explicit Vector3uc(
+                    const unsigned char x = 0, const unsigned char y = 0,
+                    const unsigned char z = 0) : x(x), y(y), z(z)
             {
-                unsigned char r, g, b;
             };
-
             explicit Vector3uc(rl::Vector3 v);
-        } Vector3uc;
+        };
 #if !_WIN32
 #pragma GCC diagnostic pop
 #endif

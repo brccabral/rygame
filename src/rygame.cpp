@@ -5,7 +5,6 @@
 #endif
 
 Rygame *rygame = nullptr;
-std::mt19937 *Rygame::random_gen = nullptr;
 
 void rg::Init(
         const int logLevel, const unsigned int config_flags, const rl::TraceLogCallback callback)
